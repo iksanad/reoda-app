@@ -7,9 +7,27 @@
     @php
         $heroBg = asset('template/welcome-home.png');
     @endphp
+    <style>
+        .hero-banner-bg {
+            background-color: #eef5fe;
+        }
+        @media (min-width: 1024px) {
+            .hero-banner-bg {
+                background-image: url('{{ $heroBg }}');
+                /* Push it slightly off-screen to the right and bottom, and make it larger */
+                background-position: calc(100% + 40px) calc(100% + 30px);
+                background-repeat: no-repeat;
+                background-size: 850px;
+            }
+        }
+        @media (min-width: 1280px) {
+            .hero-banner-bg {
+                background-size: 950px; /* Even larger on XL screens */
+            }
+        }
+    </style>
     <!-- Hero Section Container with background image -->
-    <div class="relative overflow-hidden min-h-[500px] lg:min-h-[540px] flex items-start bg-[#eef5fe]"
-         style="background-image: url('{{ $heroBg }}'); background-position: right bottom; background-repeat: no-repeat; background-size: contain;">
+    <div class="relative overflow-hidden min-h-[500px] lg:min-h-[540px] flex items-start hero-banner-bg">
         
         
         <!-- Hero Content -->
