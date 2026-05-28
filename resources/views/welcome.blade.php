@@ -4,10 +4,14 @@
 
 @section('content')
 <div class="relative bg-white">
-    <!-- Hero Section Container -->
-    <div class="relative overflow-hidden min-h-[500px] lg:min-h-[560px] flex items-center bg-white">
+    <!-- Hero Section Container with background image -->
+    <div class="relative overflow-hidden min-h-[500px] lg:min-h-[560px] flex items-center bg-white"
+         style="background-image: url('{{ asset('template/welcome-home.png') }}'); background-position: right bottom; background-repeat: no-repeat; background-size: contain;">
         
-        <!-- Hero Content (Left and Mobile Image) -->
+        <!-- Semi-transparent overlay on the left for text readability -->
+        <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/30 lg:to-transparent pointer-events-none"></div>
+        
+        <!-- Hero Content -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 lg:pt-10 lg:pb-14 w-full z-10 relative">
             <div class="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
                 
@@ -50,7 +54,7 @@
                     </div>
                 </div>
                 
-                <!-- Mobile/Tablet Image (Hidden on Desktop) -->
+                <!-- Mobile/Tablet Image (shown below text on small screens) -->
                 <div class="mt-10 sm:mt-12 lg:hidden flex justify-center">
                     <img 
                         src="{{ asset('template/welcome-home.png') }}" 
@@ -60,15 +64,6 @@
                 </div>
                 
             </div>
-        </div>
-        
-        <!-- Desktop Image (Absolute inside the Hero container) -->
-        <div class="hidden lg:flex lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 items-end justify-end overflow-hidden pointer-events-none">
-            <img 
-                src="{{ asset('template/welcome-home.png') }}" 
-                alt="Welcome to REODA" 
-                class="w-auto h-full object-contain object-right-bottom transform translate-x-4"
-            />
         </div>
         
     </div>
