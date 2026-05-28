@@ -10,7 +10,7 @@
 </head>
 <body class="font-sans antialiased text-gray-900 bg-white">
     <!-- Navbar -->
-    <nav class="bg-white shadow-sm border-b border-gray-100">
+    <nav class="bg-[#e5efff] shadow-sm border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">

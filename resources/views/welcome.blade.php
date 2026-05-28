@@ -48,7 +48,7 @@
                     </h1>
                     
                     <p class="mt-3 text-base text-gray-500 sm:text-lg lg:text-sm xl:text-base leading-relaxed">
-                        Platform pintar terintegrasi untuk memudahkan pengelola hunian memantau properti, sekaligus membantu penyewa menemukan hunian impian mereka secara transparan dan aman.
+                        Kelola properti, penyewa, pembayaran, hingga kontrak sewa dalam satu platform terintegrasi. Efisien, aman, dan terpecaya.
                     </p>
                     
                     <!-- CTA Buttons -->
