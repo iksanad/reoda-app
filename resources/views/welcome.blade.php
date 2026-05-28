@@ -14,8 +14,8 @@
         @media (min-width: 1024px) {
             .hero-banner-bg {
                 background-image: url('{{ $heroBg }}');
-                /* Push slightly right, but keep exactly at the bottom edge so it doesn't get cut off */
-                background-position: calc(100% + 40px) 100%;
+                /* Align strictly to right and bottom so nothing gets cut off */
+                background-position: right bottom;
                 background-repeat: no-repeat;
                 background-size: 850px;
             }
@@ -42,8 +42,9 @@
                     </div>
                     
                     <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:text-4xl xl:text-5xl">
-                        <span class="block">Kelola & Sewa Hunian</span>
-                        <span class="block text-reoda mt-1">Lebih Mudah Bersama REODA</span>
+                        <span class="block">Solusi Cerdas untuk</span>
+                        <span class="block mt-1">Kelola Hunian,</span>
+                        <span class="block text-reoda mt-1">Semua Jadi Mudah</span>
                     </h1>
                     
                     <p class="mt-3 text-base text-gray-500 sm:text-lg lg:text-sm xl:text-base leading-relaxed">
