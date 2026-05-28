@@ -5,11 +5,11 @@
 @section('content')
 <div class="relative bg-white">
     <!-- Hero Section Container with background image -->
-    <div class="relative overflow-hidden min-h-[500px] lg:min-h-[560px] flex items-center bg-white"
+    <div class="relative overflow-hidden min-h-[500px] lg:min-h-[560px] flex items-center bg-[#C9F0FD]"
          style="background-image: url('{{ asset('template/welcome-home.png') }}'); background-position: right bottom; background-repeat: no-repeat; background-size: contain;">
         
         <!-- Semi-transparent overlay on the left for text readability -->
-        <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/30 lg:to-transparent pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-[#C9F0FD] via-[#C9F0FD]/90 to-[#C9F0FD]/20 lg:to-transparent pointer-events-none"></div>
         
         <!-- Hero Content -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 lg:pt-10 lg:pb-14 w-full z-10 relative">
