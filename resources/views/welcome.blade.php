@@ -27,50 +27,25 @@
                         Platform pintar terintegrasi untuk memudahkan pengelola hunian memantau properti, sekaligus membantu penyewa menemukan hunian impian mereka secara transparan dan aman.
                     </p>
                     
-                    <!-- CTA Cards Grid -->
-                    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        
-                        <!-- Card 1: Pengelola -->
-                        <div class="group relative bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-reoda/30 transition duration-300">
-                            <div class="h-10 w-10 rounded-xl bg-reoda-lightest flex items-center justify-center text-reoda mb-3 group-hover:scale-105 transition-transform duration-300">
-                                <!-- Icon Manager / Building -->
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                            </div>
-                            <h3 class="text-base font-bold text-gray-900 mb-1">Pengelola Hunian</h3>
-                            <p class="text-xs text-gray-500 mb-3">Kelola kos-kosan, kontrakan, unit apartemen, kelola kontrak penyewa & tagihan secara otomatis.</p>
-                            <a href="{{ route('register', ['role' => 'manager']) }}" class="inline-flex items-center gap-1 text-sm font-semibold text-reoda hover:text-reoda-dark">
-                                Mulai Mengelola
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            </a>
-                        </div>
-                        
-                        <!-- Card 2: Penyewa -->
-                        <div class="group relative bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-reoda/30 transition duration-300">
-                            <div class="h-10 w-10 rounded-xl bg-reoda-lightest flex items-center justify-center text-reoda mb-3 group-hover:scale-105 transition-transform duration-300">
-                                <!-- Icon Tenant / Search -->
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-base font-bold text-gray-900 mb-1">Pencari Hunian</h3>
-                            <p class="text-xs text-gray-500 mb-3">Temukan kos & kontrakan sesuai budget Anda. Bandingkan fasilitas hunian dengan mudah.</p>
-                            <a href="{{ route('register', ['role' => 'tenant']) }}" class="inline-flex items-center gap-1 text-sm font-semibold text-reoda hover:text-reoda-dark">
-                                Cari Hunian
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            </a>
-                        </div>
-                        
-                    </div>
-                    
-                    <!-- Secondary CTAs -->
-                    <div class="mt-5 flex items-center justify-center lg:justify-start gap-4">
-                        <a href="{{ route('compare.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-reoda transition duration-200">
-                            <svg class="h-5 w-5 text-gray-400 group-hover:text-reoda" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <!-- CTA Buttons -->
+                    <div class="mt-6 flex flex-col sm:flex-row items-center sm:items-start lg:items-start gap-3 sm:justify-center lg:justify-start">
+                        <a href="{{ route('register', ['role' => 'manager']) }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-reoda hover:bg-reoda-dark transition shadow-sm">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            Gabung Pengelola
+                        </a>
+                        <a href="{{ route('register', ['role' => 'tenant']) }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-reoda-dark bg-reoda-lightest hover:bg-reoda-lighter transition">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Cari Hunian
+                        </a>
+                        <a href="{{ route('compare.index') }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-gray-600 border border-gray-200 hover:border-reoda/30 hover:text-reoda transition">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                             </svg>
-                            ⚡ Bandingkan Fasilitas Hunian
+                            Bandingkan
                         </a>
                     </div>
                 </div>
