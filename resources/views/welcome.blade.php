@@ -3,10 +3,13 @@
 @section('title', 'REODA - Kelola & Cari Hunian Impian Anda')
 
 @section('content')
-<div class="relative bg-white">
+<div class="relative bg-[#E6EFFF]">
+    @php
+        $heroBg = asset('template/welcome-home.png');
+    @endphp
     <!-- Hero Section Container with background image -->
     <div class="relative overflow-hidden min-h-[500px] lg:min-h-[560px] flex items-center bg-[#eef5fe]"
-         style="background-image: url('{{ asset('template/welcome-home.png') }}'); background-position: right bottom; background-repeat: no-repeat; background-size: contain;">
+         style="background-image: url('{{ $heroBg }}'); background-position: right bottom; background-repeat: no-repeat; background-size: contain;">
         
         
         <!-- Hero Content -->
