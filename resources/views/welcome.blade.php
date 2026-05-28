@@ -1,45 +1,112 @@
 @extends('layouts.guest')
 
-@section('title', 'REODA - Solusi Sewa Hunian Anda')
+@section('title', 'REODA - Kelola & Cari Hunian Impian Anda')
 
 @section('content')
-<div class="relative bg-white overflow-hidden">
-    <div class="max-w-7xl mx-auto">
-        <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-            <svg class="hidden lg:block absolute right-0 inset-y-0 h-full w-48 text-white transform translate-x-1/2" fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                <polygon points="50,0 100,0 50,100 0,100" />
-            </svg>
-
-            <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-                <div class="sm:text-center lg:text-left">
-                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                        <span class="block xl:inline">Manajemen hunian</span>
-                        <span class="block text-reoda">lebih mudah & efisien</span>
-                    </h1>
-                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                        REODA adalah platform terpadu untuk mencari, menyewa, dan mengelola properti seperti kos, kontrakan, dan apartemen. Tersedia untuk penyewa dan pengelola.
-                    </p>
-                    <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start gap-3 flex-wrap">
-                        <a href="{{ route('register') }}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-reoda hover:bg-reoda-dark md:py-4 md:text-lg transition shadow-sm">
-                            Mulai Sekarang
-                        </a>
-                        <a href="{{ route('login') }}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-reoda-dark bg-reoda-lightest hover:bg-reoda-lighter md:py-4 md:text-lg transition">
-                            Masuk Akun
-                        </a>
-                        <a href="{{ route('compare.index') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3 border-2 border-reoda text-base font-medium rounded-md text-reoda hover:bg-reoda/5 md:py-4 md:text-lg transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+<div class="relative overflow-hidden bg-white">
+    <!-- Hero Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 lg:pt-24 lg:pb-28">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
+            
+            <!-- Left Content Column -->
+            <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-reoda-lightest text-reoda-dark text-sm font-semibold mb-6">
+                    <span class="flex h-2 w-2 rounded-full bg-reoda"></span>
+                    Sistem Sewa Hunian Masa Kini
+                </div>
+                
+                <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
+                    <span class="block">Kelola & Sewa Hunian</span>
+                    <span class="block text-reoda mt-2">Lebih Mudah Bersama REODA</span>
+                </h1>
+                
+                <p class="mt-4 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl leading-relaxed">
+                    Platform pintar terintegrasi untuk memudahkan pengelola hunian memantau properti, sekaligus membantu penyewa menemukan hunian impian mereka secara transparan dan aman.
+                </p>
+                
+                <!-- CTA Cards Grid -->
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    
+                    <!-- Card 1: Pengelola -->
+                    <div class="group relative bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-reoda/30 transition duration-300">
+                        <div class="h-12 w-12 rounded-xl bg-reoda-lightest flex items-center justify-center text-reoda mb-4 group-hover:scale-105 transition-transform duration-300">
+                            <!-- Icon Manager / Building -->
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
-                            Bandingkan Hunian
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">Pengelola Hunian</h3>
+                        <p class="text-xs text-gray-500 mb-4">Kelola kos-kosan, kontrakan, unit apartemen, kelola kontrak penyewa & tagihan secara otomatis.</p>
+                        <a href="{{ route('register', ['role' => 'manager']) }}" class="inline-flex items-center gap-1 text-sm font-semibold text-reoda hover:text-reoda-dark">
+                            Mulai Mengelola
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </a>
                     </div>
+                    
+                    <!-- Card 2: Penyewa -->
+                    <div class="group relative bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-reoda/30 transition duration-300">
+                        <div class="h-12 w-12 rounded-xl bg-reoda-lightest flex items-center justify-center text-reoda mb-4 group-hover:scale-105 transition-transform duration-300">
+                            <!-- Icon Tenant / Search -->
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">Pencari Hunian</h3>
+                        <p class="text-xs text-gray-500 mb-4">Temukan kos & kontrakan sesuai budget Anda. Bandingkan fasilitas hunian dengan mudah.</p>
+                        <a href="{{ route('register', ['role' => 'tenant']) }}" class="inline-flex items-center gap-1 text-sm font-semibold text-reoda hover:text-reoda-dark">
+                            Cari Hunian
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
+                    
                 </div>
-            </main>
+                
+                <!-- Secondary CTAs -->
+                <div class="mt-6 flex items-center justify-center lg:justify-start gap-4">
+                    <a href="{{ route('compare.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-reoda transition duration-200">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-reoda" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        ⚡ Bandingkan Fasilitas Hunian
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Right Mockup Column -->
+            <div class="mt-12 sm:mt-16 lg:mt-0 lg:col-span-6 flex justify-center">
+                <div class="relative w-full max-w-md lg:max-w-none">
+                    <!-- Decorative backdrops -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-tr from-reoda-lighter/40 to-reoda-lightest/40 rounded-[2.5rem] -rotate-3 blur-sm -z-10"></div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[105%] h-[105%] bg-gradient-to-br from-reoda-light/10 to-reoda-dark/5 rounded-[2rem] rotate-3 blur-xs -z-10"></div>
+                    
+                    <!-- Main Welcome Home Asset -->
+                    <img 
+                        src="{{ asset('template/welcome-home.png') }}" 
+                        alt="Welcome to REODA" 
+                        class="w-full h-auto rounded-3xl object-contain drop-shadow-xl hover:scale-[1.02] transition duration-500 ease-out"
+                    />
+                </div>
+            </div>
+            
         </div>
     </div>
-    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-100">
-        <div class="h-56 w-full sm:h-72 md:h-96 lg:w-full lg:h-full bg-gradient-to-tr from-reoda-dark to-reoda-light flex items-center justify-center">
-             <img src="{{ asset('template/logo/Reoda-003648.png') }}" alt="REODA" class="h-32 opacity-20 filter grayscale">
+
+    <!-- Info / Feature Limitation Banner -->
+    <div class="bg-gray-50 border-y border-gray-100 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Ingin Menyewa Hunian?</h2>
+            <p class="text-sm text-gray-500 max-w-xl mx-auto mb-6">
+                Untuk melakukan pengajuan sewa, mengunggah dokumen, dan membayar sewa, Anda diharuskan mendaftar dan masuk sebagai **Penyewa** terlebih dahulu demi keamanan data Anda.
+            </p>
+            <div class="inline-flex items-center gap-3">
+                <a href="{{ route('register', ['role' => 'tenant']) }}" class="bg-reoda hover:bg-reoda-dark text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm">
+                    Buat Akun Penyewa
+                </a>
+                <span class="text-gray-400">atau</span>
+                <a href="{{ route('login') }}" class="text-reoda hover:text-reoda-dark text-sm font-semibold transition">
+                    Masuk ke Akun Anda
+                </a>
+            </div>
         </div>
     </div>
 </div>

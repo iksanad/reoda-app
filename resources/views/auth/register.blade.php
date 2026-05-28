@@ -3,7 +3,7 @@
 @section('title', 'Daftar - REODA')
 
 @section('content')
-<div class="max-w-md mx-auto" x-data="{ role: 'tenant' }">
+<div class="max-w-md mx-auto" x-data="{ role: '{{ request()->query('role', 'tenant') }}' }">
     <div class="mb-8 text-center md:text-left">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Buat Akun Baru</h1>
         <p class="text-gray-500">Bergabung dengan REODA untuk kemudahan pengelolaan sewa.</p>
