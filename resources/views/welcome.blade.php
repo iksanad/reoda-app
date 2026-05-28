@@ -8,12 +8,12 @@
         $heroBg = asset('template/welcome-home.png');
     @endphp
     <!-- Hero Section Container with background image -->
-    <div class="relative overflow-hidden min-h-[500px] lg:min-h-[560px] flex items-center bg-[#eef5fe]"
+    <div class="relative overflow-hidden min-h-[500px] lg:min-h-[540px] flex items-start bg-[#eef5fe]"
          style="background-image: url('{{ $heroBg }}'); background-position: right bottom; background-repeat: no-repeat; background-size: contain;">
         
         
         <!-- Hero Content -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 lg:pt-10 lg:pb-14 w-full z-10 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 lg:pt-16 lg:pb-16 w-full z-10 relative">
             <div class="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
                 
                 <!-- Left Content Column -->
