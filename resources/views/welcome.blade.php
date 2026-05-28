@@ -67,7 +67,7 @@
             <img 
                 src="{{ asset('template/welcome-home.png') }}" 
                 alt="Welcome to REODA" 
-                class="w-auto h-[95%] max-h-[500px] object-contain object-right-bottom transform translate-x-4 translate-y-2 scale-100"
+                class="w-auto h-full object-contain object-right-bottom transform translate-x-4"
             />
         </div>
         
