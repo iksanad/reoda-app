@@ -14,8 +14,8 @@
         @media (min-width: 1024px) {
             .hero-banner-bg {
                 background-image: url('{{ $heroBg }}');
-                /* Push it slightly off-screen to the right and bottom, and make it larger */
-                background-position: calc(100% + 40px) calc(100% + 30px);
+                /* Push slightly right, but keep exactly at the bottom edge so it doesn't get cut off */
+                background-position: calc(100% + 40px) 100%;
                 background-repeat: no-repeat;
                 background-size: 850px;
             }
