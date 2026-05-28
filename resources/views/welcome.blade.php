@@ -3,9 +3,9 @@
 @section('title', 'REODA - Kelola & Cari Hunian Impian Anda')
 
 @section('content')
-<div class="relative overflow-hidden bg-white">
+<div class="relative overflow-hidden bg-white min-h-[calc(100vh-4rem)] flex flex-col justify-between">
     <!-- Hero Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 lg:pt-24 lg:pb-28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 lg:py-24 w-full my-auto z-10 relative">
         <div class="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
             
             <!-- Left Content Column -->
@@ -72,27 +72,29 @@
                 </div>
             </div>
             
-            <!-- Right Mockup Column -->
-            <div class="mt-12 sm:mt-16 lg:mt-0 lg:col-span-6 flex justify-center">
-                <div class="relative w-full max-w-md lg:max-w-none">
-                    <!-- Decorative backdrops -->
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-tr from-reoda-lighter/40 to-reoda-lightest/40 rounded-[2.5rem] -rotate-3 blur-sm -z-10"></div>
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[105%] h-[105%] bg-gradient-to-br from-reoda-light/10 to-reoda-dark/5 rounded-[2rem] rotate-3 blur-xs -z-10"></div>
-                    
-                    <!-- Main Welcome Home Asset -->
-                    <img 
-                        src="{{ asset('template/welcome-home.png') }}" 
-                        alt="Welcome to REODA" 
-                        class="w-full h-auto rounded-3xl object-contain drop-shadow-xl hover:scale-[1.02] transition duration-500 ease-out"
-                    />
-                </div>
+            <!-- Mobile/Tablet Image (Hidden on Desktop) -->
+            <div class="mt-12 sm:mt-16 lg:hidden flex justify-center">
+                <img 
+                    src="{{ asset('template/welcome-home.png') }}" 
+                    alt="Welcome to REODA" 
+                    class="w-full max-w-md object-contain"
+                />
             </div>
             
         </div>
     </div>
+    
+    <!-- Desktop Image (Absolute on Desktop, Hidden on Mobile/Tablet) -->
+    <div class="hidden lg:flex lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 items-end justify-end overflow-hidden pointer-events-none h-full">
+        <img 
+            src="{{ asset('template/welcome-home.png') }}" 
+            alt="Welcome to REODA" 
+            class="w-auto h-[92%] max-h-[850px] object-contain object-right-bottom transform translate-x-12 translate-y-6 scale-110"
+        />
+    </div>
 
     <!-- Info / Feature Limitation Banner -->
-    <div class="bg-gray-50 border-y border-gray-100 py-12">
+    <div class="bg-gray-50 border-t border-gray-100 py-12 z-20 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Ingin Menyewa Hunian?</h2>
             <p class="text-sm text-gray-500 max-w-xl mx-auto mb-6">
