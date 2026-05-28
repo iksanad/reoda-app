@@ -1,0 +1,753 @@
+PROJECT UTS
+RINTISAN BISNIS DIGITAL
+Reoda (Rental Occupancy Data)
+
+Anggota Kelompok :
+
+1. Damayanti Mastania Ulfa  2. Syakila Kusumanda Risti P  3. Iksan Arya Dinata   4. Gianluki Akbar   
+
+13.2023.1.01194  13.2023.1.01171  13.2023.1.01157  13.2023.1.01193 
+
+Hustler Hipster Hacker Hipster
+
+DESKRIPSI UMUM
+Reoda merupakan platform digital berbasis aplikasi yang berfokus pada digitalisasi pengelolaan dan pencarian sewa hunian dalam satu sistem terintegrasi. Di tengah meningkatnya kebutuhan hunian sewa, khususnya di kalangan mahasiswa dan pekerja perantau, masih banyak proses yang berjalan tidak efisien, seperti pembayaran yang bergantung pada pertemuan langsung, pencatatan transaksi yang tersebar, serta komunikasi yang tidak selalu responsif antara penyewa dan pengelola.
+Reoda hadir sebagai solusi dengan menggabungkan dua fungsi utama yang selama ini terpisah, yaitu pencarian hunian dan manajemen sewa dalam satu platform. Melalui sistem ini, pengguna dapat mengakses seluruh proses sewa secara lebih mudah, cepat, dan transparan
+Beberapa keunggulan utama Reoda meliputi:
+ Integrasi pencarian hunian dan pengelolaan sewa dalam satu platform  Sistem pembayaran digital yang fleksibel dan mudah diakses  Notifikasi otomatis untuk pengingat jatuh tempo pembayaran  Riwayat transaksi yang tersimpan secara terpusat dan transparan  Kemudahan komunikasi antara penyewa dan pengelola
+Bagi pengelola hunian, Reoda memberikan kemudahan dalam mengelola data penyewa, memantau pembayaran, serta mengakses laporan secara terstruktur. Sementara itu, bagi penyewa, Reoda menghadirkan kemudahan dalam melakukan pembayaran, memantau status sewa, serta mencari hunian sesuai kebutuhan.
+Secara bisnis, Reoda mengusung model platform digital dengan sumber pendapatan dari:
+ Biaya layanan transaksi pembayaran  Komisi dari transaksi penyewaan  Layanan berlangganan (subscription) bagi pengelola  Fitur promosi atau listing hunian
+Dengan kebutuhan pasar yang terus berkembang dan minimnya platform yang mengintegrasikan seluruh proses sewa dalam satu sistem, Reoda memiliki peluang besar untuk berkembang sebagai solusi digital yang relevan dan berkelanjutan di bidang hunian sewa.
+
+ROLE DAN DELIVERABLE
+
+1. HIPSTER - User Experience & Design Hipster bertanggung jawab atas aspek pengalaman pengguna (UX) dan desain antarmuka
+(UI) platform startup. Fokus utama adalah memahami kebutuhan pengguna, merancang journey yang intuitif, dan menciptakan prototype visual yang memudahkan validasi concept dengan calon pengguna.
+
+1.1 User Mapping User Persona [Gianluki Akbar - 13.2023.1.01193]
+
+Ringkasan Persona
+
+Nama Ocha
+
+Usia & Lokasi 25 th · Bali
+
+Role Penyewa Kos
+
+Segment Penyewa
+
+Haris Jeriko Dewi
+
+23 th · Maluku Utara 23 th · Jakarta 25 th · Surabaya
+
+Penyewa Hunian Penyewa Kos Pengelola Kontrakan
+
+Penyewa Penyewa Pengelola
+
+01 Kak Ocha -- penyewa
+
+Ocha · 25 tahun
+penyewa
+
+Lokasi Pekerjaan Pendapatan Tech Level
+
+Bali Admin Marketing ± Rp 4.000.000 / bulan  Mahir
+
+ Goals
+ Menemukan kos dengan lingkungan dan fasilitas yang sesuai ekspektasi  Mendapat validasi konfirmasi pembayaran secara langsung tanpa menunggu lama  Punya riwayat pembayaran yang mudah diakses kapan saja tanpa scroll chat  Komunikasi dengan pemilik kos yang lebih terstruktur dan tepat waktu
+
+ Pain Points
+ Pemilik kos tidak berada di lokasi -- beda daerah, semua komunikasi via WA  Laporan pembayaran hanya dari riwayat chat yang harus di-scroll ke atas  Pemilik kos sering slow respon, sehingga validasi pembayaran tidak real-time  Tidak ada sistem reminder jatuh tempo -- semua pengingat manual dari pemilik  Saat survey kos, sulit memastikan kondisi lingkungan sesuai atau tidak
+
+ Motivasi
+ Sistem komunikasi yang lebih terstruktur antara penyewa dan pemilik kos  Kemudahan mengakses riwayat pembayaran tanpa bergantung pada chat WA  Ketenangan pikiran dengan konfirmasi pembayaran yang cepat dan jelas
+
+ Skenario Saat Ini  Bayar sewa lewat transfer bank, konfirmasi by chat WhatsApp ke pemilik kos  Cari riwayat pembayaran dengan scroll chat WA -- makan waktu dan tidak praktis  Kesulitan menghubungi pemilik saat butuh konfirmasi pembayaran segera
+"
+"Kalau mau cari riwayat pembayaran harus scroll chat ke atas. Terus kalau pemilik kos slow respon, bayar kos jadi drama tersendiri."
+
+02 Kak Haris -- Penyewa
+Haris · 23 tahun
+penyewa
+Lokasi Pekerjaan Pendapatan Tech Level
+
+Maluku Utara Pegawai Negeri Sipil (PNS) ± Rp 4.000.000 / bulan  Mahir
+
+ Goals
+ Proses pembayaran sewa yang simpel, cepat, dan tanpa hambatan  Menghubungi pengelola dengan mudah saat ingin melakukan pembayaran  Konfirmasi pembayaran yang langsung dan tidak bergantung pada ketersediaan pihak lain
+
+ Pain Points
+ Kendala terbesar adalah menghubungi pengelola saat ingin membayar sewa  Proses pembayaran tergantung pada pengelola yang tidak selalu mudah dihubungi  Tidak ada sistem reminder -- mengandalkan kalender pribadi untuk ingat jatuh tempo
+
+ Motivasi
+ Aplikasi pembayaran sewa yang simpel dan bisa diakses kapan saja  Tidak perlu bolak-balik menghubungi pengelola hanya untuk urusan bayar sewa  Kemudahan dan kecepatan transaksi tanpa hambatan komunikasi
+
+ Skenario Saat Ini  Bayar sewa via transfer ke nomor rekening yang sudah diberikan dari awal  Tandai tanggal jatuh tempo secara manual di kalender HP pribadi  Menghubungi pengelola terlebih dahulu setiap kali ingin melakukan pembayaran
+"
+"Kendala terbesarnya itu menghubungi pengelola saat mau bayar. Kalau ada aplikasi yang simpel dan cepat, saya pasti tertarik."
+
+03 Kak Jeriko -- Penyewa
+
+Jeriko · 23 tahun
+penyewa
+Lokasi
+Pekerjaan
+Pendapatan Tech Level
+
+Jakarta Junior Full Stack Developer ± Rp 7.000.000 / bulan  Expert
+
+ Goals
+ Reminder otomatis jatuh tempo agar tidak terlambat bayar kos  Komunikasi dua arah yang responsif dengan pengelola kos  Histori pembayaran yang rapi dan mudah dicek kapan saja  Pelaporan kendala properti (pipa bocor, listrik mati) yang bisa direspons cepat
+
+ Pain Points
+ Pengelola kos tidak tinggal di lokasi -- tinggal di tempat lain  Chat ke pengelola soal kendala (pipa bocor, listrik mati) sering tidak dibalas  Harus menunggu lama ketika ada masalah di kos yang butuh penanganan cepat  Kadang lupa bayar sewa 1­2 hari karena tidak ada reminder otomatis
+
+ Motivasi
+ Fitur reminder pembayaran otomatis yang mengurangi risiko keterlambatan  Komunikasi dua arah yang terstruktur dengan pengelola dalam satu platform  Pengelolaan histori pembayaran yang lebih rapi dan mudah diakses
+
+ Skenario Saat Ini  Bayar sewa lewat BCA Mobile Banking setiap bulan  Mengandalkan ingatan sendiri untuk tanggal jatuh tempo -- kadang telat 1­2 hari  Chat pengelola lewat WA untuk laporkan kendala, sering tidak langsung direspons
+"
+"Saya tertarik apalagi kalau ada fitur reminder, komunikasi 2 arah sama pengelola, dan bisa manage histori bayar kos dengan lebih rapi."
+
+04 Kak Dewi -- Property Manager
+
+Dewi · 25 tahun
+Pengelola Kontrakan
+
+Lokasi Pekerjaan Pendapatan Tech Level
+
+Surabaya Pengelola Kontrakan Dari hasil sewa kontrakan  Dasar
+
+ Goals
+ Peringatan jatuh tempo terkirim otomatis ke penyewa tanpa harus manual  Pencatatan pembayaran yang aman dan tidak mudah terlewat  Histori transaksi yang mudah diakses tanpa bergantung pada satu perangkat
+
+ Pain Points
+ Pembukuan dilakukan manual -- dicatat lewat HP sehingga rawan terlewat  Pernah ada pencatatan yang luput, harus tanya ulang ke penyewa untuk konfirmasi  Sering ada keterlambatan pembayaran dengan berbagai alasan dari penyewa  Pengingat jatuh tempo masih dilakukan manual via chat atau telepon
+
+ Motivasi
+ Notifikasi dan reminder jatuh tempo yang bisa dikirim otomatis ke penyewa  Mengurangi miskomunikasi dan kebutuhan menagih satu per satu secara manual  Pencatatan yang lebih akurat dan tidak tergantung pada catatan di HP pribadi
+
+ Skenario Saat Ini  Pembayaran mayoritas cash (langsung 2 tahun untuk kontrakan), kadang via transfer  Catat pembayaran manual lewat HP, sesekali ada yang luput dan harus dikonfirmasi ulang  Ingatkan penyewa soal jatuh tempo lewat chat atau telepon setiap bulan
+"
+"Pernah ada yang luput dicatat karena cuma pakai HP. Kalau ada sistem yang bisa kasih notifikasi jatuh tempo otomatis, itu sangat membantu."
+
+1.2 Low Fidelity Design (Wireframe) [Syakila Kusumanda Risti Putri - 13.2023.1.01171] Prototype aplikasi REODA dirancang sebagai aplikasi pengelolaan data dan layanan
+penghuni/perumahan dengan fokus pada kemudahan navigasi, tampilan sederhana, dan efisiensi akses informasi. Desain wireframe dibuat dengan pendekatan minimalis agar pengguna dapat memahami fungsi aplikasi tanpa distraksi visual.
+Link Prototype REODA : Prototype REODA Figma
+Daftar Screen Wireframe
+Role Pengguna
+Prototype aplikasi REODA memiliki 2 role utama yaitu:
+1. Penyewa 2. Pengelola
+Masing-masing role memiliki dashboard dan fitur yang berbeda sesuai kebutuhan pengguna.
+Berdasarkan prototype Figma, dashboard penyewa berfokus pada layanan penghuni dan transaksi pribadi, sedangkan dashboard pengelola berfokus pada pengelolaan properti, data penyewa, pembayaran, dan laporan.
+Selain dashboard utama, kedua role juga memiliki halaman login dan registrasi (sign up) masing-masing.
+A. Wireframe Role Penyewa
+Screen utama pada role penyewa berdasarkan prototype:
+ Login Penyewa  Sign Up Penyewa  Profil  Transaksi  Laporan  Riwayat  Layanan  Pengaturan  Explore Market
+1. Login Screen
+Fungsi
+
+Digunakan penyewa maupun pengelola untuk masuk ke sistem.
+Elemen Utama  Input email/username  Input password  Tombol login  Link lupa password  Tombol daftar akun
+CTA (Call-To-Action)  Tombol "Login"  Tombol "Daftar"
+Flow Navigasi Login  Dashboard Penyewa Login  Dashboard Pengelola Alasan Desain Layout dibuat sederhana agar proses login cepat dan mudah dipahami. 2. Register Screen Fungsi Digunakan penyewa untuk membuat akun baru. Elemen Utama
+ Input nama lengkap  Input email  Input nomor telepon  Input password  Input kode referral pengelola  Tombol daftar CTA (Call-To-Action) Tombol "Daftar Akun" Flow Navigasi Register  Login Alasan Desain
+
+Mendukung registrasi mandiri maupun menggunakan kode referral dari pengelola. 3. Profil Penyewa
+Fungsi Mengelola data akun penyewa. Elemen Utama
+ Foto profil  Data diri  Pengaturan akun  Tombol logout CTA (Call-To-Action)  Tombol edit profil  Tombol logout Flow Navigasi Dashboard  Profil  Edit Profil Alasan Desain Memudahkan pengguna dalam mengelola informasi akun pribadi. 4. Pembayaran Tagihan / Transaksi Screen Fungsi Digunakan penyewa untuk melakukan pembayaran tagihan. Elemen Utama  Daftar tagihan  Nominal pembayaran  Metode pembayaran  Riwayat pembayaran CTA (Call-To-Action) Tombol Pembayaran Flow Navigasi Dashboard  Pembayaran  Konfirmasi Pembayaran Alasan Desain
+
+Fokus utama berada pada nominal dan tombol pembayaran agar transaksi lebih mudah dilakukan.
+5. Riwayat / Laporan Pembayaran Penyewa
+Fungsi
+Menampilkan histori pembayaran penyewa.
+Elemen Utama  List histori pembayaran  Status pembayaran  Filter tanggal  Detail transaksi
+CTA (Call-To-Action)  Tombol lihat detail  Tombol download bukti pembayaran
+Flow Navigasi
+Dashboard  Riwayat Pembayaran  Detail
+Alasan Desain
+Menggunakan tampilan list sederhana agar data transaksi mudah dibaca.
+6. Layanan Screen
+Fungsi
+Halaman ini digunakan penyewa untuk mengakses berbagai layanan terkait hunian, aset sewa, serta bantuan yang disediakan pengelola.
+Elemen Utama  Informasi aset sewa  Status masa berlaku sewa  Informasi kontak penghuni  Menu layanan hunian  Menu bantuan dan kontak darurat  Sidebar navigasi
+CTA (Call-To-Action)  Tombol "Perpanjang Sewa"
+
+ Tombol "Penambahan Fasilitas"  Tombol "Pembatalan Sewa"  Tombol "Kontak Darurat"
+Flow Navigasi
+Dashboard Penyewa  Layanan  Detail Layanan / Pengajuan
+Alasan Desain
+Desain dibuat sederhana dan terstruktur agar penyewa dapat dengan cepat mengakses layanan penting tanpa perlu berpindah banyak halaman. Informasi aset ditempatkan di bagian atas agar pengguna langsung mengetahui status sewanya.
+7. Pengaturan Screen
+Fungsi
+Digunakan penyewa untuk mengelola akun, keamanan, dan preferensi aplikasi.
+Elemen Utama
+ Informasi profil pengguna  Pengaturan akun  Pengaturan notifikasi  Pengaturan rekening bank/kartu  Menu bantuan  Tombol logout
+CTA (Call-To-Action)
+ Tombol "Profil Saya"  Tombol "Kartu / Rekening Bank"  Tombol "Notifikasi"  Tombol "Penghapusan Akun"  Tombol "Bantuan"  Tombol "Ganti Akun / Keluar"
+Flow Navigasi
+Dashboard Penyewa  Pengaturan  Edit Pengaturan
+Alasan Desain
+Layout dibuat ringkas dan mudah dipahami agar pengguna dapat mengatur akun dengan cepat. Menu dipisahkan berdasarkan kategori untuk meningkatkan usability.
+8. Explore Market Screen
+
+Fungsi
+Halaman untuk membantu penyewa mencari properti, layanan, atau rekomendasi hunian lainnya.
+Elemen Utama
+ Search bar  Kategori properti  Rekomendasi properti terdekat  Popular property section  Daftar properti berdasarkan preferensi pengguna
+CTA (Call-To-Action)
+ Tombol "Search"  Tombol kategori/filter  Tombol detail properti
+Flow Navigasi
+Dashboard Penyewa  Explore Market  Detail Properti
+Alasan Desain
+Desain menggunakan card layout agar informasi properti mudah dibaca dan dibandingkan. Search dan filter ditempatkan di bagian atas untuk mempermudah eksplorasi pengguna.
+B. Wireframe Role Pengelola
+Screen utama pada role pengelola berdasarkan prototype:
+ Login Pengelola  Sign Up Pengelola  Beranda  Lokasi & Properti  Penyewa  Pembayaran  Kontrak Sewa
+9. Beranda Pengelola
+Fungsi
+Menampilkan ringkasan data penyewa dan pengelolaan properti.
+
+Elemen Utama
+ Statistik penyewa  Data kamar/unit  Ringkasan pembayaran  Notifikasi  Menu manajemen
+CTA (Call-To-Action)
+ Tombol tambah data  Tombol lihat laporan  Tombol kelola penyewa
+Flow Navigasi
+Dashboard Pengelola  Data Penyewa Dashboard Pengelola  Laporan Keuangan Dashboard Pengelola  Profil
+Alasan Desain
+Dashboard dibuat untuk mempermudah pengelola memantau seluruh aktivitas secara cepat.
+10.Lokasi & Properti Screen
+Fungsi
+Halaman ini digunakan pengelola untuk memantau dan mengelola seluruh data lokasi, unit, serta properti yang disewakan dalam sistem REODA.
+Elemen Utama
+ Daftar lokasi properti  Informasi jumlah unit  Status ketersediaan kamar/unit  Data alamat properti  Informasi penyewa aktif  Search bar dan filter data  Sidebar navigasi pengelola
+CTA (Call-To-Action)
+ Tombol "Tambah Properti"  Tombol "Edit Properti"  Tombol "Lihat Detail"  Tombol "Hapus Properti"  Tombol "Filter Data"
+
+Flow Navigasi
+Dashboard Pengelola  Lokasi & Properti  Detail Properti
+Alasan Desain
+Halaman dirancang menggunakan struktur tabel agar pengelola dapat melihat banyak data properti secara cepat dan terorganisir. Fitur pencarian dan filter membantu pengelola menemukan data unit tertentu dengan lebih efisien. Informasi status unit dibuat jelas agar mempermudah monitoring ketersediaan properti.
+11.Data Penyewa Screen
+Fungsi
+Mengelola informasi seluruh penyewa.
+Elemen Utama
+ List penyewa  Detail penyewa  Status pembayaran  Search bar
+CTA (Call-To-Action)
+ Tombol tambah penyewa  Tombol edit data  Tombol hapus data
+Flow Navigasi
+Dashboard Pengelola  Data Penyewa  Detail Penyewa
+Alasan Desain
+Menggunakan tampilan tabel/list agar data lebih terstruktur dan mudah dicari.
+12.Laporan Keuangan / Daftar Pembayaran Pengelola
+Fungsi
+Menampilkan arus kas dan histori transaksi seluruh penyewa.
+Elemen Utama
+ Buku jurnal  Total pemasukan  Total pengeluaran  Filter laporan
+
+ Detail transaksi
+CTA (Call-To-Action)
+ Tombol download laporan  Tombol lihat detail  Tombol pilih tanggal
+Flow Navigasi
+Dashboard Pengelola  Laporan Keuangan  Detail Transaksi
+Alasan Desain
+Struktur laporan dibuat seperti general ledger agar pengelola mudah memahami kondisi keuangan.
+13.Kontrak Sewa Screen
+Fungsi
+Halaman ini digunakan pengelola untuk mengelola data kontrak sewa antara penyewa dan properti yang disewakan.
+Elemen Utama
+ Daftar kontrak sewa  Data penyewa  Informasi properti/unit  Tanggal mulai dan berakhir kontrak  Status kontrak sewa  Nominal biaya sewa  Search bar dan filter kontrak  Sidebar navigasi
+CTA (Call-To-Action)
+ Tombol "Tambah Kontrak"  Tombol "Edit Kontrak"  Tombol "Perpanjang Kontrak"  Tombol "Lihat Detail"  Tombol "Hapus Kontrak"
+Flow Navigasi
+Dashboard Pengelola  Kontrak Sewa  Detail Kontrak
+Alasan Desain
+
+Desain menggunakan tampilan tabel agar data kontrak lebih mudah dipantau dan dikelola. Informasi penting seperti status kontrak dan masa berlaku dibuat jelas untuk membantu pengelola memonitor kontrak aktif maupun yang akan berakhir. Fitur pencarian dan filter mempermudah pengelola menemukan data kontrak tertentu secara cepat.
+Tools yang Digunakan
+ Figma
+Kesimpulan
+Desain wireframe aplikasi REODA dibuat untuk mendukung dua role pengguna yaitu penyewa dan pengelola. Penyewa difokuskan pada kemudahan akses pembayaran dan informasi hunian, sedangkan pengelola difokuskan pada pengelolaan data penyewa dan laporan keuangan. Struktur navigasi dibuat sederhana dan konsisten agar aplikasi mudah digunakan oleh seluruh pengguna. Desain wireframe aplikasi REODA dibuat dengan pendekatan sederhana dan fungsional untuk mempermudah pengguna dalam mengakses informasi penghuni, pembayaran, dan laporan keuangan. Struktur navigasi dirancang konsisten agar pengalaman pengguna menjadi lebih efektif dan mudah dipahami.
+2. HACKER - Technical Architecture & Development [Iksan Arya D. - 13.2023.1.01157] Hacker mengelola seluruh aspek teknis dan engineering platform. Tanggung jawab
+mencakup pemilihan teknologi, arsitektur sistem, estimasi effort, serta perencanaan timeline development yang realistis dan feasible.
+2.1 Technology Stack Selection dan Architecture Diagram  Frontend Framework (Blade + Tailwind CSS)
+Template engine bawaan Laravel yang terintegrasi sempurna. Tailwind CSS memungkinkan styling cepat tanpa meninggalkan HTML, ideal untuk tim kecil.  Backend Framework & Language (Laravel 9.5) Versi minor atau pembaruan spesifik dari framework PHP Laravel 9, untuk membuat pengembangan aplikasi web menjadi lebih cepat, aman, dan elegan.  Database (MySQL 10.4.32-MariaDB) Database relasional yang mature, cocok untuk model data properti & transaksi keuangan yang kompleks. Dukungan luas di seluruh platform hosting Indonesia.  Cloud/Hosting Platform (Railway.app) Platform PaaS modern dengan deployment otomatis dari GitHub. Gratis tier cukup untuk MVP, upgrade mudah saat traffic naik. Mendukung MySQL & Redis native.
+
+ Justifikasi pemilihan teknologi
+
+Komponen Pilihan
+
+Alasan Teknis
+
+Keunggulan Tim Alternatif Ditolak
+
+Frontend Backend Database Hosting
+
+Blade + Tailwind
+
+Tidak perlu memisahkan frontend & backend repo. Rendering server-side lebih cepat untuk SEO properti.
+
+Tim tidak perlu
+
+React (butuh Next.js
+
+belajar React/Vue terpisah,
+
+terpisah. Fokus pada kompleksitas tinggi
+
+satu codebase
+
+untuk MVP)
+
+Laravel.
+
+Laravel 9.5
+
+MVC yang mature, built-in queue untuk notifikasi, Eloquent untuk relasi data properti yang kompleks.
+
+Laravel adalah framework PHP paling umum diajarkan di Indonesia. Dokumentasi Bahasa Indonesia tersedia.
+
+Node.js (learning curve async, ekosistem lebih asing)
+
+MySQL 10.4.32
+
+Relational DB ideal untuk entitas: Hunian, Penyewa, Kontrak, Tagihan, Pembayaran yang saling berelasi.
+
+Paling umum diajarkan, dukungan phpMyAdmin luas, hosting murah menyertakan MySQL gratis.
+
+MongoDB (tidak cocok untuk data transaksi keuangan yang relasional)
+
+Railway.app
+
+Deploy otomatis dari GitHub, environment variables mudah, MySQL & Redis tersedia, tidak perlu konfigurasi server.
+
+Cocok untuk developer yang belum familiar manajemen VPS/Linux. Gratis untuk MVP.
+
+AWS EC2 (terlalu kompleks), Heroku (sudah berbayar, mahal)
+
+ Cost-Benefit Analysis ­ Fase MVP
+
+Item
+
+Biaya / Bulan
+
+Keterangan
+
+Alternatif & Estimasi
+
+Railway.app $0 - $5 Hosting
+Domain.com ~Rp 150.000/thn
+
+Free tier 500 jam/bulan.
+
+VPS Niagahoster ~Rp
+
+Upgrade ke Starter $5/bln jika 50.000/bln (butuh
+
+traffic meningkat.
+
+konfigurasi manual)
+
+reoda.id atau reoda.com via Niagahoster/Domainesia.
+
+reoda.my.id gratis via Cloudflare
+
+Email Notifikasi
+
+Rp 0
+
+TOTAL MVP ~$5 / Rp 75.000
+
+ Architecture Diagram
+
+Mailtrap (dev) + Gmail SMTP Mailgun $15/bln untuk
+
+(production). Free tier 100
+
+volume tinggi.
+
+email/hari cukup untuk MVP.
+
+Sangat efisien untuk fase validasi produk. Break-even setelah 2­3 pemilik hunian berlangganan.
+
+2.2 Development Timeline & Roadmap  Fitur utama per phase & Estimasi durasi per fitur (dalam jam atau hari kerja)
+
+Phase 1 MVP Core Foundation
+
+Phase 2 Enhancement User Experience
+
+Phase 3 Launch Prep Stabilization
+
+6 Apr ­ 16 Mei 2026 (6 minggu)
+
+17 Mei ­ 14 Jun 2026 (4 minggu)
+
+15 Jun ­ 1 Jul 2026 (2.5 minggu)
+
+- Setup proyek &
+
+- Pencarian & filter hunian
+
+- Testing & bug fixing
+
+environment
+
+lanjutan
+
+menyeluruh
+
+- Sistem autentikasi
+
+- Dashboard analitik pemilik - Security audit &
+
+(multi-role)
+
+- Sistem review & rating
+
+penetration test
+
+- Manajemen listing
+
+- Reminder tagihan otomatis - Performance
+
+hunian
+
+- Fitur laporan keuangan
+
+optimization
+
+- Manajemen kontrak sewa - Optimasi performa & UI polish - Dokumentasi pengguna
+
+- Pembayaran sewa via
+
+- Onboarding pemilik
+
+Midtrans
+
+hunian awal
+
+- Notifikasi email dasar
+
+- Soft launch &
+
+monitoring
+
+ Timeline keseluruhan dari start hingga launch (contoh: 1 bulan, 2 bulan), Gantt Chart Salinan dari Gantt Chart - Reoda
+
+ Priority analysis: fitur mana yang harus dikerjakan terlebih dahulu
+
+Fitur / Task
+
+Phase
+
+Setup project & DevOps
+
+Phase 1
+
+Autentikasi multi-role (Pemilik, Penyewa, Admin)
+
+Phase 1
+
+Manajemen listing hunian (CRUD + foto upload) Phase 1
+
+Manajemen kontrak sewa (buat, lihat, terminate) Phase 1
+
+Integrasi pembayaran
+
+Phase 1
+
+Riwayat pembayaran & invoice PDF
+
+Phase 1
+
+Notifikasi email (jatuh tempo, konfirmasi bayar) Phase 1
+
+Pencarian hunian dengan filter (harga, lokasi, tipe)
+
+Phase 2
+
+Dashboard analitik pemilik (income, occupancy Phase 2 rate)
+
+Sistem review & rating hunian
+
+Phase 2
+
+Laporan keuangan (export Excel/PDF)
+
+Phase 2
+
+Prioritas Estimasi Hari
+
+(Moscow)
+
+Kerja
+
+Must Have 3 hari
+
+Must Have 4 hari
+
+Must Have 6 hari Must Have 5 hari Must Have 5 hari Must Have 4 hari Must Have 3 hari Should Have 4 hari
+
+Should Have 5 hari
+
+Should Have 3 hari Should Have 4 hari
+
+Testing E2E, security audit, penetration test Dokumentasi & panduan pengguna Total Estimasi Keseluruhan
+
+Phase 3 Phase 3
+
+Must Have 6 hari Could Have 3 hari
+55 hari
+
+ Risk assessment: potential technical blockers & mitigation strategy
+
+Risiko
+
+Level Probabilitas Dampak
+
+Mitigation Strategy
+
+Scope creep ­ fitur terus bertambah Timeline molor dari rencana
+
+Tinggi Tinggi (60%)
+
+Keterbatasan waktu tim (kuliah + project) Development lambat, bottleneck
+
+Tinggi Tinggi (70%)
+
+Database design tidak scalable Refaktor besar-besaran di tengah development
+
+Sedang
+
+Sedang (35%)
+
+Security vulnerability (SQL Injection, CSRF) Data pengguna & transaksi bocor
+
+Sedang
+
+Rendah (15%)
+
+Railway.app downtime / hosting issue Aplikasi tidak bisa diakses saat demo/launch
+
+Rendah Rendah (10%)
+
+Tinggi ­ deadline 1 Juli terlewat
+
+Freeze fitur setelah W3. Semua permintaan fitur baru masuk backlog Phase 2 atau post-launch. Product owner harus tegas menolak tambahan fitur selama Phase 1.
+
+Sedang ­ fitur MVP tidak selesai tepat waktu
+
+Gunakan Laravel starter kit (Breeze) untuk mempercepat auth. Manfaatkan package siap pakai.
+
+Tinggi ­ membuang waktu signifikan
+Sangat Tinggi ­ legal & reputasi
+Tinggi ­ kesan buruk saat presentasi
+
+Buat ERD lengkap di W1 sebelum menulis kode. Review bersama tim, pastikan semua relasi entitas (Hunian, Kontrak, Pembayaran) sudah benar sebelum migrasi pertama.
+Laravel Eloquent ORM mencegah SQL injection by default. Aktifkan CSRF protection, gunakan Laravel Sanctum. Lakukan security audit di Phase 3 dengan tools seperti OWASP ZAP.
+Setup backup deployment di Niagahoster atau Domcloud sebagai fallback. Simpan database dump rutin setiap 3 hari via GitHub Actions scheduled job.
+
+3. HUSTLER - Business Strategy & Market [Damayanti Mastania Ulfa - 13.2023.1.01194] Hustler mengembangkan strategi bisnis holistik untuk startup. Fokus meliputi revenue
+model, competitive positioning, market identification, dan go-to-market strategy yang terukur dan actionable.
+3.1 Revenue Model (Minimum 2 Model) Reoda menggunakan model bisnis hybrid yang menggabungkan sistem subscription dan
+marketplace commission agar dapat menghasilkan pendapatan berulang sekaligus mendukung pertumbuhan pengguna.
+1. Freemium Model (Free & Premium Plan) a. Mekanisme Reoda menyediakan dua jenis paket yang ditawarkan pada Pengelola untuk menjalankan bisnisnya, yaitu:
+
+Free Plan Maksimal 15 kamar Satu jenis unit hunian
+Fitur pengelolaan dasar (pencatatan data penyewa, monitoring pembayaran, reminder jatuh tempo dan data hunian sederhana) Hanya laporan riwayat pembayaran -
+
+Premium Plan
+Tidak ada batas penggunaan kamar
+Tidak ada batas penggunaan jenis unit hunian
+Fitur pengelolaan lebih lanjut (manajemen multi properti, monitoring status unit, pengelolaan fasilitas dan dashboard pengelolaan lebih lengkap)
+Laporan keuangan lebih lengkap
+Fitur analitik
+Featured Listing/Promotion hunian
+
+b. Target Customer  Pemilik kos kecil­menengah  Pengelola kontrakan  Pengelola apartemen skala kecil
+c. Pricing Strategy  Free Plan: Gratis  Premium Plan: Rp29.000-Rp99.000/bulan tergantung jumlah unit dan fitur
+d. Revenue Projection
+
+Periode
+
+Jumlah Pengguna Premium
+
+Annual Revenue
+
+Tahun 1
+
+25
+
+Rp8.700000
+
+Tahun 2
+
+50
+
+Rp17.400.000
+
+Tahun 3
+
+100
+
+Rp34.800.000
+
+
+
+
+
+Revenue projection ini dihitung berdasarkan estimasi pengguna yang melakukan
+
+upgrade ke fitur Premium Plan dengan biaya langganan paling rendah sebesar Rp29.000
+
+per bulan. Proyeksi pendapatan diperoleh dari jumlah pengguna premium yang
+
+diperkirakan meningkat setiap tahun seiring pertumbuhan pengguna dan adopsi platform
+
+Reoda.
+
+e. Pro  Menghasilkan pendapatan yang stabil dan berulang (recurring revenue)  Mendorong pengguna untuk upgrade seiring bertambahnya unit hunian dan kebutuhan fitur  Cocok untuk scalability jangka panjang
+
+f. Cons  Membutuhkan user base aktif  Pengguna harus merasakan value fitur premium agar bersedia berlangganan
+
+g. Reason and Scalability
+
+Model Freemium dipilih karena Reoda memiliki fitur pengelolaan hunian yang digunakan secara berkelanjutan oleh pengelola, sehingga model subscription lebih sesuai untuk menjaga keberlangsungan bisnis. Freemium Plan ini akan scalable ketika jumlah pengelola hunian dan unit yang dikelola terus meningkat, sehingga kebutuhan fitur premium juga bertambah.
+
+2. Transaction Fee Model
+
+a. Mekanisme
+
+
+
+Reoda mengambil biaya layanan tetap (fixed fee) sebesar Rp1.000-Rp2.500 untuk
+
+setiap transaksi yang dilakukan melalui platform, seperti pembayaran sewa, pembayaran
+
+listrik PLN, pembayaran PDAM, dan transaksi lainnya. Biaya ini dikenakan di luar biaya
+
+administrasi dari payment gateway atau metode pembayaran yang digunakan.
+
+b. Target Customer  Mahasiswa perantau  Pekerja atau karyawan perantau
+
+ Penyewa kos dan kontrakan  Pengguna yang melakukan pembayaran sewa secara rutin  Pengguna yang terbiasa menggunakan pembayaran digital  Penyewa yang membutuhkan sistem pembayaran dan riwayat transaksi yang lebih
+praktis dan terorganisir c. Pricing Strategy
+ Fixed fee sebesar Rp1.000­Rp2.500 untuk setiap transaksi  Biaya transparan dan ditampilkan sebelum pembayaran dilakukan  Biaya layanan terpisah dari biaya administrasi payment gateway atau bank
+
+d. Revenue Projection
+
+Periode Tahun 1 Tahun 2 Tahun 3
+
+Estimasi Transaksi/Bulan 200 500 1000
+
+Annual Revenue Rp4.800.000 Rp12.000.000 Rp24.000.000
+
+e. Pro  Revenue meningkat seiring volume transaksi  Tidak membebani pengguna di awal  Mendukung cashless ecosystem
+f. Cons  Bergantung pada jumlah transaksi aktif  Membutuhkan integrasi payment gateway yang stabil
+g. Reason and Scalability
+Transaction Fee Model dipilih karena Reoda menyediakan layanan pembayaran digital yang digunakan secara rutin oleh penyewa, seperti pembayaran sewa dan tagihan utilitas. Model ini memungkinkan platform memperoleh pendapatan dari setiap transaksi tanpa membebani pengguna dengan biaya langganan tambahan.
+Model ini scalable ketika jumlah pengguna dan volume transaksi dalam platform meningkat. Semakin banyak penyewa dan pengelola yang menggunakan pembayaran digital melalui Reoda, maka pendapatan dari biaya transaksi juga akan bertambah secara konsisten.
+
+3.2 Competitive Advantage a. Direct Competitors  Mamikos  Airbnb  Traveloka  SuperKos
+
+b. Competitive Analysis
+
+Aspek
+Pencarian Hunian
+Manajemen Sewa
+Pembayaran Digital
+Riwayat Pembayaran
+Reminder Jatuh Tempo
+Pengelolaan Penyewa
+Monitoring Fasilitas
+Integrasi pencarian dan pengelolaan sewa
+
+Mamikos
+       
+
+Airbnb
+       
+
+Traveloka SuperKos
+              
+
+Reoda
+       
+
+c. Pricing Comparison
+
+Platform Mamikos Airbnb Traveloka SuperKos
+
+Revenue Model Komisi dan iklan listing Service fee per booking Komisi transaksi Subscription system
+
+Reoda
+
+Freemium subscription dan transaction fee
+
+d. UX Comparison
+Platform Mamikos Airbnb Traveloka SuperKos Reoda
+
+Fokus UX Pencarian kos cepat Booking dan pengalaman pengguna Reservasi dan pembayaran Dashboard pengelolaan kos Integrasi pencarian dan pengelolaan sewa
+
+e. Unique Value Proposition (UVP)
+Reoda mengintegrasikan pencarian hunian dan manajemen sewa dalam satu platform terpusat. Pengguna tidak hanya dapat mencari hunian, tetapi juga mengelola pembayaran, kontrak, riwayat transaksi, hingga komunikasi antara penyewa dan pengelola secara lebih transparan dan efisien.
+Berbeda dengan platform lain yang hanya berfokus pada pencarian hunian atau pengelolaan internal, Reoda menghubungkan seluruh proses sewa dalam satu sistem terintegrasi yang mendukung kebutuhan kedua pihak sekaligus.
+f. Supporting Evidence  Link Web SuperKos: SuperKos  Link Web Traveloka: Traveloka  Link Web Mamikos: Mamikos  Link Web Airbnb: Airbnb
+3.3 Target Market & Customer Segmentation Reoda menargetkan pengguna yang membutuhkan solusi digital untuk proses pencarian
+dan pengelolaan hunian sewa. Target pasar utama berasal dari kelompok penyewa dan pengelola hunian yang aktif melakukan transaksi sewa secara rutin dan membutuhkan sistem yang lebih praktis, terorganisir, dan transparan.
+1. Target Market a. Primary Target Market:  Pemilik kos dan kontrakan skala kecil­menengah
+
+ Mahasiswa perantau  Pekerja atau karyawan yang menyewa hunian
+b. Secondary Target Market  Pengelola apartemen atau hunian sewa skala menengah  Individu yang mencari hunian sementara  Calon penyewa yang membutuhkan platform pencarian hunian digital
+2. Customer Profiling
+a. Demographics  Usia 18-45 tahun  Tinggal di kota pendidikan dan perkotaan  Mahasiswa, pekerja, dan pemilik hunian sewa
+b. Psychographics  Mengutamakan efisiensi dan kemudahan transaksi  Terbiasa menggunakan pembayaran digital  Membutuhkan sistem yang lebih praktis dan terorganisir
+c. Behavior  Aktif menggunakan smartphone dan internet  Melakukan pembayaran secara digital  Mencari hunian melalui platform online
+d. Pain Points  Pembayaran sewa tidak fleksibel  Komunikasi dengan pengelola tidak responsif  Riwayat transaksi sulit dilacak  Pengingat pembayaran masih dilakukan secara manual  Sulit mencari hunian sesuai kebutuhan dan budget
+3. Market Growth Rate
+Pertumbuhan urbanisasi, mahasiswa perantau, serta penggunaan pembayaran digital di Indonesia menunjukkan meningkatnya kebutuhan terhadap platform hunian berbasis digital. Selain itu, meningkatnya kebutuhan hunian sementara di kota besar dan kota pendidikan menciptakan peluang pasar yang besar bagi platform seperti Reoda.
+Berdasarkan hasil wawancara pengguna, ditemukan bahwa penyewa dan pengelola masih mengalami kendala dalam pembayaran, pencatatan transaksi, dan komunikasi. Hal ini
+
+menunjukkan adanya kebutuhan terhadap sistem terintegrasi yang dapat mempermudah seluruh proses sewa hunian.
+4. Data Source
+ Hasil wawancara dan survei pengguna Reoda: Hasil Interview - Reoda  Observasi proses pengelolaan hunian sewa  Analisis kompetitor platform hunian digital  Tren penggunaan pembayaran digital dan marketplace hunian di Indonesia
+3.4 Go-to-Market Strategy (How to Reach Market) Strategi go-to-market Reoda berfokus pada pendekatan digital dan komunitas untuk
+menjangkau penyewa maupun pengelola hunian secara lebih efektif. Reoda memanfaatkan website sebagai platform utama dengan sistem self-service sehingga pengguna dapat melakukan registrasi dan menggunakan layanan secara mandiri. Selain itu, strategi pemasaran dilakukan melalui media digital untuk meningkatkan awareness dan menarik pengguna awal.
+1. Sales Channel  Website Reoda sebagai platform utama  Self-service registration untuk penyewa dan pengelola  Partnership dengan pemilik kos dan kontrakan  Promosi melalui komunitas mahasiswa dan pekerja perantau
+
+2. Marketing Strategy a. Digital Marketing  Promosi melalui Instagram, TikTok, dan media sosial lainnya  Content marketing mengenai pengelolaan hunian dan pembayaran digital  SEO (Search Engine Optimization) untuk meningkatkan visibilitas pencarian hunian
+
+b. Partnership  Kerja sama dengan pemilik kos dan pengelola hunian  Promosi ke lingkungan kampus dan komunitas mahasiswa
+
+c. Word of Mouth & Referral  Referral pengguna awal  Testimoni pengguna untuk meningkatkan kepercayaan pengguna baru
+
+3. Timeline Marketing Activities
+
+Tahap Pre-Launch
+
+Aktivitas Validasi pengguna, riset pasar, dan pengembangan MVP
+
+Launch Post-Launch
+
+Soft launching platform dan promosi digital awal Pengembangan fitur, evaluasi pengguna, dan ekspansi pasar
+
+KRITERIA PENILAIAN
+Total skor UTS: 100 poin
+
+Role HIPSTER HACKER
+HUSTLER
+UMUM TOTAL
+
+Kriteria Utama
+· Kualitas wireframe · Usability & clarity · Kelayakan tech stack · Realism timeline · Risk analysis · Validitas revenue model · Analisis kompetitor · Market sizing & GTM · Kerapihan & format · Originalitas & validitas data
+
+Skor Max 25 25
+25
+25 100
+
+PANDUAN PENGUMPULAN
+Format Dokumen
+ Format utama: PDF  Wireframe dapat dalam format: Figma link (shared), PDF export, atau JPG/PNG dari tools design  File tech stack & timeline dapat dalam bentuk spreadsheet, Gantt chart, atau dokumen naratif  Pastikan semua file readable dan tidak corrupted  Pisahkan berdasarkan role masing-masing.  Data & research properly cited  Format profesional & tidak ada typo
+
+

@@ -1,0 +1,47 @@
+/*========================================
+  Liquid Glass Framework — Base Reset
+  Resets browser defaults and sets global base styles
+=========================================*/
+
+/* Reset default element behavior */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+  
+html, body {
+    height: 100%;
+    width: 100%;
+    font-family: var(--font);
+    color: var(--text-color);
+    background: var(--background-gradient);
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+  
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+  
+a {
+    text-decoration: none;
+    color: inherit;
+}
+  
+ul, ol {
+    list-style: none;
+}
+  
+img {
+    max-width: 100%;
+    display: block;
+    border: none;
+}
+  
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: var(--heading-color);
+    margin-bottom: 0.5em;
+}  

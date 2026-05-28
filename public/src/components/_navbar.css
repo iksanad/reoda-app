@@ -1,0 +1,68 @@
+/*========================================
+  Liquid Glass Framework — Navbar
+  Creates a frosted glass navigation bar with blur and smooth transitions
+=========================================*/
+
+.glass-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    background: var(--glass-bg);
+    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.25);
+    z-index: 1000;
+    transition: var(--transition-base);
+}
+  
+.glass-navbar__brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--heading-color);
+    letter-spacing: 0.5px;
+}
+  
+.glass-navbar__menu {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+  
+.glass-navbar__link {
+    color: var(--text-color);
+    font-weight: 500;
+    transition: var(--transition-base);
+}
+  
+.glass-navbar__link:hover {
+    color: var(--accent);
+}
+  
+.glass-navbar--scrolled {
+    background: rgba(15, 32, 39, 0.75);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 4px 20px rgba(31, 38, 135, 0.3);
+}
+  
+@media (max-width: 768px) {
+    .glass-navbar {
+        padding: 0 1rem;
+    }
+  
+    .glass-navbar__menu {
+        gap: 1rem;
+    }
+  
+    .glass-navbar__link {
+        font-size: 0.95rem;
+    }
+}
+  

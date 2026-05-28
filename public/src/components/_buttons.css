@@ -1,0 +1,48 @@
+/*========================================
+  Liquid Glass Framework — Buttons
+  Defines reusable button styles using glassmorphism principles
+=========================================*/
+
+.glass-btn {
+    display: inline-block;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.8rem 2rem;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: var(--transition-base);
+    box-shadow: 0 4px 12px rgba(31, 38, 135, 0.25);
+}
+  
+.glass-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(31, 38, 135, 0.45);
+}
+  
+.glass-btn--outline {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+}
+  
+.glass-btn--outline:hover {
+    background: var(--accent);
+    color: #fff;
+}
+  
+.glass-btn--light {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+  
+.glass-btn--dark {
+    background: rgba(0, 0, 0, 0.3);
+    color: #f1f1f1;
+}

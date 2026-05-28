@@ -1,0 +1,60 @@
+/*========================================
+  Liquid Glass Framework — Containers
+  Provides structured content wrappers and sections
+=========================================*/
+
+.glass-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--background-gradient);
+    overflow: hidden;
+}
+  
+.glass-section {
+    width: 100%;
+    padding: 6rem 2rem;
+    position: relative;
+    z-index: 1;
+}
+  
+.glass-section--frosted {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+  
+.glass-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+  
+.glass-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 10rem 2rem;
+    color: var(--text-color);
+    background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 255, 255, 0.05),
+        rgba(0, 0, 0, 0.15)
+    );
+}
+  
+.glass-section--animated {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+  
+.glass-section--animated.visible {
+    opacity: 1;
+    transform: translateY(0);
+}  

@@ -1,0 +1,44 @@
+/*========================================
+  Liquid Glass Framework — Themes
+  Defines light, dark, and custom theme color variants
+=========================================*/
+
+:root {
+    --background-gradient: linear-gradient(135deg, #ffffff, #e6f0ff);
+    --text-color: #1a1a1a;
+    --heading-color: #0d0d0d;
+    --glass-bg: rgba(255, 255, 255, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.25);
+    --accent: #007aff; /* Apple blue */
+    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.25);
+}
+  
+[data-theme="dark"] {
+    --background-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    --text-color: #eaeaea;
+    --heading-color: #ffffff;
+    --glass-bg: rgba(0, 0, 0, 0.3);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent: #0a84ff; /* Apple dark mode blue */
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+  
+[data-accent="green"] { --accent: #34c759; } /* Apple green */
+[data-accent="pink"] { --accent: #ff2d55; }
+[data-accent="orange"] { --accent: #ff9500; }
+[data-accent="purple"] { --accent: #af52de; }
+[data-accent="yellow"] { --accent: #ffd60a; }
+  
+body {
+    transition: background 0.6s ease, color 0.6s ease;
+}
+  
+[data-glass="soft"] {
+    --glass-bg: rgba(255, 255, 255, 0.25);
+    --glass-blur: 10px;
+}
+  
+[data-glass="strong"] {
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-blur: 25px;
+}

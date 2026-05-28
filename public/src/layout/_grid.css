@@ -1,0 +1,51 @@
+/*========================================
+  Liquid Glass Framework — Grid Layout
+  Provides a responsive grid system for layout organization
+=========================================*/
+
+.glass-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+  
+.glass-row {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.5rem;
+}
+  
+[class*="glass-col-"] {
+    grid-column: span 12;
+}
+
+@media (min-width: 576px) {
+    .glass-col-6-sm { grid-column: span 6; }
+    .glass-col-4-sm { grid-column: span 4; }
+}
+  
+@media (min-width: 768px) {
+    .glass-col-6-md { grid-column: span 6; }
+    .glass-col-4-md { grid-column: span 4; }
+    .glass-col-3-md { grid-column: span 3; }
+}
+  
+@media (min-width: 1024px) {
+    .glass-col-6-lg { grid-column: span 6; }
+    .glass-col-4-lg { grid-column: span 4; }
+    .glass-col-3-lg { grid-column: span 3; }
+    .glass-col-2-lg { grid-column: span 2; }
+}
+
+.glass-align-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass-space-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

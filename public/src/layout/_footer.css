@@ -1,0 +1,69 @@
+/*========================================
+  Liquid Glass Framework — Footer
+  Defines glass-style page footers with subtle depth and blur
+=========================================*/
+
+.glass-footer {
+    position: relative;
+    width: 100%;
+    padding: 3rem 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-top: 1px solid var(--glass-border);
+    box-shadow: 0 -4px 30px rgba(31, 38, 135, 0.2);
+    color: var(--text-color);
+    text-align: center;
+    z-index: 5;
+}
+  
+.glass-footer__links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+  
+.glass-footer__link {
+    color: var(--text-color);
+    opacity: 0.8;
+    transition: var(--transition-base);
+}
+  
+.glass-footer__link:hover {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.glass-footer__socials {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.glass-footer__icon {
+    font-size: 1.25rem;
+    opacity: 0.75;
+    transition: var(--transition-base);
+}
+  
+.glass-footer__icon:hover {
+    opacity: 1;
+    color: var(--accent);
+}
+  
+.glass-footer__copyright {
+    font-size: 0.9rem;
+    opacity: 0.6;
+}
+  
+@media (max-width: 600px) {
+    .glass-footer {
+        padding: 2rem 1rem;
+    }
+    .glass-footer__links {
+        gap: 1rem;
+    }
+}
