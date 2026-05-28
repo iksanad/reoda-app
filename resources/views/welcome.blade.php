@@ -70,7 +70,7 @@
     </div>
 
     <!-- Info / Feature Limitation Banner (Positioned below the Hero Section) -->
-    <div class="bg-gray-50 border-t border-gray-100 py-12 relative z-20">
+    <div class="bg-gradient-to-b from-[#eef5fe] to-white py-12 relative z-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Ingin Menyewa Hunian?</h2>
             <p class="text-sm text-gray-500 max-w-xl mx-auto mb-6">
