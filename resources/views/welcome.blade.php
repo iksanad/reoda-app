@@ -8,8 +8,6 @@
     <div class="relative overflow-hidden min-h-[500px] lg:min-h-[560px] flex items-center bg-[#eef5fe]"
          style="background-image: url('{{ asset('template/welcome-home.png') }}'); background-position: right bottom; background-repeat: no-repeat; background-size: contain;">
         
-        <!-- Semi-transparent overlay on the left for text readability -->
-        <div class="absolute inset-0 bg-gradient-to-r from-[#eef5fe] via-[#eef5fe]/90 to-[#eef5fe]/20 lg:to-transparent pointer-events-none"></div>
         
         <!-- Hero Content -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 lg:pt-10 lg:pb-14 w-full z-10 relative">
