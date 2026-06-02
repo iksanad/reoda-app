@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::table('notifications', function (Blueprint $table) {
             $table->enum('email_status', ['none', 'pending', 'sent', 'failed'])->default('none')->after('read_at');
+        });
+        Schema::table('notifications', function (Blueprint $table) {
             $table->text('email_error')->nullable()->after('email_status');
         });
     }
