@@ -65,6 +65,13 @@
                 class="w-full rounded-lg border-gray-300 focus:border-reoda focus:ring-reoda py-2 px-4 border text-gray-900">
         </div>
 
+        <div>
+            <label for="referral_code" class="block text-sm font-medium text-gray-700 mb-1">Kode Referral <span class="text-xs text-gray-400 font-normal">(Opsional)</span></label>
+            <input type="text" name="referral_code" id="referral_code" value="{{ old('referral_code') }}" placeholder="Contoh: REO-XXXXX"
+                class="w-full rounded-lg border-gray-300 focus:border-reoda focus:ring-reoda py-2 px-4 border text-gray-900 uppercase">
+            <p class="mt-1 text-xs text-gray-500">Masukkan kode unik pengundang Anda untuk mendapatkan Voucher Diskon Rp 50.000!</p>
+        </div>
+
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>

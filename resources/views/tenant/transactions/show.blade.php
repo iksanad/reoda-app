@@ -52,9 +52,25 @@
                 <div><p class="text-xs text-gray-400 mb-0.5">Jenis</p><p class="font-semibold capitalize">{{ $invoice->type === 'rent' ? 'Sewa Hunian' : ucfirst($invoice->type) }}</p></div>
                 <div><p class="text-xs text-gray-400 mb-0.5">Periode</p><p class="font-semibold">{{ $invoice->billing_month }}/{{ $invoice->billing_year }}</p></div>
                 <div><p class="text-xs text-gray-400 mb-0.5">Jatuh Tempo</p><p class="font-semibold {{ $invoice->due_date && $invoice->due_date->isPast() && $invoice->status !== 'paid' ? 'text-error-600' : '' }}">{{ $invoice->due_date?->format('d M Y') }}</p></div>
-                <div class="col-span-2 pt-2 border-t border-stroke">
-                    <p class="text-xs text-gray-400 mb-0.5">Total Tagihan</p>
-                    <p class="text-2xl font-extrabold text-reoda">Rp {{ number_format($invoice->amount,0,',','.') }}</p>
+                @if(isset($discountAmount) && $discountAmount > 0)
+                <div class="col-span-2 pt-2 border-t border-stroke flex justify-between items-end">
+                    <div>
+                        <p class="text-xs text-gray-400 mb-0.5">Voucher Diskon Referral</p>
+                        <p class="text-lg font-bold text-success-500">- Rp {{ number_format($discountAmount, 0, ',', '.') }}</p>
+                    </div>
+                </div>
+                @endif
+                <div class="col-span-2 pt-2 border-t border-stroke flex justify-between items-end">
+                    <div>
+                        <p class="text-xs text-gray-400 mb-0.5">Total Tagihan (termasuk biaya admin)</p>
+                        <p class="text-2xl font-extrabold text-reoda">Rp {{ number_format($invoice->amount + 14000 - ($discountAmount ?? 0), 0, ',', '.') }}</p>
+                    </div>
+                    @if(isset($snapToken) && $invoice->status === 'unpaid')
+                        <button id="pay-button" class="rounded-lg bg-reoda px-6 py-2.5 font-bold text-white hover:bg-reoda-dark transition shadow-md flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            Bayar Otomatis
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -175,4 +191,27 @@
         </div>
     </div>
 </div>
+
+@if(isset($snapToken) && $invoice->status === 'unpaid')
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+<script>
+    document.getElementById('pay-button').onclick = function(){
+        snap.pay('{{ $snapToken }}', {
+            onSuccess: function(result){
+                alert("Pembayaran berhasil!");
+                window.location.reload();
+            },
+            onPending: function(result){
+                alert("Menunggu pembayaran Anda!");
+            },
+            onError: function(result){
+                alert("Pembayaran gagal!");
+            },
+            onClose: function(){
+                console.log('Customer closed the popup without finishing the payment');
+            }
+        });
+    };
+</script>
+@endif
 @endsection

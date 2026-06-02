@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class TransactionController extends Controller
 {
@@ -50,7 +52,80 @@ class TransactionController extends Controller
 
         $invoice->load(['leaseContract.unit.property.manager', 'payments' => fn($q) => $q->latest()]);
 
-        return view('tenant.transactions.show', compact('invoice'));
+        $snapToken = null;
+        $discountAmount = 0;
+        if ($invoice->status === 'unpaid') {
+            // Setup Midtrans Config
+            Config::$serverKey = config('services.midtrans.server_key');
+            Config::$isProduction = config('services.midtrans.is_production');
+            Config::$isSanitized = true;
+            Config::$is3ds = true;
+
+            // Admin fee & Gateway fee (Platform fee = 10k, Gateway = ~4k)
+            $platformFee = 10000;
+            $gatewayFee = 4000;
+            $totalAmount = $invoice->amount + $platformFee + $gatewayFee;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $invoice->invoice_number . '-' . time(),
+                    'gross_amount' => $totalAmount,
+                ],
+                'customer_details' => [
+                    'first_name' => Auth::user()->name,
+                    'email' => Auth::user()->email,
+                    'phone' => Auth::user()->phone,
+                ],
+                'item_details' => [
+                    [
+                        'id' => 'RENT-' . $invoice->id,
+                        'price' => $invoice->amount,
+                        'quantity' => 1,
+                        'name' => 'Sewa: ' . $invoice->leaseContract->unit->property->name,
+                    ],
+                    [
+                        'id' => 'FEE-PLATFORM',
+                        'price' => $platformFee,
+                        'quantity' => 1,
+                        'name' => 'Biaya Admin Reoda',
+                    ],
+                    [
+                        'id' => 'FEE-PG',
+                        'price' => $gatewayFee,
+                        'quantity' => 1,
+                        'name' => 'Biaya Payment Gateway',
+                    ]
+                ]
+            ];
+
+            // Apply Discount if available
+            if (Auth::user()->discount_quota > 0) {
+                $discountAmount = 50000;
+                // Ensure total amount doesn't go below minimum (Midtrans min is usually 10k or 1k, we set 10k)
+                if ($totalAmount - $discountAmount < 10000) {
+                    $discountAmount = $totalAmount - 10000;
+                }
+                
+                if ($discountAmount > 0) {
+                    $totalAmount -= $discountAmount;
+                    $params['transaction_details']['gross_amount'] = $totalAmount;
+                    $params['item_details'][] = [
+                        'id' => 'DISC-REF',
+                        'price' => -$discountAmount,
+                        'quantity' => 1,
+                        'name' => 'Voucher Diskon Referral',
+                    ];
+                }
+            }
+
+            try {
+                $snapToken = Snap::getSnapToken($params);
+            } catch (\Exception $e) {
+                // Ignore if fails
+            }
+        }
+
+        return view('tenant.transactions.show', compact('invoice', 'snapToken', 'discountAmount'));
     }
 
     public function pay(Request $request, Invoice $invoice)

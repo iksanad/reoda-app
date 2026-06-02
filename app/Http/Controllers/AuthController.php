@@ -51,6 +51,9 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'role'     => 'required|in:manager,tenant',
             'phone'    => 'required|string|max:20',
+            'referral_code' => 'nullable|string|exists:users,user_code',
+        ], [
+            'referral_code.exists' => 'Kode Referral tidak valid atau tidak ditemukan.'
         ]);
 
         $user = new User();
@@ -69,8 +72,15 @@ class AuthController extends Controller
         $user->user_code = $prefix . '-' . strtoupper(Str::random(6));
 
         if ($request->role === 'manager') {
-            $user->referral_code = strtoupper(Str::random(6));
             $user->manager_status = 'pending';
+        }
+
+        if ($request->filled('referral_code')) {
+            $referrer = User::where('user_code', strtoupper($request->referral_code))->first();
+            if ($referrer) {
+                $user->referred_by = $referrer->id;
+                $user->discount_quota = 1; // Beri 1 voucher diskon untuk pengguna baru
+            }
         }
 
         $user->save();

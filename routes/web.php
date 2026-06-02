@@ -56,6 +56,11 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     // Email Logs
     Route::get('/email-logs', [\App\Http\Controllers\Superadmin\EmailLogController::class, 'index'])->name('email-logs.index');
     Route::post('/email-logs/{log}/resend', [\App\Http\Controllers\Superadmin\EmailLogController::class, 'resend'])->name('email-logs.resend');
+
+    // Withdrawals
+    Route::get('/withdrawals', [\App\Http\Controllers\Superadmin\WithdrawalController::class, 'index'])->name('withdrawals.index');
+    Route::post('/withdrawals/{id}/approve', [\App\Http\Controllers\Superadmin\WithdrawalController::class, 'approve'])->name('withdrawals.approve');
+    Route::post('/withdrawals/{id}/reject', [\App\Http\Controllers\Superadmin\WithdrawalController::class, 'reject'])->name('withdrawals.reject');
 });
 
 // Manager Routes
@@ -97,6 +102,10 @@ Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')
     Route::get('/profile', [\App\Http\Controllers\Manager\ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [\App\Http\Controllers\Manager\ProfileController::class, 'update'])->name('profile.update');
     Route::get('/settings', [\App\Http\Controllers\Manager\SettingsController::class, 'index'])->name('settings.index');
+
+    // Saldo & Dompet
+    Route::get('/wallet', [\App\Http\Controllers\Manager\WalletController::class, 'index'])->name('wallet.index');
+    Route::post('/wallet/withdraw', [\App\Http\Controllers\Manager\WalletController::class, 'withdraw'])->name('wallet.withdraw');
 
     // Explore Market
     Route::get('/explore', [\App\Http\Controllers\Tenant\ExploreController::class, 'index'])->name('explore.index');

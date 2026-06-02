@@ -20,7 +20,8 @@ class User extends Authenticatable
         'id_number', 'date_of_birth', 'address',
         'referral_code', 'manager_status', 'manager_notes',
         'bank_name', 'bank_account_number', 'bank_account_name',
-        'notif_email', 'notif_due_date', 'user_code',
+        'notif_email', 'notif_due_date', 'user_code', 'balance',
+        'referred_by', 'discount_quota', 'has_made_first_payment',
     ];
 
     protected $hidden = [
@@ -57,6 +58,16 @@ class User extends Authenticatable
     public function managedInvoices()
     {
         return $this->hasMany(Invoice::class, 'manager_id');
+    }
+
+    public function walletTransactions()
+    {
+        return $this->hasMany(WalletTransaction::class, 'user_id');
+    }
+
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class, 'user_id');
     }
 
     // ── Relationships: Tenant ──────────────────────────────────────
@@ -120,5 +131,13 @@ class User extends Authenticatable
             'tenant'     => 'Penyewa',
             default      => $this->role,
         };
+    }
+
+    /**
+     * Get the user who referred this user.
+     */
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by');
     }
 }
