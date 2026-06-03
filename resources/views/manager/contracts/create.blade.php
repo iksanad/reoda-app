@@ -11,7 +11,7 @@
 
 <div class="rounded-xl border border-stroke bg-white shadow-sm">
     <div class="border-b border-stroke px-6 py-4"><h4 class="font-bold text-black">Form Data Kontrak</h4></div>
-    <form action="{{ route('manager.contracts.store') }}" method="POST" class="p-6 space-y-5">
+    <form id="contract-form" data-prices="{{ json_encode($pricesArray) }}" action="{{ route('manager.contracts.store') }}" method="POST" class="p-6 space-y-5" x-data="contractForm()">
         @csrf
         @if($errors->any())
         <div class="rounded-md bg-error-50 border border-error-200 p-4 text-sm text-error-700">
@@ -53,7 +53,7 @@
                     </div>
                 </div>
             </div>
-            <div x-data="{ propId: '' }">
+            <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700">Properti <span class="text-error-500">*</span></label>
                 <select x-model="propId" class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition mb-3">
                     <option value="">Pilih Properti Dulu</option>
@@ -62,11 +62,11 @@
                     @endforeach
                 </select>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700">Unit <span class="text-error-500">*</span></label>
-                <select name="unit_id" required class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">
+                <select name="unit_id" x-model="unitId" required class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">
                     <option value="">Pilih Unit</option>
                     @foreach($properties as $p)
                         @foreach($p->units->where('status','available') as $u)
-                        <option value="{{ $u->id }}" x-show="propId == '{{ $p->id }}'" {{ old('unit_id') == $u->id ? 'selected' : '' }}>
+                        <option value="{{ $u->id }}" x-show="propId == '{{ $p->id }}'">
                             {{ $u->unit_code }} — {{ $u->name }} (Rp {{ number_format($u->rent_price,0,',','.') }}/bln)
                         </option>
                         @endforeach
@@ -98,11 +98,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700">Harga Sewa / Bulan (Rp) <span class="text-error-500">*</span></label>
-                <input type="number" name="rent_amount" value="{{ old('rent_amount') }}" min="0" required class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">
+                <input type="number" name="rent_amount" x-model="rentAmount" min="0" required class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">
             </div>
             <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700">Deposit / Uang Jaminan (Rp)</label>
-                <input type="number" name="deposit_amount" value="{{ old('deposit_amount', 0) }}" min="0" class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">
+                <input type="number" name="deposit_amount" x-model="depositAmount" min="0" class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">
             </div>
         </div>
 
@@ -122,6 +122,16 @@
 
 @push('scripts')
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+@php
+    $pricesArray = [];
+    foreach($properties as $p) {
+        foreach($p->units as $u) {
+            $pricesArray[$u->id] = $u->rent_price;
+        }
+    }
+@endphp
+
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('qrScanner', () => ({
@@ -154,6 +164,23 @@
                     this.html5QrcodeScanner = null;
                 }
                 this.showScanner = false;
+            }
+        }));
+
+        Alpine.data('contractForm', () => ({
+            propId: '',
+            unitId: '{{ old("unit_id") }}',
+            rentAmount: '{{ old("rent_amount") }}',
+            depositAmount: '{{ old("deposit_amount", 0) }}',
+            
+            unitPrices: JSON.parse(document.getElementById('contract-form').dataset.prices || '{}'),
+            
+            init() {
+                this.$watch('unitId', (val) => {
+                    if(val && this.unitPrices[val]) {
+                        this.rentAmount = this.unitPrices[val];
+                    }
+                });
             }
         }));
     });
