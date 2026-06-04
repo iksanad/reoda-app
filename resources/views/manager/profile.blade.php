@@ -31,6 +31,27 @@
             <div class="flex justify-between"><span class="text-gray-400">Bergabung</span><span class="font-medium">{{ $user->created_at->format('d M Y') }}</span></div>
             <div class="flex justify-between"><span class="text-gray-400">Telepon</span><span class="font-medium">{{ $user->phone ?? '-' }}</span></div>
         </div>
+
+        {{-- Referral Card (PENDING - hide until finalized) --}}
+        {{-- <div class="mt-4 w-full rounded-xl bg-gradient-to-br from-reoda to-reoda-dark p-5 text-white text-center">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <svg class="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <p class="text-sm font-bold">Kode Referral Saya</p>
+            </div>
+            <p class="font-mono text-2xl font-extrabold tracking-widest mb-1">{{ $user->user_code }}</p>
+            <p class="text-xs text-white/70 mb-4">Bagikan ke calon penyewa! Mereka dapat diskon Rp 50.000 dan kamu dapat hadiah setelah mereka bayar sewa pertama.</p>
+            @if($user->discount_quota > 0)
+            <div class="bg-white/20 rounded-lg px-4 py-2 mb-3">
+                <p class="text-xs text-white/80">Voucher Diskon Anda</p>
+                <p class="text-xl font-extrabold text-yellow-300">{{ $user->discount_quota }}x Diskon Rp 50.000</p>
+            </div>
+            @endif
+            <button onclick="copyReferral('{{ $user->user_code }}')"
+                class="w-full flex items-center justify-center gap-2 rounded-lg bg-white/20 hover:bg-white/30 border border-white/30 py-2.5 text-sm font-semibold transition">
+                <svg id="copy-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <span id="copy-text">Salin Kode</span>
+            </button>
+        </div> --}}
     </div>
 
     {{-- Edit Form --}}
@@ -108,4 +129,21 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function copyReferral(code) {
+    navigator.clipboard.writeText(code).then(() => {
+        const txt = document.getElementById('copy-text');
+        const ico = document.getElementById('copy-icon');
+        txt.textContent = 'Tersalin!';
+        ico.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+        setTimeout(() => {
+            txt.textContent = 'Salin Kode';
+            ico.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>';
+        }, 2000);
+    });
+}
+</script>
+@endpush
 @endsection

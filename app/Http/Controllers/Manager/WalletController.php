@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\WalletTransaction;
 use App\Models\Withdrawal;
+use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 
 class WalletController extends Controller
@@ -25,40 +27,54 @@ class WalletController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'amount' => 'required|numeric|min:10000|max:' . $user->balance,
-            'bank_name' => 'required|string',
+            'amount'       => 'required|numeric|min:10000',
+            'bank_name'    => 'required|string',
             'bank_account' => 'required|string',
             'account_name' => 'required|string',
         ]);
 
         DB::beginTransaction();
         try {
-            // Deduct balance
-            $user->decrement('balance', $request->amount);
+            // Lock the user row to prevent race conditions
+            $freshUser = User::lockForUpdate()->findOrFail($user->id);
 
-            // Record transaction
-            WalletTransaction::create([
-                'user_id' => $user->id,
-                'type' => 'debit',
-                'amount' => $request->amount,
-                'description' => 'Penarikan Dana ke ' . $request->bank_name . ' - ' . $request->bank_account,
-            ]);
+            $availableBalance = $freshUser->balance - $freshUser->balance_hold;
 
-            // Create withdrawal request
-            Withdrawal::create([
-                'user_id' => $user->id,
-                'amount' => $request->amount,
-                'bank_name' => $request->bank_name,
+            if ($request->amount > $availableBalance) {
+                DB::rollBack();
+                return back()->with('error', 'Saldo yang tersedia tidak mencukupi. Saldo tersedia: Rp ' . number_format($availableBalance, 0, ',', '.'));
+            }
+
+            // Move amount from balance to balance_hold
+            $freshUser->increment('balance_hold', $request->amount);
+
+            $balanceAfter = $freshUser->balance - $freshUser->balance_hold;
+
+            // Create withdrawal record with PENDING status
+            $withdrawal = Withdrawal::create([
+                'user_id'      => $freshUser->id,
+                'amount'       => $request->amount,
+                'bank_name'    => $request->bank_name,
                 'bank_account' => $request->bank_account,
                 'account_name' => $request->account_name,
-                'status' => 'pending',
+                'status'       => 'PENDING',
+            ]);
+
+            // Record in ledger
+            WalletTransaction::create([
+                'user_id'      => $freshUser->id,
+                'type'         => 'WITHDRAW',
+                'amount'       => $request->amount,
+                'balance_after'=> $balanceAfter,
+                'reference_id' => 'WD-' . $withdrawal->id,
+                'description'  => 'Permintaan penarikan ke ' . $request->bank_name . ' (' . $request->bank_account . ')',
             ]);
 
             DB::commit();
-            return back()->with('success', 'Permintaan penarikan dana berhasil diajukan.');
+            return back()->with('success', 'Permintaan penarikan dana sebesar Rp ' . number_format($request->amount, 0, ',', '.') . ' berhasil diajukan. Sedang diproses oleh tim REODA.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Terjadi kesalahan saat memproses penarikan dana.');
+            return back()->with('error', 'Terjadi kesalahan saat memproses penarikan dana. Silakan coba lagi.');
         }
     }
 }

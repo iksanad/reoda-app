@@ -18,6 +18,13 @@ class DashboardController extends Controller
             ->with('unit.property.manager')
             ->first();
 
+        $awaitingContract = !$activeContract
+            ? LeaseContract::where('tenant_id', $user->id)
+                ->where('status', 'awaiting_approval')
+                ->with('unit.property')
+                ->first()
+            : null;
+
         $pendingInvoice = null;
         if ($activeContract) {
             $pendingInvoice = Invoice::where('lease_contract_id', $activeContract->id)
@@ -25,6 +32,6 @@ class DashboardController extends Controller
                 ->first();
         }
 
-        return view('tenant.dashboard', compact('activeContract', 'pendingInvoice'));
+        return view('tenant.dashboard', compact('activeContract', 'awaitingContract', 'pendingInvoice'));
     }
 }

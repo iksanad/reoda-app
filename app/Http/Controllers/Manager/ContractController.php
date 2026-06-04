@@ -109,6 +109,64 @@ class ContractController extends Controller
             ->with('success', 'Kontrak berhasil diakhiri. Unit telah dikembalikan ke status tersedia.');
     }
 
+    /**
+     * Approve a contract request submitted by a tenant.
+     */
+    public function approveRequest(Request $request, LeaseContract $contract)
+    {
+        if ($contract->manager_id !== Auth::id()) abort(403);
+        if ($contract->status !== 'awaiting_approval') {
+            return back()->with('error', 'Kontrak ini tidak dalam status menunggu persetujuan.');
+        }
+
+        $contract->update([
+            'status'              => 'active',
+            'manager_approved_at' => now(),
+        ]);
+
+        // Notify tenant
+        \App\Models\Notification::create([
+            'user_id' => $contract->tenant_id,
+            'type'    => 'contract_approved',
+            'title'   => 'Kontrak Disetujui! 🎉',
+            'message' => 'Pengajuan kontrak Anda untuk unit ' . ($contract->unit->name ?? '') . ' di ' . ($contract->unit->property->name ?? '') . ' telah disetujui oleh pengelola.',
+        ]);
+
+        return back()->with('success', 'Kontrak berhasil disetujui. Penyewa telah diberitahu.');
+    }
+
+    /**
+     * Reject a contract request submitted by a tenant.
+     */
+    public function rejectRequest(Request $request, LeaseContract $contract)
+    {
+        if ($contract->manager_id !== Auth::id()) abort(403);
+        if ($contract->status !== 'awaiting_approval') {
+            return back()->with('error', 'Kontrak ini tidak dalam status menunggu persetujuan.');
+        }
+
+        $request->validate(['rejection_reason' => 'required|string|max:500']);
+
+        $contract->update([
+            'status'             => 'terminated',
+            'terminated_at'      => now(),
+            'termination_reason' => $request->rejection_reason,
+        ]);
+
+        // Free the unit
+        $contract->unit->update(['status' => 'available']);
+
+        // Notify tenant
+        \App\Models\Notification::create([
+            'user_id' => $contract->tenant_id,
+            'type'    => 'contract_rejected',
+            'title'   => 'Pengajuan Kontrak Ditolak',
+            'message' => 'Maaf, pengajuan kontrak Anda untuk unit ' . ($contract->unit->name ?? '') . ' ditolak. Alasan: ' . $request->rejection_reason,
+        ]);
+
+        return back()->with('success', 'Pengajuan kontrak ditolak.');
+    }
+
     public function export(Request $request)
     {
         $query = LeaseContract::where('lease_contracts.manager_id', Auth::id())

@@ -15,13 +15,76 @@
 </div>
 
 @if(!$activeContract)
-<div class="rounded-xl border border-stroke bg-white shadow-sm p-10 text-center">
-    <svg class="w-16 h-16 mx-auto text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-    <h3 class="font-bold text-black text-lg mb-2">Anda Belum Memiliki Kontrak Sewa Aktif</h3>
-    <p class="text-sm text-gray-500 mb-6">Mulai eksplorasi properti dan temukan hunian terbaik untuk Anda.</p>
-    <a href="{{ route('tenant.explore.index') }}" class="inline-flex items-center justify-center rounded-md bg-reoda px-8 py-2.5 font-medium text-white hover:bg-reoda-dark transition">
-        Jelajahi Properti
-    </a>
+
+{{-- Awaiting Approval Notice --}}
+@if($awaitingContract)
+<div class="rounded-xl border border-yellow-200 bg-yellow-50 p-5 mb-5 flex items-start gap-4">
+    <svg class="w-8 h-8 text-yellow-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <div>
+        <h4 class="font-bold text-yellow-800">Menunggu Persetujuan Pengelola</h4>
+        <p class="text-sm text-yellow-700 mt-1">
+            Pengajuan kontrak Anda untuk unit <strong>{{ $awaitingContract->unit->name }}</strong> di
+            <strong>{{ $awaitingContract->unit->property->name }}</strong> sedang ditinjau.
+            Anda akan mendapat notifikasi setelah disetujui.
+        </p>
+    </div>
+</div>
+@endif
+
+<div class="rounded-2xl border border-stroke bg-white shadow-sm overflow-hidden">
+    {{-- Hero Empty State --}}
+    <div class="bg-gradient-to-br from-reoda to-reoda-dark px-8 py-10 text-white text-center">
+        <div class="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 mb-5">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+        </div>
+        <h3 class="text-2xl font-extrabold mb-2">Selamat Datang di REODA!</h3>
+        <p class="text-white/80 text-sm max-w-md mx-auto">Anda belum memiliki kontrak sewa aktif. Mulai dengan scan kode QR hunian atau cari di Explore Market.</p>
+    </div>
+
+    {{-- CTA Buttons --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-stroke">
+        {{-- Scan QR Code --}}
+        <div class="p-8 text-center hover:bg-gray-50 transition cursor-pointer group" onclick="openQrScanner()">
+            <div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-reoda/10 group-hover:bg-reoda/20 transition mb-4">
+                <svg class="w-8 h-8 text-reoda" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 3.5V16M4 6h4V4m0 4h4m-4 0v4m12-12h-4v4h4V4z"/>
+                </svg>
+            </div>
+            <h4 class="font-bold text-black text-base mb-1">📷 Scan Kode QR Hunian</h4>
+            <p class="text-sm text-gray-500">Scan barcode/QR Code yang ada di lokasi hunian Anda untuk langsung melihat detail dan mengajukan kontrak.</p>
+        </div>
+        {{-- Explore Market --}}
+        <a href="{{ route('tenant.explore.index') }}" class="p-8 text-center hover:bg-gray-50 transition group block">
+            <div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-green-100 group-hover:bg-green-200 transition mb-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <h4 class="font-bold text-black text-base mb-1">🔍 Cari di Explore Market</h4>
+            <p class="text-sm text-gray-500">Jelajahi seluruh properti yang tersedia, bandingkan harga, fasilitas, dan lokasi untuk temukan hunian terbaik.</p>
+        </a>
+    </div>
+</div>
+
+{{-- QR Scanner Modal --}}
+<div id="qr-scanner-modal" class="fixed inset-0 z-50 bg-black/60 hidden items-center justify-center">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h4 class="font-bold text-black">Masukkan Kode Hunian</h4>
+            <button onclick="closeQrScanner()" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">Masukkan kode properti yang tertera di bawah QR Code, atau scan QR Code menggunakan kamera perangkat Anda.</p>
+        <input type="text" id="property-code-input" placeholder="Contoh: REODA-001"
+            class="w-full rounded-lg border border-stroke py-3 px-4 text-sm font-mono uppercase outline-none focus:border-reoda transition mb-3">
+        <button onclick="goToProperty()"
+            class="w-full rounded-lg bg-reoda py-3 font-semibold text-white hover:bg-reoda-dark transition">
+            Lihat Hunian
+        </button>
+    </div>
 </div>
 @else
 
@@ -141,3 +204,21 @@
 </div>
 @endif
 @endsection
+
+@push('scripts')
+<script>
+function openQrScanner() {
+    const modal = document.getElementById('qr-scanner-modal');
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+}
+function closeQrScanner() {
+    const modal = document.getElementById('qr-scanner-modal');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+}
+function goToProperty() {
+    const code = document.getElementById('property-code-input').value.trim().toUpperCase();
+    if (!code) { alert('Masukkan kode hunian terlebih dahulu.'); return; }
+    window.location.href = '/property/' + code;
+}
+</script>
+@endpush

@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -46,5 +47,18 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    /**
+     * Render an exception into an HTTP response.
+     */
+    public function render($request, Throwable $e)
+    {
+        // Handle expired CSRF token (419) — redirect to welcome instead of error page
+        if ($e instanceof TokenMismatchException) {
+            return redirect('/')->with('info', 'Sesi Anda telah berakhir. Silakan login kembali.');
+        }
+
+        return parent::render($request, $e);
     }
 }

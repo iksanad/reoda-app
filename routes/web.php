@@ -21,6 +21,9 @@ Route::get('/', function () {
 // Property Compare (public)
 Route::get('/compare', [\App\Http\Controllers\CompareController::class, 'index'])->name('compare.index');
 
+// Public Property Detail (via QR Code or Explore)
+Route::get('/property/{property_code}', [\App\Http\Controllers\PublicPropertyController::class, 'show'])->name('property.public.show');
+
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -64,11 +67,15 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
 });
 
 // Manager Routes
-Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')->group(function () {
+Route::middleware(['auth', 'role:manager', 'manager.terms'])->prefix('manager')->name('manager.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Manager\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/waiting', function () {
         return view('manager.waiting');
     })->name('waiting');
+
+    // Terms & Conditions
+    Route::get('/terms', [\App\Http\Controllers\Manager\TermsController::class, 'show'])->name('terms.show')->withoutMiddleware('manager.terms');
+    Route::post('/terms/accept', [\App\Http\Controllers\Manager\TermsController::class, 'accept'])->name('terms.accept')->withoutMiddleware('manager.terms');
 
     Route::get('/properties/export', [\App\Http\Controllers\Manager\PropertyController::class, 'export'])->name('properties.export');
     Route::resource('properties', \App\Http\Controllers\Manager\PropertyController::class);
@@ -93,6 +100,8 @@ Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')
     Route::post('/contracts', [\App\Http\Controllers\Manager\ContractController::class, 'store'])->name('contracts.store');
     Route::get('/contracts/{contract}', [\App\Http\Controllers\Manager\ContractController::class, 'show'])->name('contracts.show');
     Route::post('/contracts/{contract}/terminate', [\App\Http\Controllers\Manager\ContractController::class, 'terminate'])->name('contracts.terminate');
+    Route::post('/contracts/{contract}/approve-request', [\App\Http\Controllers\Manager\ContractController::class, 'approveRequest'])->name('contracts.approve-request');
+    Route::post('/contracts/{contract}/reject-request', [\App\Http\Controllers\Manager\ContractController::class, 'rejectRequest'])->name('contracts.reject-request');
 
     // Laporan
     Route::get('/reports', [\App\Http\Controllers\Manager\ReportController::class, 'index'])->name('reports.index');
@@ -135,6 +144,10 @@ Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->g
     Route::get('/contract/{contract?}', [\App\Http\Controllers\Tenant\ContractController::class, 'show'])->name('contract.show');
     Route::post('/contract/{contract}/approve', [\App\Http\Controllers\Tenant\ContractController::class, 'approve'])->name('contract.approve');
     Route::post('/contract/{contract}/reject', [\App\Http\Controllers\Tenant\ContractController::class, 'reject'])->name('contract.reject');
+
+    // Pengajuan Kontrak Baru oleh Penyewa
+    Route::get('/request-contract/{property_code}', [\App\Http\Controllers\Tenant\ContractRequestController::class, 'show'])->name('contract.request');
+    Route::post('/request-contract/{property_code}', [\App\Http\Controllers\Tenant\ContractRequestController::class, 'store'])->name('contract.request.store');
 
     // Layanan
     Route::get('/services', [\App\Http\Controllers\Tenant\ServiceRequestController::class, 'index'])->name('services.index');

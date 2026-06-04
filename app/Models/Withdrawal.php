@@ -15,8 +15,7 @@ class Withdrawal extends Model
         'bank_name',
         'bank_account',
         'account_name',
-        'status', // 'pending', 'approved', 'rejected'
-        'proof_of_transfer',
+        'status', // PENDING, PROCESSING, SUCCESS, FAILED, REJECTED, CANCELLED
         'processed_by',
         'processed_at',
         'rejection_reason',

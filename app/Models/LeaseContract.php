@@ -18,6 +18,9 @@ class LeaseContract extends Model
         'start_date',
         'end_date',
         'rental_type',
+        'contract_duration',
+        'payment_cycle',
+        'tolerance_days',
         'rent_amount',
         'deposit_amount',
         'status',
@@ -25,13 +28,25 @@ class LeaseContract extends Model
         'notes',
         'terminated_at',
         'termination_reason',
+        'tenant_sign_at',
+        'manager_approved_at',
     ];
 
     protected $casts = [
-        'start_date'    => 'date',
-        'end_date'      => 'date',
-        'terminated_at' => 'datetime',
+        'start_date'         => 'date',
+        'end_date'           => 'date',
+        'terminated_at'      => 'datetime',
+        'tenant_sign_at'     => 'datetime',
+        'manager_approved_at'=> 'datetime',
     ];
+
+    /**
+     * Check if this is a kos-type contract (no fixed end date, monthly auto-renew).
+     */
+    public function getIsKosAttribute(): bool
+    {
+        return $this->unit && $this->unit->property && $this->unit->property->type === 'kos';
+    }
 
     public function tenant()
     {

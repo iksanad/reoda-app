@@ -22,6 +22,7 @@ class User extends Authenticatable
         'bank_name', 'bank_account_number', 'bank_account_name',
         'notif_email', 'notif_due_date', 'user_code', 'balance',
         'referred_by', 'discount_quota', 'has_made_first_payment',
+        'terms_accepted_at', 'balance_hold',
     ];
 
     protected $hidden = [

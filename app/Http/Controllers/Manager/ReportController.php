@@ -21,7 +21,7 @@ class ReportController extends Controller
         $monthlyData = [];
         for ($m = 1; $m <= 12; $m++) {
             $monthlyData[$m] = Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))
-                ->where('status', 'verified')
+                ->where('status', 'approved')
                 ->whereYear('paid_at', $year)
                 ->whereMonth('paid_at', $m)
                 ->sum('amount');
@@ -29,7 +29,7 @@ class ReportController extends Controller
 
         // Per-property summary
         $query = Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))
-            ->where('status', 'verified')
+            ->where('status', 'approved')
             ->whereYear('paid_at', $year);
         if ($month) $query->whereMonth('paid_at', $month);
 
@@ -38,7 +38,7 @@ class ReportController extends Controller
 
         // Payment list for the period
         $payments = Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))
-            ->where('status', 'verified')
+            ->where('status', 'approved')
             ->whereYear('paid_at', $year)
             ->when($month, fn($q) => $q->whereMonth('paid_at', $month))
             ->with(['invoice.leaseContract.unit.property', 'invoice.leaseContract.tenant'])
@@ -56,25 +56,31 @@ class ReportController extends Controller
 
     public function export(Request $request)
     {
-        // Simple CSV export — no additional package needed
         $year  = $request->get('year', now()->year);
         $month = $request->get('month');
 
         $payments = Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))
-            ->where('status', 'verified')
+            ->where('status', 'approved')
             ->whereYear('paid_at', $year)
             ->when($month, fn($q) => $q->whereMonth('paid_at', $month))
             ->with(['invoice.leaseContract.unit.property', 'invoice.leaseContract.tenant'])
             ->latest('paid_at')
             ->get();
 
-        $filename = 'laporan-pembayaran-' . $year . ($month ? '-'.str_pad($month,2,'0',STR_PAD_LEFT) : '') . '.csv';
+        $filename = 'laporan-pembayaran-' . $year . ($month ? '-' . str_pad($month, 2, '0', STR_PAD_LEFT) : '') . '.xlsx';
 
+        // Build XLSX using maatwebsite/excel if available, fallback to CSV
+        if (class_exists('\Maatwebsite\Excel\Facades\Excel')) {
+            $export = new \App\Exports\ReportExport($payments, $year, $month);
+            return \Maatwebsite\Excel\Facades\Excel::download($export, $filename);
+        }
+
+        // Fallback: simple CSV
+        $csvFilename = str_replace('.xlsx', '.csv', $filename);
         $headers = [
             'Content-Type'        => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Content-Disposition' => "attachment; filename=\"{$csvFilename}\"",
         ];
-
         $callback = function () use ($payments) {
             $file = fopen('php://output', 'w');
             fputcsv($file, ['Kode Bayar', 'Penyewa', 'Properti', 'Unit', 'Jenis', 'Periode', 'Nominal', 'Metode', 'Tanggal']);
@@ -93,7 +99,6 @@ class ReportController extends Controller
             }
             fclose($file);
         };
-
         return response()->stream($callback, 200, $headers);
     }
 }

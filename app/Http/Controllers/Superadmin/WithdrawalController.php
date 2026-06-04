@@ -18,37 +18,62 @@ class WithdrawalController extends Controller
         return view('superadmin.withdrawals.index', compact('withdrawals'));
     }
 
+    /**
+     * Mark withdrawal as SUCCESS — transfer has been done manually by admin.
+     * Deduct balance_hold and deduct balance accordingly.
+     */
     public function approve(Request $request, $id)
     {
-        $request->validate([
-            'proof_of_transfer' => 'required|image|max:5120',
-        ]);
-
         $withdrawal = Withdrawal::findOrFail($id);
 
-        if ($withdrawal->status !== 'pending') {
-            return back()->with('error', 'Status penarikan tidak valid.');
+        if (!in_array($withdrawal->status, ['PENDING', 'PROCESSING'])) {
+            return back()->with('error', 'Status penarikan tidak valid untuk dikonfirmasi.');
         }
 
-        $path = $request->file('proof_of_transfer')->store('withdrawals', 'public');
+        DB::beginTransaction();
+        try {
+            $user = User::lockForUpdate()->findOrFail($withdrawal->user_id);
 
-        $withdrawal->update([
-            'status' => 'approved',
-            'proof_of_transfer' => $path,
-            'processed_by' => auth()->id(),
-            'processed_at' => now(),
-        ]);
+            // Deduct from balance (actual money gone) and balance_hold
+            $user->decrement('balance', $withdrawal->amount);
+            $user->decrement('balance_hold', $withdrawal->amount);
 
-        Notification::create([
-            'user_id' => $withdrawal->user_id,
-            'type' => 'withdrawal_approved',
-            'title' => 'Penarikan Dana Berhasil',
-            'message' => 'Dana sebesar Rp ' . number_format($withdrawal->amount, 0, ',', '.') . ' telah ditransfer ke rekening Anda.',
-        ]);
+            $balanceAfter = $user->balance - $user->balance_hold;
 
-        return back()->with('success', 'Penarikan dana disetujui.');
+            $withdrawal->update([
+                'status'       => 'SUCCESS',
+                'processed_by' => auth()->id(),
+                'processed_at' => now(),
+            ]);
+
+            // Record final ledger entry
+            WalletTransaction::create([
+                'user_id'       => $withdrawal->user_id,
+                'type'          => 'WITHDRAW',
+                'amount'        => $withdrawal->amount,
+                'balance_after' => $user->fresh()->balance,
+                'reference_id'  => 'WD-' . $withdrawal->id,
+                'description'   => 'Transfer berhasil — ' . $withdrawal->bank_name . ' (' . $withdrawal->bank_account . ')',
+            ]);
+
+            Notification::create([
+                'user_id' => $withdrawal->user_id,
+                'type'    => 'withdrawal_approved',
+                'title'   => 'Penarikan Dana Berhasil ✅',
+                'message' => 'Dana sebesar Rp ' . number_format($withdrawal->amount, 0, ',', '.') . ' telah berhasil ditransfer ke rekening ' . $withdrawal->bank_name . ' (' . $withdrawal->bank_account . ').',
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Transfer dikonfirmasi. Saldo pengelola telah diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+        }
     }
 
+    /**
+     * Reject withdrawal — return balance_hold back to available balance.
+     */
     public function reject(Request $request, $id)
     {
         $request->validate([
@@ -57,38 +82,42 @@ class WithdrawalController extends Controller
 
         $withdrawal = Withdrawal::findOrFail($id);
 
-        if ($withdrawal->status !== 'pending') {
-            return back()->with('error', 'Status penarikan tidak valid.');
+        if (!in_array($withdrawal->status, ['PENDING', 'PROCESSING'])) {
+            return back()->with('error', 'Status penarikan tidak valid untuk ditolak.');
         }
 
         DB::beginTransaction();
         try {
+            $user = User::lockForUpdate()->findOrFail($withdrawal->user_id);
+
+            // Return balance_hold back to available
+            $user->decrement('balance_hold', $withdrawal->amount);
+
             $withdrawal->update([
-                'status' => 'rejected',
+                'status'           => 'REJECTED',
                 'rejection_reason' => $request->rejection_reason,
-                'processed_by' => auth()->id(),
-                'processed_at' => now(),
+                'processed_by'     => auth()->id(),
+                'processed_at'     => now(),
             ]);
 
-            // Refund balance
-            $withdrawal->user->increment('balance', $withdrawal->amount);
-
             WalletTransaction::create([
-                'user_id' => $withdrawal->user_id,
-                'type' => 'credit',
-                'amount' => $withdrawal->amount,
-                'description' => 'Pengembalian dana (Penarikan ditolak)',
+                'user_id'       => $withdrawal->user_id,
+                'type'          => 'WITHDRAW_REVERSAL',
+                'amount'        => $withdrawal->amount,
+                'balance_after' => $user->balance - $user->balance_hold,
+                'reference_id'  => 'WD-' . $withdrawal->id,
+                'description'   => 'Penarikan dibatalkan/ditolak. Saldo dikembalikan. Alasan: ' . $request->rejection_reason,
             ]);
 
             Notification::create([
                 'user_id' => $withdrawal->user_id,
-                'type' => 'withdrawal_rejected',
-                'title' => 'Penarikan Dana Ditolak',
-                'message' => 'Penarikan Rp ' . number_format($withdrawal->amount, 0, ',', '.') . ' ditolak. Alasan: ' . $request->rejection_reason,
+                'type'    => 'withdrawal_rejected',
+                'title'   => 'Penarikan Dana Ditolak',
+                'message' => 'Penarikan Rp ' . number_format($withdrawal->amount, 0, ',', '.') . ' ditolak dan saldo dikembalikan ke akun Anda. Alasan: ' . $request->rejection_reason,
             ]);
 
             DB::commit();
-            return back()->with('success', 'Penarikan dana ditolak dan saldo dikembalikan.');
+            return back()->with('success', 'Penarikan dana ditolak dan saldo dikembalikan ke pengelola.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan sistem.');

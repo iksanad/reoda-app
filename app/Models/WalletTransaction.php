@@ -11,8 +11,9 @@ class WalletTransaction extends Model
 
     protected $fillable = [
         'user_id',
-        'type', // 'credit' or 'debit'
+        'type', // SALE, WITHDRAW, WITHDRAW_REVERSAL, REFUND, ADJUSTMENT, credit, debit
         'amount',
+        'balance_after',
         'reference_id',
         'description',
     ];

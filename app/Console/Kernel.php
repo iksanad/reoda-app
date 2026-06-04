@@ -15,7 +15,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('contracts:process-expired')->daily();
+        // Kirim email/notifikasi pengingat tagihan jatuh tempo (jam 08.00 pagi)
+        $schedule->command('reoda:send-payment-reminders')->dailyAt('08:00');
+
+        // Hentikan kontrak kos yang melebihi batas toleransi (jam 00.01 dini hari)
+        $schedule->command('reoda:terminate-expired-kos')->dailyAt('00:01');
+
+        // Backup dari perintah lama (backward compat)
+        // $schedule->command('contracts:process-expired')->daily();
     }
 
     /**

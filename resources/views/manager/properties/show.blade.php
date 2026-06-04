@@ -45,11 +45,59 @@
             <p class="text-gray-600 leading-relaxed">{{ $property->description }}</p>
         </div>
         @endif
+
+        {{-- QR Code + Public Link --}}
+        <div class="mt-6 border-t border-gray-100 pt-6 flex flex-col sm:flex-row gap-5 items-start">
+            <div class="text-center">
+                <p class="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">QR Code Hunian</p>
+                <div class="inline-block bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
+                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(100)->generate(url('/property/' . $property->property_code)) !!}
+                </div>
+                <p class="text-xs font-mono text-gray-400 mt-1">{{ $property->property_code }}</p>
+            </div>
+            <div class="flex-1 space-y-3">
+                @if($property->yearly_discount_percent > 0)
+                <div class="inline-flex rounded-full bg-green-100 text-green-700 px-3 py-1 text-xs font-bold">
+                    Diskon {{ $property->yearly_discount_percent }}% untuk pembayaran tahunan
+                </div>
+                @endif
+                <div class="flex flex-wrap gap-2 mt-2">
+                    <a href="{{ url('/property/' . $property->property_code) }}" target="_blank"
+                        class="inline-flex items-center gap-2 rounded-lg border border-reoda text-reoda px-4 py-2 text-sm font-medium hover:bg-reoda hover:text-white transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        Lihat Halaman Publik
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+{{-- Property Terms --}}
+@if($property->property_terms)
+<div class="rounded-2xl bg-white shadow-sm p-6 border border-gray-200 mb-6">
+    <h3 class="text-lg font-extrabold text-reoda-dark mb-4">Ketentuan & Peraturan Hunian</h3>
+    <div class="rounded-lg bg-amber-50 border border-amber-200 p-4">
+        <p class="text-sm text-amber-800 whitespace-pre-line leading-relaxed">{{ $property->property_terms }}</p>
+    </div>
+</div>
+@endif
+
+{{-- Peta --}}
+@if($property->latitude && $property->longitude)
+<div class="rounded-2xl bg-white shadow-sm p-6 border border-gray-200 mb-6">
+    <h3 class="text-lg font-extrabold text-reoda-dark mb-4">Lokasi di Peta</h3>
+    <div id="detail-map" style="height:250px;border-radius:12px;" class="border border-stroke"></div>
+    @if($property->maps_url)
+    <a href="{{ $property->maps_url }}" target="_blank" class="mt-2 inline-flex items-center gap-2 text-sm text-reoda hover:underline">
+        🗺️ Lihat di OpenStreetMap
+    </a>
+    @endif
+</div>
+@endif
+
 <!-- Daftar Unit Kamar -->
-<div class="mb-4 mt-8 flex items-center justify-between">
+<div class="mb-4 mt-2 flex items-center justify-between">
     <h3 class="text-xl font-extrabold text-reoda-dark">Daftar Unit / Kamar</h3>
 </div>
 <div class="rounded-2xl bg-white shadow-sm p-4 sm:p-6 overflow-hidden border border-gray-200">
@@ -110,3 +158,25 @@
     @endif
 </div>
 @endsection
+
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+@endpush
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@if($property->latitude && $property->longitude)
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const map = L.map('detail-map').setView([{{ $property->latitude }}, {{ $property->longitude }}], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap', maxZoom: 19
+    }).addTo(map);
+    L.marker([{{ $property->latitude }}, {{ $property->longitude }}])
+        .addTo(map)
+        .bindPopup('<strong>{{ addslashes($property->name) }}</strong>')
+        .openPopup();
+});
+</script>
+@endif
+@endpush

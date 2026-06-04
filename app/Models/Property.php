@@ -27,6 +27,9 @@ class Property extends Model
         'longitude',
         'cover_image',
         'status',
+        'property_terms',
+        'yearly_discount_percent',
+        'maps_url',
     ];
 
     public function manager()

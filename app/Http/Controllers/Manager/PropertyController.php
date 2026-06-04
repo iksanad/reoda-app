@@ -60,20 +60,26 @@ class PropertyController extends Controller
             abort(403, 'Akses dicabut.');
         }
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:kos,kontrakan,apartemen',
-            'description' => 'nullable|string',
-            'address' => 'required|string',
-            'province' => 'required|string|max:100',
-            'city' => 'required|string|max:100',
-            'district' => 'required|string|max:100',
-            'village' => 'required|string|max:100',
-            'rt_rw' => 'nullable|string|max:20',
-            'postal_code' => 'required|string|max:10',
+            'name'                    => 'required|string|max:255',
+            'type'                    => 'required|in:kos,kontrakan,apartemen,rumah',
+            'description'             => 'nullable|string',
+            'property_terms'          => 'nullable|string',
+            'yearly_discount_percent' => 'nullable|numeric|min:0|max:50',
+            'address'                 => 'required|string',
+            'province'                => 'required|string|max:100',
+            'city'                    => 'required|string|max:100',
+            'district'                => 'nullable|string|max:100',
+            'village'                 => 'nullable|string|max:100',
+            'rt_rw'                   => 'nullable|string|max:20',
+            'postal_code'             => 'nullable|string|max:10',
+            'latitude'                => 'nullable|numeric',
+            'longitude'               => 'nullable|numeric',
+            'maps_url'                => 'nullable|string|max:500',
         ]);
 
         $validated['manager_id'] = Auth::id();
         $validated['status'] = 'active';
+        $validated['yearly_discount_percent'] = $validated['yearly_discount_percent'] ?? 0;
 
         $property = Property::create($validated);
 
@@ -109,22 +115,27 @@ class PropertyController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:kos,kontrakan,apartemen',
-            'description' => 'nullable|string',
-            'address' => 'required|string',
-            'province' => 'required|string|max:100',
-            'city' => 'required|string|max:100',
-            'district' => 'required|string|max:100',
-            'village' => 'required|string|max:100',
-            'rt_rw' => 'nullable|string|max:20',
-            'postal_code' => 'required|string|max:10',
-            'status' => 'required|in:active,inactive',
+            'name'                    => 'required|string|max:255',
+            'type'                    => 'required|in:kos,kontrakan,apartemen,rumah',
+            'description'             => 'nullable|string',
+            'property_terms'          => 'nullable|string',
+            'yearly_discount_percent' => 'nullable|numeric|min:0|max:50',
+            'address'                 => 'required|string',
+            'province'                => 'required|string|max:100',
+            'city'                    => 'required|string|max:100',
+            'district'                => 'nullable|string|max:100',
+            'village'                 => 'nullable|string|max:100',
+            'rt_rw'                   => 'nullable|string|max:20',
+            'postal_code'             => 'nullable|string|max:10',
+            'status'                  => 'required|in:active,inactive',
+            'latitude'                => 'nullable|numeric',
+            'longitude'               => 'nullable|numeric',
+            'maps_url'                => 'nullable|string|max:500',
         ]);
 
         $property->update($validated);
 
-        return redirect()->route('manager.properties.index')->with('success', 'Lokasi properti berhasil diupdate.');
+        return redirect()->route('manager.properties.show', $property)->with('success', 'Properti berhasil diperbarui.');
     }
 
     public function destroy(Property $property)
