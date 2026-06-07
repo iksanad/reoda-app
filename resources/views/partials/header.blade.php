@@ -46,8 +46,9 @@
             <span class="text-xl font-bold text-reoda tracking-wide">Reoda</span>
         </div>
 
-        <!-- Right: user dropdown -->
+        <!-- Right: user dropdown / auth actions -->
         <div class="flex items-center gap-3 ml-auto">
+            @auth
             <ul class="flex items-center gap-2">
                 <!-- Notifications Area -->
                 <li class="relative" x-data="{ notifOpen: false }">
@@ -181,6 +182,12 @@
                     </div>
                 </li>
             </ul>
+            @else
+            <div class="flex items-center gap-2 lg:gap-4">
+                <a href="{{ route('login') }}" class="text-sm font-semibold text-gray-700 hover:text-reoda transition">Masuk</a>
+                <a href="{{ route('register') }}" class="rounded-lg bg-reoda px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-reoda-dark transition">Daftar</a>
+            </div>
+            @endauth
         </div>
     </div>
 </header>

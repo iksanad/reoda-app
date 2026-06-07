@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.guest')
 @section('title', $property->name . ' - REODA')
 
 @push('styles')
@@ -9,7 +9,7 @@
 @endpush
 
 @section('content')
-<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6">
     <div>
         <h2 class="text-title-md2 font-bold text-black">{{ $property->name }}</h2>
         <p class="text-sm text-gray-500 mt-0.5">{{ $property->address }}, {{ $property->city }}, {{ $property->province }}</p>
@@ -20,7 +20,7 @@
     </ol></nav>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-12">
     {{-- Kolom Kiri: Info Properti --}}
     <div class="lg:col-span-2 space-y-5">
 
