@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Invoice;
 use App\Models\Notification;
+use App\Mail\PaymentReminderMail;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
@@ -41,8 +42,14 @@ class SendPaymentReminderEmails extends Command
                              ' jatuh tempo hari ini. Segera lakukan pembayaran.',
             ]);
 
-            // TODO: Send email via Mail::to($tenant->email)
-            $this->info("Reminder sent to {$tenant->email} for invoice #{$invoice->id}");
+            // Send email
+            if ($tenant->email) {
+                try {
+                    Mail::to($tenant->email)->send(new PaymentReminderMail($invoice, $contract, 'due_today'));
+                } catch (\Exception $e) {
+                    $this->warn("Email gagal ke {$tenant->email}: " . $e->getMessage());
+                }
+            }
         }
 
         // 2. Invoice yang SUDAH melewati jatuh tempo, H-1 sebelum batas toleransi berakhir
@@ -73,6 +80,14 @@ class SendPaymentReminderEmails extends Command
                                  $deadline->format('d M Y') . '). Jika tidak dibayar, kontrak Anda akan dihentikan otomatis.',
                 ]);
 
+                // Send email
+                if ($tenant->email) {
+                    try {
+                        Mail::to($tenant->email)->send(new PaymentReminderMail($invoice, $contract, 'overdue_warning', $deadline));
+                    } catch (\Exception $e) {
+                        $this->warn("Email gagal ke {$tenant->email}: " . $e->getMessage());
+                    }
+                }
                 $this->info("Warning sent to {$tenant->email} — tolerance deadline tomorrow.");
             }
         }

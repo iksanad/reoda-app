@@ -6,6 +6,7 @@
 <style>
     #map { height: 300px; width: 100%; border-radius: 12px; z-index: 1; }
     .leaflet-container { font-family: inherit; }
+    .leaflet-container img { max-width: none !important; }
 </style>
 @endpush
 
@@ -114,14 +115,20 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700">Kecamatan</label>
-                    <input type="text" name="district" value="{{ old('district') }}" placeholder="Kecamatan"
-                        class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700">Kecamatan <span class="text-error-500">*</span></label>
+                    <select id="select-district" x-model="selectedDistrict" required :disabled="!selectedCity"
+                        class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition disabled:opacity-50">
+                        <option value="">Pilih Kecamatan</option>
+                    </select>
+                    <input type="hidden" name="district" x-bind:value="selectedDistrictName">
                 </div>
                 <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700">Kelurahan / Desa</label>
-                    <input type="text" name="village" value="{{ old('village') }}" placeholder="Kelurahan/Desa"
-                        class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700">Kelurahan / Desa <span class="text-error-500">*</span></label>
+                    <select id="select-village" x-model="selectedVillage" required :disabled="!selectedDistrict"
+                        class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition disabled:opacity-50">
+                        <option value="">Pilih Kelurahan/Desa</option>
+                    </select>
+                    <input type="hidden" name="village" x-bind:value="selectedVillageName">
                 </div>
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-gray-700">Kode Pos</label>
@@ -218,7 +225,38 @@ function searchOnMap() {
         });
 }
 
-// ===== ALPINE.JS DATA =====
+function autoCenterMap(province, city, district, village) {
+    if (!map) return;
+    let queryParts = [];
+    if (village) queryParts.push(village);
+    if (district) queryParts.push(district);
+    if (city) queryParts.push(city);
+    if (province) queryParts.push(province);
+    
+    if (queryParts.length === 0) return;
+    const query = queryParts.join(', ') + ', Indonesia';
+    
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=id`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                let zoom = 10;
+                if (village) zoom = 15;
+                else if (district) zoom = 13;
+                else if (city) zoom = 11;
+
+                if (!marker) {
+                    setMarker(lat, lng);
+                } else {
+                    map.setView([lat, lng], zoom);
+                }
+            }
+        }).catch(e => console.error("Geocoding failed", e));
+}
+
+// ===== ALPINE.JS DATA (EMSIFA API) =====
 document.addEventListener('alpine:init', () => {
     Alpine.data('propertyForm', () => ({
         propertyType: '{{ old("type") }}',
@@ -226,11 +264,17 @@ document.addEventListener('alpine:init', () => {
         selectedProvinceName: '{{ old("province") }}',
         selectedCity: '',
         selectedCityName: '{{ old("city") }}',
+        selectedDistrict: '',
+        selectedDistrictName: '{{ old("district") }}',
+        selectedVillage: '',
+        selectedVillageName: '{{ old("village") }}',
         provinces: [],
         cities: [],
+        districts: [],
+        villages: [],
 
         init() {
-            fetch('/data/provinces.json')
+            fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')
                 .then(r => r.json())
                 .then(data => {
                     this.provinces = data;
@@ -253,27 +297,87 @@ document.addEventListener('alpine:init', () => {
                 this.selectedProvinceName = found ? found.name : '';
                 this.selectedCity = '';
                 this.selectedCityName = '';
+                this.selectedDistrict = '';
+                this.selectedDistrictName = '';
+                this.selectedVillage = '';
+                this.selectedVillageName = '';
                 if (id) this.loadCities(id);
+                if (this.selectedProvinceName) autoCenterMap(this.selectedProvinceName, '', '', '');
             });
 
             this.$watch('selectedCity', (id) => {
                 const found = this.cities.find(c => c.id === id);
                 this.selectedCityName = found ? found.name : '';
+                this.selectedDistrict = '';
+                this.selectedDistrictName = '';
+                this.selectedVillage = '';
+                this.selectedVillageName = '';
+                if (id) this.loadDistricts(id);
+                if (this.selectedCityName) autoCenterMap(this.selectedProvinceName, this.selectedCityName, '', '');
+            });
+
+            this.$watch('selectedDistrict', (id) => {
+                const found = this.districts.find(d => d.id === id);
+                this.selectedDistrictName = found ? found.name : '';
+                this.selectedVillage = '';
+                this.selectedVillageName = '';
+                if (id) this.loadVillages(id);
+                if (this.selectedDistrictName) autoCenterMap(this.selectedProvinceName, this.selectedCityName, this.selectedDistrictName, '');
+            });
+
+            this.$watch('selectedVillage', (id) => {
+                const found = this.villages.find(v => v.id === id);
+                this.selectedVillageName = found ? found.name : '';
+                if (this.selectedVillageName) autoCenterMap(this.selectedProvinceName, this.selectedCityName, this.selectedDistrictName, this.selectedVillageName);
             });
         },
 
         loadCities(provinceId) {
-            fetch('/data/cities.json')
+            fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`)
                 .then(r => r.json())
                 .then(data => {
-                    this.cities = data.filter(c => String(c.province_id) === String(provinceId));
+                    this.cities = data;
                     const sel = document.getElementById('select-city');
                     sel.innerHTML = '<option value="">Pilih Kota/Kabupaten</option>';
                     this.cities.forEach(c => {
                         const opt = document.createElement('option');
                         opt.value = c.id;
                         opt.textContent = c.name;
-                        if (c.name === '{{ old("city") }}') opt.selected = true;
+                        if (c.name === '{{ old("city") }}') { opt.selected = true; this.selectedCity = c.id; this.loadDistricts(c.id); }
+                        sel.appendChild(opt);
+                    });
+                });
+        },
+
+        loadDistricts(cityId) {
+            fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${cityId}.json`)
+                .then(r => r.json())
+                .then(data => {
+                    this.districts = data;
+                    const sel = document.getElementById('select-district');
+                    sel.innerHTML = '<option value="">Pilih Kecamatan</option>';
+                    this.districts.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.id;
+                        opt.textContent = d.name;
+                        if (d.name === '{{ old("district") }}') { opt.selected = true; this.selectedDistrict = d.id; this.loadVillages(d.id); }
+                        sel.appendChild(opt);
+                    });
+                });
+        },
+
+        loadVillages(districtId) {
+            fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${districtId}.json`)
+                .then(r => r.json())
+                .then(data => {
+                    this.villages = data;
+                    const sel = document.getElementById('select-village');
+                    sel.innerHTML = '<option value="">Pilih Kelurahan/Desa</option>';
+                    this.villages.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v.id;
+                        opt.textContent = v.name;
+                        if (v.name === '{{ old("village") }}') { opt.selected = true; this.selectedVillage = v.id; }
                         sel.appendChild(opt);
                     });
                 });

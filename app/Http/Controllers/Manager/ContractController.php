@@ -36,10 +36,11 @@ class ContractController extends Controller
         $contracts = $query->paginate(15)->appends(request()->query());
 
         $counts = [
-            'all'        => LeaseContract::where('manager_id', Auth::id())->count(),
-            'active'     => LeaseContract::where('manager_id', Auth::id())->where('status', 'active')->count(),
-            'expired'    => LeaseContract::where('manager_id', Auth::id())->where('status', 'expired')->count(),
-            'terminated' => LeaseContract::where('manager_id', Auth::id())->where('status', 'terminated')->count(),
+            'all'               => LeaseContract::where('manager_id', Auth::id())->count(),
+            'awaiting_approval' => LeaseContract::where('manager_id', Auth::id())->where('status', 'awaiting_approval')->count(),
+            'active'            => LeaseContract::where('manager_id', Auth::id())->where('status', 'active')->count(),
+            'expired'           => LeaseContract::where('manager_id', Auth::id())->where('status', 'expired')->count(),
+            'terminated'        => LeaseContract::where('manager_id', Auth::id())->where('status', 'terminated')->count(),
         ];
 
         return view('manager.contracts.index', compact('contracts', 'counts'));

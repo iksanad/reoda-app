@@ -12,9 +12,19 @@ use Illuminate\Support\Facades\DB;
 
 class WithdrawalController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $withdrawals = Withdrawal::with('user')->latest()->paginate(15);
+        $query = Withdrawal::with('user')->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
+        }
+
+        $withdrawals = $query->paginate(15)->appends($request->query());
         return view('superadmin.withdrawals.index', compact('withdrawals'));
     }
 

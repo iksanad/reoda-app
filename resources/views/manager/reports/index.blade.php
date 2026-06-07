@@ -25,10 +25,20 @@
             @endforeach
         </select>
     </div>
-    <button type="submit" class="rounded-lg bg-reoda px-5 py-2.5 text-sm font-medium text-white hover:bg-reoda-dark transition">Tampilkan</button>
-    <a href="{{ route('manager.reports.export', request()->only('year','month')) }}" class="rounded-lg border border-reoda px-5 py-2.5 text-sm font-medium text-reoda hover:bg-reoda-lightest flex items-center gap-2 transition">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-        Export CSV
+    <div>
+        <label class="mb-1.5 block text-xs font-medium text-gray-700">Properti (Opsional)</label>
+        <select name="property_id" class="rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition min-w-[160px]">
+            <option value="">Semua Properti</option>
+            @foreach(\App\Models\Property::where('manager_id', auth()->id())->orderBy('name')->get() as $p)
+            <option value="{{ $p->id }}" {{ request('property_id')==$p->id?'selected':'' }}>{{ $p->name }}</option>
+            @endforeach
+        </select>
+    </div>
+    <button type="submit" class="rounded-lg bg-reoda px-5 py-2.5 text-sm font-semibold text-white hover:bg-reoda-dark transition">Filter</button>
+    <a href="{{ route('manager.reports.export', request()->only('year','month','property_id')) }}"
+        class="rounded-lg border border-reoda px-5 py-2.5 text-sm font-semibold text-reoda hover:bg-reoda-lightest flex items-center gap-2 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Export XLSX
     </a>
 </form>
 
@@ -55,22 +65,11 @@
     </div>
 </div>
 
-{{-- Bar Chart --}}
+{{-- Bar Chart (Chart.js) --}}
 <div class="rounded-xl border border-stroke bg-white shadow-sm p-6 mb-6">
-    <h4 class="font-bold text-black mb-5">Grafik Pendapatan {{ $year }}</h4>
-    @php
-        $maxVal = max(array_values($monthlyData)) ?: 1;
-        $mos = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-    @endphp
-    <div class="flex items-end gap-2 h-44">
-        @foreach($monthlyData as $m => $val)
-        @php $pct = round(($val/$maxVal)*100); @endphp
-        <div class="flex-1 flex flex-col items-center gap-1 group cursor-default" title="Rp {{ number_format($val,0,',','.') }}">
-            <div class="w-full rounded-t-md transition-all duration-300 {{ (int)$month===$m ? 'bg-reoda' : 'bg-reoda/25 group-hover:bg-reoda/60' }}"
-                 style="height:{{ max($pct,2) }}%"></div>
-            <span class="text-[10px] text-gray-400">{{ $mos[$m-1] }}</span>
-        </div>
-        @endforeach
+    <h4 class="font-bold text-black mb-4">Grafik Pendapatan {{ $year }}</h4>
+    <div style="height: 220px; position: relative;">
+        <canvas id="reportChart"></canvas>
     </div>
 </div>
 
@@ -108,3 +107,50 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const months = @json(array_values($monthlyData));
+    const labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const activeMonth = {{ $month ?: 0 }};
+    const colors = months.map((_, i) => (activeMonth > 0 && (i+1) === activeMonth) ? '#0e9f6e' : 'rgba(14,165,125,0.25)');
+    const borders = months.map((_, i) => (activeMonth > 0 && (i+1) === activeMonth) ? '#0e9f6e' : 'rgba(14,165,125,0.6)');
+
+    const ctx = document.getElementById('reportChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Pendapatan',
+                    data: months,
+                    backgroundColor: colors,
+                    borderColor: borders,
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
+                        ticks: {
+                            callback: v => v >= 1000000 ? 'Rp '+(v/1000000).toFixed(1)+'jt' : 'Rp '+v.toLocaleString('id-ID'),
+                            font: { size: 10 }
+                        }
+                    },
+                    x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush

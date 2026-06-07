@@ -21,6 +21,9 @@ Route::get('/', function () {
 // Property Compare (public)
 Route::get('/compare', [\App\Http\Controllers\CompareController::class, 'index'])->name('compare.index');
 
+// Public Explore Market (no login required)
+Route::get('/explore', [\App\Http\Controllers\ExplorePublicController::class, 'index'])->name('explore.public');
+
 // Public Property Detail (via QR Code or Explore)
 Route::get('/property/{property_code}', [\App\Http\Controllers\PublicPropertyController::class, 'show'])->name('property.public.show');
 

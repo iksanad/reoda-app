@@ -23,60 +23,62 @@
 @endphp
 
 {{-- Stat Cards --}}
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
     <div class="rounded-2xl bg-white p-5 shadow-sm flex items-center gap-4">
-        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-reoda-lighter shrink-0">
-            <svg class="w-7 h-7 text-reoda-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 shrink-0">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         </div>
-        <div>
-            <p class="text-xs font-bold text-reoda-dark uppercase tracking-wide">Total Kontrak</p>
-            <h4 class="text-3xl font-extrabold text-reoda-dark mt-1">{{ $counts['all'] }}</h4>
-            <p class="text-[10px] font-medium text-gray-500">Semua Kontrak</p>
+        <div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Total</p><h4 class="text-2xl font-extrabold text-black">{{ $counts['all'] }}</h4></div>
+    </div>
+    <div class="rounded-2xl bg-white p-5 shadow-sm flex items-center gap-4 {{ $counts['awaiting_approval'] > 0 ? 'border-2 border-yellow-300' : '' }}">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-100 shrink-0">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
+        <div><p class="text-xs font-bold text-yellow-600 uppercase tracking-wide">Menunggu</p><h4 class="text-2xl font-extrabold text-yellow-700">{{ $counts['awaiting_approval'] }}</h4></div>
     </div>
     <div class="rounded-2xl bg-white p-5 shadow-sm flex items-center gap-4">
-        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-reoda-lightest shrink-0">
-            <svg class="w-7 h-7 text-reoda-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 shrink-0">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <div>
-            <p class="text-xs font-bold text-reoda-dark uppercase tracking-wide">Kontrak Aktif</p>
-            <h4 class="text-3xl font-extrabold text-reoda-dark mt-1">{{ $counts['active'] }}</h4>
-            <p class="text-[10px] font-medium text-gray-500">Sedang Berjalan</p>
-        </div>
+        <div><p class="text-xs font-bold text-green-600 uppercase tracking-wide">Aktif</p><h4 class="text-2xl font-extrabold text-green-700">{{ $counts['active'] }}</h4></div>
     </div>
     <div class="rounded-2xl bg-white p-5 shadow-sm flex items-center gap-4">
-        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-reoda-lightest shrink-0">
-            <svg class="w-7 h-7 text-reoda-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 shrink-0">
+            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         </div>
-        <div>
-            <p class="text-xs font-bold text-reoda-dark uppercase tracking-wide">Akan Berakhir</p>
-            <h4 class="text-3xl font-extrabold text-reoda-dark mt-1">{{ $expiring }}</h4>
-            <p class="text-[10px] font-medium text-gray-500">Dalam 30 hari</p>
-        </div>
+        <div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Berakhir</p><h4 class="text-2xl font-extrabold text-gray-700">{{ $counts['expired'] }}</h4></div>
     </div>
     <div class="rounded-2xl bg-white p-5 shadow-sm flex items-center gap-4">
-        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-reoda-lightest shrink-0">
-            <svg class="w-7 h-7 text-reoda-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 shrink-0">
+            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <div>
-            <p class="text-xs font-bold text-reoda-dark uppercase tracking-wide">Sudah Berakhir</p>
-            <h4 class="text-3xl font-extrabold text-reoda-dark mt-1">{{ $counts['expired'] }}</h4>
-            <p class="text-[10px] font-medium text-gray-500">Selesai/Dibatalkan</p>
-        </div>
+        <div><p class="text-xs font-bold text-red-500 uppercase tracking-wide">Diakhiri</p><h4 class="text-2xl font-extrabold text-red-600">{{ $counts['terminated'] }}</h4></div>
     </div>
 </div>
 
 {{-- Status Tabs --}}
 <div class="mb-5 flex flex-wrap gap-2">
     @php
-        $tabs = ['all'=>'Semua','active'=>'Aktif','expired'=>'Berakhir','terminated'=>'Diakhiri'];
-        $cur  = request('status','all');
-        $tabColors = ['all'=>'bg-gray-700','active'=>'bg-success-600','expired'=>'bg-gray-500','terminated'=>'bg-error-600'];
+        $tabs = [
+            'all'               => 'Semua',
+            'awaiting_approval' => '⏳ Menunggu Persetujuan',
+            'active'            => 'Aktif',
+            'expired'           => 'Berakhir',
+            'terminated'        => 'Diakhiri',
+        ];
+        $cur  = request('status', 'all');
+        $tabColors = [
+            'all'               => 'bg-gray-700',
+            'awaiting_approval' => 'bg-yellow-500',
+            'active'            => 'bg-green-600',
+            'expired'           => 'bg-gray-500',
+            'terminated'        => 'bg-red-500',
+        ];
     @endphp
     @foreach($tabs as $key => $label)
     <a href="{{ route('manager.contracts.index', array_merge(request()->except('page'), ['status' => $key==='all' ? null : $key])) }}"
        class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition
-           {{ ($cur===$key || ($cur==='all' && $key==='all')) ? $tabColors[$key].' text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+           {{ ($cur===$key || ($cur==='all' && $key==='all')) ? $tabColors[$key].' text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
         {{ $label }}<span class="rounded-full bg-white/20 px-2 py-0.5 text-xs">{{ $counts[$key] }}</span>
     </a>
     @endforeach

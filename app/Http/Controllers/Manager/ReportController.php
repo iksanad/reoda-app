@@ -14,13 +14,17 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        $year  = $request->get('year', now()->year);
-        $month = $request->get('month');
+        $year       = $request->get('year', now()->year);
+        $month      = $request->get('month');
+        $propertyId = $request->get('property_id');
+
+        $baseQuery = fn($q) => $q->where('manager_id', Auth::id())
+            ->when($propertyId, fn($qq) => $qq->where('id', $propertyId));
 
         // Monthly revenue for the selected year (for chart)
         $monthlyData = [];
         for ($m = 1; $m <= 12; $m++) {
-            $monthlyData[$m] = Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))
+            $monthlyData[$m] = Payment::whereHas('invoice.leaseContract.unit.property', $baseQuery)
                 ->where('status', 'approved')
                 ->whereYear('paid_at', $year)
                 ->whereMonth('paid_at', $m)
@@ -28,7 +32,7 @@ class ReportController extends Controller
         }
 
         // Per-property summary
-        $query = Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))
+        $query = Payment::whereHas('invoice.leaseContract.unit.property', $baseQuery)
             ->where('status', 'approved')
             ->whereYear('paid_at', $year);
         if ($month) $query->whereMonth('paid_at', $month);
@@ -37,7 +41,7 @@ class ReportController extends Controller
         $totalPaid    = (clone $query)->count();
 
         // Payment list for the period
-        $payments = Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))
+        $payments = Payment::whereHas('invoice.leaseContract.unit.property', $baseQuery)
             ->where('status', 'approved')
             ->whereYear('paid_at', $year)
             ->when($month, fn($q) => $q->whereMonth('paid_at', $month))
