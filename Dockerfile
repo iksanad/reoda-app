@@ -46,6 +46,9 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
 COPY docker-start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
-EXPOSE 80
+# Use the PORT environment variable in Apache configuration files.
+# This makes Apache listen on the dynamic port assigned by Render.
+ENV PORT=10000
+RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
 CMD ["/usr/local/bin/start.sh"]
