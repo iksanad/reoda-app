@@ -32,7 +32,7 @@
 @php $available = $user->balance - ($user->balance_hold ?? 0); @endphp
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
     {{-- Total Saldo --}}
-    <div class="rounded-2xl bg-gradient-to-br from-reoda to-reoda-dark p-6 text-white shadow-lg col-span-1">
+    <div class="rounded-2xl bg-linear-to-br from-reoda to-reoda-dark p-6 text-white shadow-lg col-span-1">
         <div class="flex items-center gap-3 mb-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>

@@ -12,7 +12,7 @@
         <div class="w-full max-w-4xl rounded-2xl bg-white shadow-xl flex overflow-hidden">
             <!-- Branding Panel -->
             <div class="hidden md:flex md:w-1/2 bg-reoda items-center justify-center p-8 flex-col text-white relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-reoda-dark to-reoda opacity-90"></div>
+                <div class="absolute inset-0 bg-linear-to-br from-reoda-dark to-reoda opacity-90"></div>
                 <div class="relative z-10 text-center">
                     <img src="{{ asset('template/logo/Reoda-003648.png') }}" alt="REODA Logo" class="h-24 mx-auto mb-6 bg-white p-2 rounded-xl">
                     <h2 class="text-3xl font-bold mb-4">REODA Platform</h2>

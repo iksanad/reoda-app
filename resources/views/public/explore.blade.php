@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- Page Header --}}
-<div class="bg-gradient-to-r from-reoda to-teal-500 text-white py-10">
+<div class="bg-linear-to-r from-reoda to-teal-500 text-white py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-extrabold">🔍 Explore Hunian</h1>
         <p class="text-white/80 mt-1 text-sm">Temukan kos, kontrakan, dan apartemen terbaik di seluruh Indonesia</p>
@@ -66,10 +66,11 @@
                     {{-- Provinsi --}}
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Provinsi</label>
-                        <select name="province" class="w-full rounded-lg border border-stroke py-2.5 px-3 text-sm outline-none focus:border-reoda" onchange="this.form.submit()">
+                        <select name="province" id="explore-province"
+                            class="w-full rounded-lg border border-stroke py-2.5 px-3 text-sm outline-none focus:border-reoda">
                             <option value="">Semua Provinsi</option>
-                            @foreach($provinces as $prov)
-                            <option value="{{ $prov }}" {{ request('province')===$prov ? 'selected':'' }}>{{ $prov }}</option>
+                            @foreach($provinces as $p)
+                            <option value="{{ $p }}" {{ request('province')===$p ? 'selected':'' }}>{{ $p }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -77,11 +78,9 @@
                     {{-- Kota --}}
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Kota / Kabupaten</label>
-                        <select name="city" class="w-full rounded-lg border border-stroke py-2.5 px-3 text-sm outline-none focus:border-reoda" onchange="this.form.submit()">
+                        <select name="city" id="explore-city"
+                            class="w-full rounded-lg border border-stroke py-2.5 px-3 text-sm outline-none focus:border-reoda">
                             <option value="">Semua Kota</option>
-                            @foreach($cities as $city)
-                            <option value="{{ $city }}" {{ request('city')===$city ? 'selected':'' }}>{{ $city }}</option>
-                            @endforeach
                         </select>
                     </div>
 
@@ -181,12 +180,12 @@
                     class="property-card group block rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm">
 
                     {{-- Image --}}
-                    <div class="relative h-44 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                    <div class="relative h-44 overflow-hidden bg-linear-to-br from-gray-100 to-gray-200">
                         @if(($property->cover_image_url ?? null))
                         <img src="{{ $property->cover_image_url }}" alt="{{ $property->name }}"
                             class="property-img w-full h-full object-cover">
                         @else
-                        <div class="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-emerald-50 to-teal-100">
+                        <div class="w-full h-full flex items-center justify-center text-5xl bg-linear-to-br from-emerald-50 to-teal-100">
                             @switch($property->type)
                                 @case('kos') 🏠 @break
                                 @case('kontrakan') 🏡 @break
@@ -251,6 +250,45 @@
     .property-img { transition: transform 0.4s ease; }
     .property-card:hover .property-img { transform: scale(1.05); }
 </style>
+@endpush
+
+@push('scripts')
+{{-- Data PHP ditempatkan di script type JSON agar tidak di-lint sebagai JS --}}
+<script type="application/json" id="explore-cities-data">{!! json_encode($citiesByProvince) !!}</script>
+<script type="application/json" id="explore-all-cities">{!! json_encode($allCities) !!}</script>
+
+<script>
+(function() {
+    var citiesByProv = JSON.parse(document.getElementById('explore-cities-data').textContent);
+    var allCities    = JSON.parse(document.getElementById('explore-all-cities').textContent);
+    var activeCity   = "{{ request('city', '') }}";
+
+    var selectProv = document.getElementById('explore-province');
+    var selectCity = document.getElementById('explore-city');
+
+    if (!selectProv || !selectCity) return;
+
+    function renderCities(prov, selectedCity) {
+        var cities = (prov && citiesByProv[prov]) ? citiesByProv[prov] : allCities;
+        selectCity.innerHTML = '<option value="">Semua Kota</option>';
+        cities.forEach(function(c) {
+            var opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            if (c === selectedCity) opt.selected = true;
+            selectCity.appendChild(opt);
+        });
+    }
+
+    // Init on page load
+    renderCities(selectProv.value, activeCity);
+
+    // On province change - update cities
+    selectProv.addEventListener('change', function() {
+        renderCities(this.value, '');
+    });
+})();
+</script>
 @endpush
 
 @endsection

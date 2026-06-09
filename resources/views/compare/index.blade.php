@@ -40,13 +40,61 @@
 
 <div class="max-w-7xl mx-auto px-4 py-8">
     {{-- Header --}}
-    <div class="text-center mb-8">
+    <div class="text-center mb-6">
         <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Pembanding Hunian</h1>
         <p class="text-gray-500">Pilih 2 properti untuk dibandingkan secara berdampingan</p>
     </div>
 
+    {{-- Filter Form --}}
+    {{-- Filter Form --}}
+    <div class="mb-6 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <form id="filter-form" method="GET" action="{{ route('compare.index') }}">
+            @if(request('prop1')) <input type="hidden" name="prop1" value="{{ request('prop1') }}"> @endif
+            @if(request('prop2')) <input type="hidden" name="prop2" value="{{ request('prop2') }}"> @endif
+            
+            <div class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="w-full md:w-1/4">
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1.5">Tipe Properti</label>
+                    <select name="filter_type" class="w-full rounded-lg border border-stroke text-sm outline-none px-3 py-2.5">
+                        <option value="">Semua Tipe</option>
+                        <option value="kos" {{ request('filter_type') == 'kos' ? 'selected' : '' }}>Kos</option>
+                        <option value="kontrakan" {{ request('filter_type') == 'kontrakan' ? 'selected' : '' }}>Kontrakan</option>
+                        <option value="apartemen" {{ request('filter_type') == 'apartemen' ? 'selected' : '' }}>Apartemen</option>
+                        <option value="rumah" {{ request('filter_type') == 'rumah' ? 'selected' : '' }}>Rumah</option>
+                    </select>
+                </div>
+                <div class="w-full md:w-1/4">
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1.5">Provinsi</label>
+                    <select name="filter_province" id="select-province"
+                        class="w-full rounded-lg border border-stroke text-sm outline-none px-3 py-2.5">
+                        <option value="">Semua Provinsi</option>
+                        @foreach($provinces as $p)
+                            <option value="{{ $p }}" {{ request('filter_province') == $p ? 'selected' : '' }}>{{ $p }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="w-full md:w-1/4">
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1.5">Kota / Kab</label>
+                    <select name="filter_city" id="select-city"
+                        class="w-full rounded-lg border border-stroke text-sm outline-none px-3 py-2.5">
+                        <option value="">Semua Kota</option>
+                    </select>
+                </div>
+                <div class="w-full md:w-1/4">
+                    <button type="submit" class="w-full rounded-lg bg-gray-900 px-4 py-2.5 font-bold text-white hover:bg-black transition text-sm">
+                        Terapkan Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
     {{-- Selector Form --}}
     <form method="GET" action="{{ route('compare.index') }}" class="mb-8">
+        @if(request('filter_type')) <input type="hidden" name="filter_type" value="{{ request('filter_type') }}"> @endif
+        @if(request('filter_province')) <input type="hidden" name="filter_province" value="{{ request('filter_province') }}"> @endif
+        @if(request('filter_city')) <input type="hidden" name="filter_city" value="{{ request('filter_city') }}"> @endif
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {{-- Selector 1 --}}
             <div class="rounded-xl border-2 {{ $prop1 ? 'border-reoda border-solid' : 'border-dashed border-gray-300' }} bg-white p-4">
@@ -266,6 +314,40 @@
             }
         });
     });
+</script>
+
+<script>
+(function() {
+    const citiesByProv = @json($citiesByProvince);
+    const allCities   = @json($allCities);
+    const activeCity  = '{{ request('filter_city', '') }}';
+
+    const selectProvince = document.getElementById('select-province');
+    const selectCity     = document.getElementById('select-city');
+
+    function renderCities(prov, selectedCity) {
+        const cities = (prov && citiesByProv[prov]) ? citiesByProv[prov] : allCities;
+
+        // Reset city dropdown to only the placeholder
+        selectCity.innerHTML = '<option value="">Semua Kota</option>';
+
+        cities.forEach(function(c) {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            if (c === selectedCity) opt.selected = true;
+            selectCity.appendChild(opt);
+        });
+    }
+
+    // Render on page load with current server-side values
+    renderCities(selectProvince.value, activeCity);
+
+    // Re-render whenever province changes
+    selectProvince.addEventListener('change', function() {
+        renderCities(this.value, '');
+    });
+})();
 </script>
 </body>
 </html>

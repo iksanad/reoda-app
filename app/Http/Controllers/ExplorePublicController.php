@@ -48,13 +48,29 @@ class ExplorePublicController extends Controller
 
         $properties = $query->paginate(12)->appends($request->query());
 
-        $cities     = Property::where('status','active')
+        // Build province -> cities grouped map for dynamic filtering
+        $locations = Property::where('status','active')
             ->whereHas('manager', fn($q) => $q->where('manager_status','approved'))
-            ->distinct()->pluck('city')->sort()->values();
+            ->select('province', 'city')
+            ->distinct()
+            ->get();
 
-        $provinces  = Property::where('status','active')
-            ->whereHas('manager', fn($q) => $q->where('manager_status','approved'))
-            ->distinct()->pluck('province')->sort()->values();
+        $citiesByProvince = [];
+        $allCities = [];
+        foreach ($locations as $loc) {
+            $prov = $loc->province ?: 'Lainnya';
+            $city = $loc->city ?: 'Lainnya';
+            if (!isset($citiesByProvince[$prov])) $citiesByProvince[$prov] = [];
+            if (!in_array($city, $citiesByProvince[$prov])) $citiesByProvince[$prov][] = $city;
+            if (!in_array($city, $allCities)) $allCities[] = $city;
+        }
+        ksort($citiesByProvince);
+        foreach ($citiesByProvince as &$cArr) sort($cArr);
+        sort($allCities);
+        $provinces = array_keys($citiesByProvince);
+
+        // Also keep flat cities for backward compat
+        $cities = $allCities;
 
         // Stats for hero
         $totalProps   = Property::where('status','active')->count();
@@ -62,7 +78,7 @@ class ExplorePublicController extends Controller
         $totalAvail   = \App\Models\Unit::where('status','available')->count();
 
         return view('public.explore', compact(
-            'properties', 'cities', 'provinces',
+            'properties', 'cities', 'provinces', 'citiesByProvince', 'allCities',
             'totalProps', 'totalCities', 'totalAvail'
         ));
     }

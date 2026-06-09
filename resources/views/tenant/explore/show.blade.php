@@ -20,7 +20,7 @@
 <div class="rounded-sm border border-stroke bg-white shadow-default mb-6 overflow-hidden">
     <div class="h-56 md:h-80 bg-gray-100 relative">
         <img src="{{ $property->cover_image_url ?? 'https://placehold.co/1200x400/4C74AF/ffffff?text='.urlencode($property->name) }}" alt="{{ $property->name }}" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-reoda-dark/60 to-transparent"></div>
+        <div class="absolute inset-0 bg-linear-to-t from-reoda-dark/60 to-transparent"></div>
         <div class="absolute bottom-0 left-0 p-6">
             <span class="mb-2 inline-block rounded bg-reoda px-3 py-1 text-xs font-bold text-white uppercase">{{ $property->type }}</span>
             <h2 class="text-2xl md:text-3xl font-bold text-white">{{ $property->name }}</h2>

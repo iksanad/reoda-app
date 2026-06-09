@@ -10,11 +10,11 @@
     <style>
         .hero-banner-bg {
             background-color: #eef5fe;
+            /* No background image below desktop - hidden on mobile */
         }
         @media (min-width: 1024px) {
             .hero-banner-bg {
                 background-image: url('{{ $heroBg }}');
-                /* Align strictly to right and bottom so nothing gets cut off */
                 background-position: right bottom;
                 background-repeat: no-repeat;
                 background-size: 850px;
@@ -22,7 +22,7 @@
         }
         @media (min-width: 1280px) {
             .hero-banner-bg {
-                background-size: 950px; /* Even larger on XL screens */
+                background-size: 950px;
             }
         }
     </style>
@@ -153,7 +153,7 @@
             @endphp
             @foreach($categories as $cat)
             <a href="{{ route('explore.public', ['type' => $cat['type']]) }}"
-                class="group relative overflow-hidden rounded-2xl bg-gradient-to-br {{ $cat['color'] }} p-6 text-white shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                class="group relative overflow-hidden rounded-2xl bg-linear-to-br {{ $cat['color'] }} p-6 text-white shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div class="text-4xl mb-3">{{ $cat['icon'] }}</div>
                 <p class="font-bold text-lg">{{ $cat['label'] }}</p>
                 @php $cnt = \App\Models\Property::where('status','active')->where('type',$cat['type'])->count(); @endphp
@@ -200,12 +200,12 @@
             <a href="{{ url('/property/' . $property->property_code) }}"
                 class="property-card group block rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 {{-- Cover Image --}}
-                <div class="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                <div class="relative h-48 overflow-hidden bg-linear-to-br from-gray-100 to-gray-200">
                     @if($property->cover_image_url ?? null)
                     <img src="{{ $property->cover_image_url }}" alt="{{ $property->name }}"
                         class="property-img w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                     @else
-                    <div class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-emerald-50 to-teal-100 transition-transform duration-500 group-hover:scale-105">
+                    <div class="w-full h-full flex items-center justify-center text-6xl bg-linear-to-br from-emerald-50 to-teal-100 transition-transform duration-500 group-hover:scale-105">
                         @switch($property->type)
                             @case('kos') 🏠 @break
                             @case('kontrakan') 🏡 @break

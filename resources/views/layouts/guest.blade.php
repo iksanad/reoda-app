@@ -12,43 +12,81 @@
 <body class="font-sans antialiased text-gray-900 bg-white">
 
     {{-- Navbar --}}
-    <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50" style="box-shadow: 0 1px 12px 0 rgba(76,116,175,0.08)">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                {{-- Logo --}}
+            <div class="flex justify-between h-[68px] items-center">
+
+                {{-- Logo + Nav Links --}}
                 <div class="flex items-center gap-8">
-                    <a href="{{ url('/') }}" class="flex items-center gap-2 shrink-0">
-                        <img class="h-8 w-auto" src="{{ asset('template/logo/Reoda-4C74AF.png') }}" alt="REODA">
+                    <a href="{{ url('/') }}" class="flex items-center gap-3 shrink-0 group">
+                        <img class="h-11 w-auto transition group-hover:scale-105" src="{{ asset('template/logo/Reoda-4C74AF.png') }}" alt="REODA">
+                        <span class="hidden sm:block text-lg font-extrabold text-[#4C74AF] tracking-tight">REODA</span>
                     </a>
-                    {{-- Nav links --}}
-                    <div class="hidden md:flex items-center gap-6">
-                        <a href="{{ route('explore.public') }}" class="text-sm font-semibold text-gray-600 hover:text-reoda transition {{ request()->routeIs('explore.public') ? 'text-reoda' : '' }}">
+
+                    {{-- Desktop Nav links --}}
+                    <div class="hidden md:flex items-center gap-1">
+                        <a href="{{ url('/') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition
+                            {{ request()->is('/') ? 'text-reoda bg-reoda/8' : 'text-gray-600 hover:text-reoda hover:bg-reoda/5' }}">
+                            🏠 Beranda
+                        </a>
+                        <a href="{{ route('explore.public') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition
+                            {{ request()->routeIs('explore.public') ? 'text-reoda bg-reoda/8' : 'text-gray-600 hover:text-reoda hover:bg-reoda/5' }}">
                             🔍 Cari Hunian
                         </a>
-                        <a href="{{ route('compare.index') }}" class="text-sm font-semibold text-gray-600 hover:text-reoda transition">
+                        <a href="{{ route('compare.index') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition
+                            {{ request()->routeIs('compare.index') ? 'text-reoda bg-reoda/8' : 'text-gray-600 hover:text-reoda hover:bg-reoda/5' }}">
                             ⚖️ Bandingkan
                         </a>
                     </div>
                 </div>
 
-                {{-- Auth --}}
-                <div class="flex items-center gap-3">
+                {{-- Auth Buttons --}}
+                <div class="flex items-center gap-2">
                     @auth
                         @if(auth()->user()->isManager())
-                            <a href="{{ route('manager.dashboard') }}" class="text-sm font-semibold text-reoda hover:text-reoda-dark">Dashboard</a>
+                            <a href="{{ route('manager.dashboard') }}" class="flex items-center gap-2 rounded-xl bg-reoda px-4 py-2 text-sm font-bold text-white hover:bg-reoda-dark transition shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                                Dashboard
+                            </a>
                         @elseif(auth()->user()->isTenant())
-                            <a href="{{ route('tenant.dashboard') }}" class="text-sm font-semibold text-reoda hover:text-reoda-dark">Dashboard</a>
+                            <a href="{{ route('tenant.dashboard') }}" class="flex items-center gap-2 rounded-xl bg-reoda px-4 py-2 text-sm font-bold text-white hover:bg-reoda-dark transition shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                                Dashboard
+                            </a>
                         @endif
                     @else
-                        <a href="{{ route('login') }}" class="text-sm font-medium text-gray-600 hover:text-reoda transition px-4 py-2">Masuk</a>
-                        <a href="{{ route('register') }}" class="rounded-xl bg-reoda hover:bg-reoda-dark text-white px-5 py-2 text-sm font-semibold transition shadow-sm">
+                        <a href="{{ route('login') }}" class="hidden sm:block text-sm font-semibold text-gray-600 hover:text-reoda transition px-4 py-2 rounded-lg hover:bg-gray-50">Masuk</a>
+                        <a href="{{ route('register') }}" class="rounded-xl bg-reoda hover:bg-reoda-dark text-white px-5 py-2.5 text-sm font-bold transition shadow-sm">
                             Daftar Gratis
                         </a>
                     @endauth
+
+                    {{-- Mobile menu button --}}
+                    <button id="mobile-menu-btn" class="md:hidden ml-1 p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Mobile Menu --}}
+            <div id="mobile-menu" class="md:hidden hidden pb-3 border-t border-gray-100 mt-0">
+                <div class="pt-3 space-y-1">
+                    <a href="{{ url('/') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold {{ request()->is('/') ? 'text-reoda bg-reoda/8' : 'text-gray-600 hover:text-reoda hover:bg-gray-50' }}">🏠 Beranda</a>
+                    <a href="{{ route('explore.public') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold {{ request()->routeIs('explore.public') ? 'text-reoda bg-reoda/8' : 'text-gray-600 hover:text-reoda hover:bg-gray-50' }}">🔍 Cari Hunian</a>
+                    <a href="{{ route('compare.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold {{ request()->routeIs('compare.index') ? 'text-reoda bg-reoda/8' : 'text-gray-600 hover:text-reoda hover:bg-gray-50' }}">⚖️ Bandingkan</a>
+                    @guest
+                    <a href="{{ route('login') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:text-reoda hover:bg-gray-50">Masuk</a>
+                    @endguest
                 </div>
             </div>
         </div>
     </nav>
+
+    <script>
+    document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+    </script>
 
     {{-- Main Content --}}
     <main>
