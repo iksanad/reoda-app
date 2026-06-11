@@ -127,11 +127,21 @@ class ContractController extends Controller
 
         // Notify tenant
         \App\Models\Notification::create([
-            'user_id' => $contract->tenant_id,
-            'type'    => 'contract_approved',
-            'title'   => 'Kontrak Disetujui! 🎉',
-            'message' => 'Pengajuan kontrak Anda untuk unit ' . ($contract->unit->name ?? '') . ' di ' . ($contract->unit->property->name ?? '') . ' telah disetujui oleh pengelola.',
+            'user_id'         => $contract->tenant_id,
+            'notifiable_type' => \App\Models\User::class,
+            'notifiable_id'   => $contract->tenant_id,
+            'type'            => 'general',
+            'title'           => 'Kontrak Disetujui! 🎉',
+            'message'         => 'Pengajuan kontrak Anda untuk unit ' . ($contract->unit->name ?? '') . ' di ' . ($contract->unit->property->name ?? '') . ' telah disetujui oleh pengelola.',
         ]);
+
+        try {
+            if ($contract->tenant && $contract->tenant->email) {
+                \Illuminate\Support\Facades\Mail::to($contract->tenant->email)->send(new \App\Mail\ContractApprovedMail($contract, true));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send ContractApprovedMail: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Kontrak berhasil disetujui. Penyewa telah diberitahu.');
     }
@@ -159,11 +169,21 @@ class ContractController extends Controller
 
         // Notify tenant
         \App\Models\Notification::create([
-            'user_id' => $contract->tenant_id,
-            'type'    => 'contract_rejected',
-            'title'   => 'Pengajuan Kontrak Ditolak',
-            'message' => 'Maaf, pengajuan kontrak Anda untuk unit ' . ($contract->unit->name ?? '') . ' ditolak. Alasan: ' . $request->rejection_reason,
+            'user_id'         => $contract->tenant_id,
+            'notifiable_type' => \App\Models\User::class,
+            'notifiable_id'   => $contract->tenant_id,
+            'type'            => 'general',
+            'title'           => 'Pengajuan Kontrak Ditolak',
+            'message'         => 'Maaf, pengajuan kontrak Anda ditolak. Alasan: ' . $request->rejection_reason,
         ]);
+
+        try {
+            if ($contract->tenant && $contract->tenant->email) {
+                \Illuminate\Support\Facades\Mail::to($contract->tenant->email)->send(new \App\Mail\ContractApprovedMail($contract, false));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send ContractApprovedMail: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Pengajuan kontrak ditolak.');
     }

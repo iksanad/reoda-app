@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContractRequestedMail;
 
 class ContractRequestController extends Controller
 {
@@ -97,12 +99,12 @@ class ContractRequestController extends Controller
                 'rental_type'       => 'monthly',
                 'payment_cycle'     => $cycle,
                 'contract_duration' => $duration,
-                'tolerance_days'    => $isKos ? ($request->tolerance_days ?? 7) : null,
+                'tolerance_days'    => $isKos ? ($request->tolerance_days ?? 7) : 7,
                 'rent_amount'       => $rentAmount,
                 'deposit_amount'    => 0,
                 'status'            => 'awaiting_approval',
                 'tenant_sign_at'    => now(),
-                'notes'             => $property->property_terms,
+                'notes'             => $property->property_terms ?? '',
             ]);
 
             // Mark unit as occupied (optimistic lock — manager can revert)
@@ -110,19 +112,31 @@ class ContractRequestController extends Controller
 
             // Notify manager
             Notification::create([
-                'user_id' => $property->manager_id,
-                'type'    => 'contract_request',
-                'title'   => 'Pengajuan Kontrak Baru',
-                'message' => Auth::user()->name . ' mengajukan kontrak untuk unit ' . $unit->name . ' di ' . $property->name . '. Silakan tinjau dan setujui.',
+                'user_id'         => $property->manager_id,
+                'notifiable_type' => \App\Models\User::class,
+                'notifiable_id'   => $property->manager_id,
+                'type'            => 'general',
+                'title'           => 'Pengajuan Kontrak Baru',
+                'message'         => Auth::user()->name . ' mengajukan kontrak untuk unit ' . $unit->name . ' di ' . $property->name . '. Silakan tinjau dan setujui.',
             ]);
 
             DB::commit();
+
+            // Try to send email to manager (silently fail if SMTP is broken so it doesn't break user flow)
+            try {
+                if ($property->manager && $property->manager->email) {
+                    Mail::to($property->manager->email)->send(new ContractRequestedMail($contract));
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send ContractRequestedMail: ' . $e->getMessage());
+            }
 
             return redirect()->route('tenant.contract.show')
                 ->with('success', 'Pengajuan kontrak berhasil dikirim! Tunggu persetujuan dari pengelola.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Terjadi kesalahan. Silakan coba lagi.')->withInput();
+            \Illuminate\Support\Facades\Log::error('Contract Request Error: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+            return back()->with('error', 'Terjadi kesalahan. Silakan coba lagi: ' . $e->getMessage())->withInput();
         }
     }
 }

@@ -20,7 +20,9 @@ class Notification extends Model
         'email_body',
         'link_url',
         'is_read',
-        'is_email_sent'
+        'is_email_sent',
+        'notifiable_type',
+        'notifiable_id',
     ];
 
     public function user()

@@ -95,6 +95,44 @@
             @endif
         </div>
 
+        {{-- Approval Actions --}}
+        @if($contract->status === 'awaiting_approval')
+        <div class="rounded-2xl border border-reoda/30 bg-reoda-lightest/30 shadow-sm p-6" x-data="{ openReject: false }">
+            <h4 class="font-extrabold text-reoda-dark mb-2 text-lg">Tinjauan Pengajuan Kontrak</h4>
+            <p class="text-sm text-gray-600 mb-5 font-medium">Penyewa ini telah mengajukan penyewaan. Silakan tinjau profil dan riwayat sebelum mengambil keputusan.</p>
+            
+            <div class="flex flex-wrap items-center gap-3" x-show="!openReject">
+                <form action="{{ route('manager.contracts.approve-request', $contract) }}" method="POST">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Setujui pengajuan kontrak ini? Status unit akan dikunci untuk penyewa ini.')" class="inline-flex items-center gap-2 rounded-xl bg-success-600 px-6 py-2.5 font-bold text-white hover:bg-success-700 transition shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Setujui Pengajuan
+                    </button>
+                </form>
+                
+                <button type="button" @click="openReject = true" class="inline-flex items-center gap-2 rounded-xl bg-white border border-gray-300 px-6 py-2.5 font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    Tolak
+                </button>
+            </div>
+
+            {{-- Reject Form --}}
+            <div x-show="openReject" x-transition style="display:none" class="mt-4 p-4 bg-white rounded-xl border border-gray-200">
+                <form action="{{ route('manager.contracts.reject-request', $contract) }}" method="POST" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Alasan Penolakan</label>
+                        <textarea name="rejection_reason" rows="3" required placeholder="Tuliskan alasan penolakan (akan dikirimkan ke penyewa)..." class="w-full rounded-lg border border-gray-300 py-3 px-4 text-sm font-medium outline-none focus:border-reoda focus:ring-1 focus:ring-reoda transition"></textarea>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="submit" onclick="return confirm('Anda yakin menolak pengajuan ini?')" class="rounded-lg bg-error-600 px-6 py-2 font-bold text-white hover:bg-error-700 transition shadow-sm">Konfirmasi Tolak</button>
+                        <button type="button" @click="openReject = false" class="rounded-lg bg-gray-100 px-6 py-2 font-bold text-gray-600 hover:bg-gray-200 transition">Batal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @endif
+
         {{-- Terminate --}}
         @if($contract->status === 'active')
         <div class="rounded-2xl border border-error-200 bg-white shadow-sm p-6" x-data="{ open: false }">

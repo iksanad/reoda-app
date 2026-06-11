@@ -75,15 +75,31 @@
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4">
         <div class="flex items-center justify-between mb-4">
             <h4 class="font-bold text-black">Masukkan Kode Hunian</h4>
-            <button onclick="closeQrScanner()" class="text-gray-400 hover:text-gray-600">✕</button>
+            <button onclick="closeQrScanner()" class="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
         </div>
-        <p class="text-sm text-gray-500 mb-4">Masukkan kode properti yang tertera di bawah QR Code, atau scan QR Code menggunakan kamera perangkat Anda.</p>
+        <p class="text-sm text-gray-500 mb-4">Masukkan kode properti secara manual, atau gunakan tombol kamera untuk scan QR Code langsung dari layar Anda.</p>
+
+        {{-- Camera Scanner Area --}}
+        <div id="qr-reader" class="hidden mb-4 rounded-xl overflow-hidden border border-stroke"></div>
+        <div id="qr-scan-result" class="hidden mb-3 p-3 rounded-lg bg-green-50 border border-green-200 text-sm text-green-700 font-medium"></div>
+
+        {{-- Manual Input --}}
         <input type="text" id="property-code-input" placeholder="Contoh: REODA-001"
             class="w-full rounded-lg border border-stroke py-3 px-4 text-sm font-mono uppercase outline-none focus:border-reoda transition mb-3">
-        <button onclick="goToProperty()"
-            class="w-full rounded-lg bg-reoda py-3 font-semibold text-white hover:bg-reoda-dark transition">
-            Lihat Hunian
-        </button>
+
+        <div class="flex gap-2">
+            {{-- Scan Camera Button --}}
+            <button id="btn-scan-camera" onclick="toggleCameraScanner()"
+                class="flex items-center gap-2 rounded-lg border border-reoda text-reoda px-4 py-3 text-sm font-semibold hover:bg-reoda hover:text-white transition shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                Kamera
+            </button>
+            {{-- Go Button --}}
+            <button onclick="goToProperty()"
+                class="flex-1 rounded-lg bg-reoda py-3 font-semibold text-white hover:bg-reoda-dark transition">
+                Lihat Hunian
+            </button>
+        </div>
     </div>
 </div>
 @else
@@ -206,17 +222,68 @@
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
+var qrScanner = null;
+var cameraActive = false;
+
 function openQrScanner() {
-    const modal = document.getElementById('qr-scanner-modal');
+    var modal = document.getElementById('qr-scanner-modal');
     if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
 }
 function closeQrScanner() {
-    const modal = document.getElementById('qr-scanner-modal');
+    stopCamera();
+    var modal = document.getElementById('qr-scanner-modal');
     if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    document.getElementById('property-code-input').value = '';
+    document.getElementById('qr-scan-result').classList.add('hidden');
+}
+function stopCamera() {
+    if (qrScanner && cameraActive) {
+        qrScanner.stop().catch(function() {});
+        cameraActive = false;
+    }
+    document.getElementById('qr-reader').classList.add('hidden');
+    var btn = document.getElementById('btn-scan-camera');
+    if (btn) btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg> Kamera';
+}
+function toggleCameraScanner() {
+    if (cameraActive) { stopCamera(); return; }
+
+    var readerEl = document.getElementById('qr-reader');
+    readerEl.classList.remove('hidden');
+    readerEl.innerHTML = '';
+
+    var btn = document.getElementById('btn-scan-camera');
+    if (btn) btn.innerHTML = '⏹ Stop Kamera';
+
+    qrScanner = new Html5Qrcode('qr-reader');
+    qrScanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        function(decodedText) {
+            // Berhasil scan - ambil kode dari URL atau teks langsung
+            var code = decodedText;
+            var match = decodedText.match(/\/property\/([A-Z0-9\-]+)/i);
+            if (match) code = match[1];
+
+            document.getElementById('property-code-input').value = code.toUpperCase();
+            var resultEl = document.getElementById('qr-scan-result');
+            resultEl.textContent = '✓ Kode terdeteksi: ' + code.toUpperCase();
+            resultEl.classList.remove('hidden');
+            stopCamera();
+        },
+        function() {} // Ignore per-frame errors
+    ).then(function() {
+        cameraActive = true;
+    }).catch(function(err) {
+        stopCamera();
+        readerEl.classList.add('hidden');
+        alert('Tidak dapat mengakses kamera: ' + err + '\n\nPastikan Anda memberikan izin akses kamera di browser.');
+    });
 }
 function goToProperty() {
-    const code = document.getElementById('property-code-input').value.trim().toUpperCase();
+    var code = document.getElementById('property-code-input').value.trim().toUpperCase();
     if (!code) { alert('Masukkan kode hunian terlebih dahulu.'); return; }
     window.location.href = '/property/' + code;
 }

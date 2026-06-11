@@ -13,15 +13,21 @@
     </ol></nav>
 </div>
 
-<form method="POST" action="{{ route('tenant.contract.request.store', $property->property_code) }}"
-    x-data="contractRequestForm()" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<form id="contract-form" method="POST" action="{{ route('tenant.contract.request.store', $property->property_code) }}"
+    x-data="contractRequestForm()" class="grid grid-cols-1 lg:grid-cols-3 gap-6" onsubmit="return validateForm()" novalidate>
     @csrf
 
     {{-- Kolom Kiri: Form --}}
     <div class="lg:col-span-2 space-y-5">
 
+        @if(session('error'))
+        <div class="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-700">
+            <strong>Gagal:</strong> {{ session('error') }}
+        </div>
+        @endif
+
         @if($errors->any())
-        <div class="rounded-lg bg-error-50 border border-error-200 p-4 text-sm text-error-700">
+        <div class="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-700">
             <ul class="list-disc list-inside">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
         </div>
         @endif
@@ -165,26 +171,43 @@
         </div>
         @endif
 
-        {{-- Ketentuan Hunian --}}
-        @if($property->property_terms)
+        {{-- Ketentuan Hunian (Selalu Tampil) --}}
         <div class="rounded-xl border border-stroke bg-white shadow-sm">
             <div class="border-b border-stroke px-6 py-4">
-                <h4 class="font-bold text-black">Ketentuan & Peraturan dari Pengelola</h4>
+                <h4 class="font-bold text-black">Ketentuan & Peraturan Hunian</h4>
             </div>
             <div class="p-6">
-                <div class="rounded-lg bg-amber-50 border border-amber-200 p-4">
+                {{-- Ketentuan Standar Platform --}}
+                <div class="mb-4 text-sm text-gray-600 space-y-2">
+                    <p class="font-semibold text-gray-800">Syarat dan Ketentuan Standar REODA:</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Penyewa wajib mematuhi norma sosial, hukum yang berlaku, serta menjaga kebersihan dan ketertiban hunian.</li>
+                        <li>Pembayaran sewa dilakukan sesuai dengan siklus pembayaran yang telah disepakati.</li>
+                        <li>Segala bentuk kerusakan fasilitas akibat kelalaian penyewa menjadi tanggung jawab penyewa.</li>
+                        <li>Pengelola berhak mengakhiri kontrak secara sepihak apabila penyewa melanggar aturan fatal (seperti narkoba, asusila, atau tindak kriminal).</li>
+                    </ul>
+                </div>
+
+                {{-- Ketentuan Tambahan dari Pengelola (Jika Ada) --}}
+                @if($property->property_terms)
+                <div class="mt-5 rounded-lg bg-amber-50 border border-amber-200 p-4">
+                    <p class="font-semibold text-amber-900 text-sm mb-2">Peraturan Khusus dari Pengelola ({{ $property->name }}):</p>
                     <p class="text-sm text-amber-800 whitespace-pre-line leading-relaxed">{{ $property->property_terms }}</p>
                 </div>
-                <div class="mt-4 flex items-start gap-3">
+                @endif
+
+                {{-- Checkbox Persetujuan --}}
+                <div class="mt-6 flex items-start gap-3 pt-4 border-t border-gray-100">
                     <input type="checkbox" id="agree-terms" required
-                        class="mt-1 h-4 w-4 rounded border-gray-300 text-reoda focus:ring-reoda cursor-pointer">
+                        class="mt-1 h-4 w-4 rounded border-gray-300 text-reoda focus:ring-reoda cursor-pointer"
+                        onchange="document.getElementById('terms-warning').classList.add('hidden')">
                     <label for="agree-terms" class="text-sm text-gray-700 cursor-pointer">
-                        Saya telah membaca dan menyetujui seluruh ketentuan yang ditetapkan oleh pengelola hunian di atas.
+                        Saya telah membaca, memahami, dan menyetujui seluruh Ketentuan Standar REODA beserta Peraturan Khusus dari pengelola hunian.
                     </label>
                 </div>
+                <p id="terms-warning" class="hidden mt-2 text-sm text-red-600 font-medium">⚠️ Harap centang persetujuan ketentuan sebelum mengirim pengajuan.</p>
             </div>
         </div>
-        @endif
     </div>
 
     {{-- Kolom Kanan: Summary & Submit --}}
@@ -257,5 +280,38 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 });
+
+function validateForm() {
+    var checkbox = document.getElementById('agree-terms');
+    var warning  = document.getElementById('terms-warning');
+
+    // Check if terms checkbox exists but is not checked
+    if (checkbox && !checkbox.checked) {
+        if (warning) warning.classList.remove('hidden');
+        checkbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        var container = checkbox.closest('div');
+        container.style.transition = 'all 0.3s';
+        container.classList.add('bg-red-50', 'p-3', '-mx-3', 'rounded-lg');
+        checkbox.classList.add('ring-2', 'ring-red-500', 'ring-offset-2');
+        
+        setTimeout(function() {
+            container.classList.remove('bg-red-50', 'p-3', '-mx-3', 'rounded-lg');
+            checkbox.classList.remove('ring-2', 'ring-red-500', 'ring-offset-2');
+        }, 1500);
+        return false; // Prevent form submission
+    }
+
+    // Check unit selection
+    var unitSelected = document.querySelector('input[name="unit_id"]:checked');
+    if (!unitSelected) {
+        alert('Harap pilih kamar/unit terlebih dahulu.');
+        var firstUnit = document.querySelector('input[name="unit_id"]');
+        if (firstUnit) firstUnit.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false; // Prevent form submission
+    }
+
+    return true; // Allow form submission
+}
 </script>
 @endpush
