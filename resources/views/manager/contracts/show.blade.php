@@ -133,7 +133,151 @@
         </div>
         @endif
 
+        {{-- Invoice History + Create Invoice --}}
+        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm" x-data="{ openInvoice: false }">
+            <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <h4 class="font-extrabold text-reoda-dark text-lg">Riwayat Invoice / Tagihan</h4>
+                @if($contract->status === 'active')
+                <button @click="openInvoice = true" type="button"
+                    class="inline-flex items-center gap-2 rounded-lg bg-reoda px-4 py-2 text-sm font-bold text-white hover:bg-reoda-dark transition shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Buat Tagihan
+                </button>
+                @endif
+            </div>
+
+            {{-- Invoice Table --}}
+            @php
+                $invoices = $contract->invoices()->orderBy('created_at','desc')->get();
+                $invLabels = ['rent'=>'Sewa','electricity'=>'Listrik','water'=>'Air','ipl'=>'IPL','deposit'=>'Deposit'];
+            @endphp
+            @if($invoices->isEmpty())
+            <div class="px-6 py-8 text-center text-sm text-gray-400">Belum ada tagihan untuk kontrak ini.</div>
+            @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                        <tr>
+                            <th class="px-4 py-3 text-left">No. Invoice</th>
+                            <th class="px-4 py-3 text-left">Jenis</th>
+                            <th class="px-4 py-3 text-left">Periode</th>
+                            <th class="px-4 py-3 text-right">Nominal</th>
+                            <th class="px-4 py-3 text-left">Jatuh Tempo</th>
+                            <th class="px-4 py-3 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach($invoices as $inv)
+                        @php
+                            $isc = match($inv->status) {
+                                'paid'    => 'bg-success-50 text-success-700',
+                                'unpaid'  => 'bg-error-50 text-error-700',
+                                'pending','pending_verification' => 'bg-warning-50 text-warning-700',
+                                'overdue' => 'bg-error-100 text-error-800',
+                                default   => 'bg-gray-50 text-gray-600',
+                            };
+                        @endphp
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-xs">{{ $inv->invoice_number }}</td>
+                            <td class="px-4 py-3 font-medium">{{ $invLabels[$inv->type] ?? ucfirst($inv->type) }}</td>
+                            <td class="px-4 py-3">{{ $inv->billing_month }}/{{ $inv->billing_year }}</td>
+                            <td class="px-4 py-3 text-right font-semibold">Rp {{ number_format($inv->amount, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 {{ $inv->due_date && $inv->due_date->isPast() && $inv->status !== 'paid' ? 'text-error-600 font-semibold' : '' }}">{{ $inv->due_date?->format('d M Y') }}</td>
+                            <td class="px-4 py-3"><span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $isc }}">{{ ucfirst($inv->status) }}</span></td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endif
+
+            {{-- Create Invoice Modal --}}
+            <div x-show="openInvoice" x-transition style="display:none"
+                class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-sm" @click.self="openInvoice = false">
+                <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-y-auto max-h-[90vh]" x-data="{ invType: 'rent', iplDefault: {{ $contract->unit->property->ipl_amount ?? 0 }} }">
+                    <div class="sticky top-0 z-10 border-b border-gray-100 bg-white/90 px-6 py-5 backdrop-blur-md flex items-center justify-between">
+                        <div>
+                            <h5 class="font-extrabold text-reoda-dark text-xl">Buat Tagihan Baru</h5>
+                            <p class="text-xs text-gray-500 font-medium mt-0.5">Unit {{ $contract->unit->unit_code }} - {{ $contract->tenant->name }}</p>
+                        </div>
+                        <button @click="openInvoice = false" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <form action="{{ route('manager.contracts.invoices.store', $contract) }}" method="POST" class="p-6 space-y-4">
+                        @csrf
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700">Jenis Tagihan <span class="text-error-500">*</span></label>
+                            <select name="type" x-model="invType" required class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition">
+                                <option value="rent">Sewa Hunian</option>
+                                <option value="electricity">Listrik</option>
+                                <option value="water">Air</option>
+                                @if($contract->unit->property->type === 'apartemen')
+                                <option value="ipl">IPL / Maintenance Fee</option>
+                                @endif
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="mb-1.5 block text-sm font-medium text-gray-700">Bulan <span class="text-error-500">*</span></label>
+                                <select name="billing_month" required class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition">
+                                    @foreach(range(1,12) as $m)
+                                    <option value="{{ $m }}" {{ $m == now()->month ? 'selected' : '' }}>{{ $m }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-1.5 block text-sm font-medium text-gray-700">Tahun <span class="text-error-500">*</span></label>
+                                <input type="number" name="billing_year" value="{{ now()->year }}" min="2020" max="2100" required class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition">
+                            </div>
+                        </div>
+
+                        {{-- Meter fields — only for electricity/water --}}
+                        <div x-show="invType === 'electricity' || invType === 'water'" style="display:none" class="grid grid-cols-3 gap-3 p-3 bg-blue-50 rounded-xl border border-blue-200">
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-gray-600">Meter Awal</label>
+                                <input type="number" name="meter_start" step="0.01" min="0" placeholder="0" class="w-full rounded-lg border border-stroke py-2 px-3 text-sm outline-none focus:border-reoda transition">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-gray-600">Meter Akhir</label>
+                                <input type="number" name="meter_end" step="0.01" min="0" placeholder="0" class="w-full rounded-lg border border-stroke py-2 px-3 text-sm outline-none focus:border-reoda transition">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-gray-600">Tarif/Unit (Rp)</label>
+                                <input type="number" name="price_per_unit" step="1" min="0" placeholder="0" class="w-full rounded-lg border border-stroke py-2 px-3 text-sm outline-none focus:border-reoda transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700">Total Tagihan (Rp) <span class="text-error-500">*</span></label>
+                            <input type="number" name="amount" min="1000" step="1" placeholder="Contoh: 500000" required
+                                :value="invType === 'ipl' && iplDefault > 0 ? iplDefault : ''"
+                                class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition">
+                            <p x-show="invType === 'ipl' && iplDefault > 0" style="display:none" class="mt-1 text-xs text-blue-600">
+                                Default IPL properti ini: Rp {{ number_format($contract->unit->property->ipl_amount ?? 0, 0, ',', '.') }}
+                            </p>
+                        </div>
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700">Jatuh Tempo <span class="text-error-500">*</span></label>
+                            <input type="date" name="due_date" value="{{ now()->addDays(7)->format('Y-m-d') }}" required class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition">
+                        </div>
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700">Catatan (Opsional)</label>
+                            <textarea name="notes" rows="2" placeholder="Keterangan tambahan..." class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition"></textarea>
+                        </div>
+                        <div class="pt-2">
+                            <button type="submit" class="w-full rounded-xl bg-reoda py-3.5 font-extrabold text-white hover:bg-reoda-dark transition shadow-md hover:shadow-lg flex justify-center items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Terbitkan Tagihan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         {{-- Terminate --}}
+
         @if($contract->status === 'active')
         <div class="rounded-2xl border border-error-200 bg-white shadow-sm p-6" x-data="{ open: false }">
             <h4 class="font-extrabold text-error-600 mb-3 text-lg">Akhiri Kontrak</h4>

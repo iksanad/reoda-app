@@ -86,8 +86,8 @@
             </div>
         </div>
 
-        {{-- Opsi Pembayaran (hanya untuk kontrakan/apartemen/rumah) --}}
-        @if(in_array($property->type, ['kontrakan', 'apartemen', 'rumah']))
+        {{-- Opsi Pembayaran (hanya untuk kontrakan/apartemen) --}}
+        @if(in_array($property->type, ['kontrakan', 'apartemen']))
         <div class="rounded-xl border border-stroke bg-white shadow-sm">
             <div class="border-b border-stroke px-6 py-4">
                 <h4 class="font-bold text-black">2. Durasi & Jenis Pembayaran</h4>
@@ -259,7 +259,7 @@ document.addEventListener('alpine:init', () => {
         selectedPrice: 0,
         paymentCycle: 'monthly',
         duration: 1,
-        yearlyDiscount: {{ $property->yearly_discount_percent ?? 0 }} / 100,
+        yearlyDiscount: Number("{{ $property->yearly_discount_percent ?? 0 }}") / 100,
 
         selectUnit(price) {
             this.selectedPrice = price;

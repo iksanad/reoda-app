@@ -67,10 +67,9 @@
                                     </svg>
                                     <select name="type" class="bg-transparent text-sm text-gray-700 outline-none font-medium w-full">
                                         <option value="">Semua Tipe</option>
-                                        <option value="kos">Kos</option>
+                                        <option value="kos">Kos-kosan</option>
                                         <option value="kontrakan">Kontrakan</option>
                                         <option value="apartemen">Apartemen</option>
-                                        <option value="rumah">Rumah</option>
                                     </select>
                                 </div>
                                 <!-- Button -->
@@ -145,10 +144,9 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             @php
                 $categories = [
-                    ['type'=>'kos',       'icon'=>'🏠', 'label'=>'Kos-kosan',  'color'=>'from-emerald-400 to-teal-500'],
-                    ['type'=>'kontrakan', 'icon'=>'🏡', 'label'=>'Kontrakan',  'color'=>'from-blue-400 to-indigo-500'],
-                    ['type'=>'apartemen', 'icon'=>'🏢', 'label'=>'Apartemen',  'color'=>'from-purple-400 to-pink-500'],
-                    ['type'=>'rumah',     'icon'=>'🏘️', 'label'=>'Rumah',      'color'=>'from-orange-400 to-amber-500'],
+                    ['type'=>'kos',       'icon'=>'🏠', 'label'=>'Kos-kosan',  'color'=>'from-reoda to-blue-600'],
+                    ['type'=>'kontrakan', 'icon'=>'🏡', 'label'=>'Kontrakan',  'color'=>'from-emerald-400 to-green-500'],
+                    ['type'=>'apartemen', 'icon'=>'🏢', 'label'=>'Apartemen',  'color'=>'from-purple-500 to-indigo-600'],
                 ];
             @endphp
             @foreach($categories as $cat)
@@ -189,13 +187,12 @@
             @foreach($featured as $property)
             @php
                 $minPrice = $property->units->min('rent_price');
-                $badge = match($property->type) {
-                    'kos' => ['bg-emerald-100 text-emerald-700', 'Kos'],
-                    'kontrakan' => ['bg-blue-100 text-blue-700', 'Kontrakan'],
-                    'apartemen' => ['bg-purple-100 text-purple-700', 'Apartemen'],
-                    'rumah' => ['bg-orange-100 text-orange-700', 'Rumah'],
-                    default => ['bg-gray-100 text-gray-600', ucfirst($property->type)],
-                };
+                $typeColors = [
+                    'kos'       => ['bg-blue-100 text-reoda-dark',       'Kos-kosan'],
+                    'kontrakan' => ['bg-emerald-100 text-emerald-700',   'Kontrakan'],
+                    'apartemen' => ['bg-purple-100 text-purple-700',     'Apartemen'],
+                ];
+                $badge = $typeColors[$property->type] ?? ['bg-gray-100 text-gray-600', ucfirst($property->type)];
             @endphp
             <a href="{{ url('/property/' . $property->property_code) }}"
                 class="property-card group block rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">

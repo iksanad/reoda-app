@@ -34,6 +34,8 @@ class UnitController extends Controller
             'area_sqm' => 'nullable|numeric|min:0',
             'floor' => 'nullable|string|max:50',
             'description' => 'nullable|string',
+            'pln_customer_id' => 'nullable|string|max:50',
+            'pdam_customer_id' => 'nullable|string|max:50',
         ]);
 
         $validated['property_id'] = $property->id;
@@ -84,6 +86,8 @@ class UnitController extends Controller
             'floor' => 'nullable|string|max:50',
             'status' => 'required|in:available,rented,maintenance',
             'description' => 'nullable|string',
+            'pln_customer_id' => 'nullable|string|max:50',
+            'pdam_customer_id' => 'nullable|string|max:50',
         ]);
 
         $unit->update($validated);

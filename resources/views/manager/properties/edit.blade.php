@@ -47,7 +47,6 @@
                         <option value="kos" {{ old('type',$property->type)=='kos' ? 'selected' : '' }}>Kos-kosan</option>
                         <option value="kontrakan" {{ old('type',$property->type)=='kontrakan' ? 'selected' : '' }}>Kontrakan</option>
                         <option value="apartemen" {{ old('type',$property->type)=='apartemen' ? 'selected' : '' }}>Apartemen</option>
-                        <option value="rumah" {{ old('type',$property->type)=='rumah' ? 'selected' : '' }}>Rumah</option>
                     </select>
                 </div>
             </div>
@@ -60,7 +59,8 @@
                         <option value="inactive" {{ old('status',$property->status)=='inactive' ? 'selected' : '' }}>Non-aktif</option>
                     </select>
                 </div>
-                <div x-show="propertyType === 'kontrakan' || propertyType === 'apartemen' || propertyType === 'rumah'" style="display:none;">
+                {{-- Diskon Tahunan — Hanya untuk Kontrakan/Apartemen --}}
+                <div x-show="propertyType === 'kontrakan' || propertyType === 'apartemen'" style="display:none;">
                     <label class="mb-1.5 block text-sm font-medium text-gray-700">Diskon Jika Bayar Tahunan (%)</label>
                     <input type="number" name="yearly_discount_percent" value="{{ old('yearly_discount_percent', $property->yearly_discount_percent ?? 0) }}"
                         min="0" max="50" step="0.5"
@@ -68,7 +68,71 @@
                 </div>
             </div>
 
-            <div>
+            {{-- Konfigurasi Tagihan (muncul sesuai jenis hunian) --}}
+            <div x-show="propertyType === 'kos' || propertyType === 'kontrakan'" style="display:none;" class="rounded-xl border border-reoda/20 bg-reoda-lightest/30 p-5 space-y-4 mb-4.5">
+                <h5 class="font-bold text-reoda-dark text-sm">⚡ Konfigurasi Tagihan Listrik & Air</h5>
+
+                {{-- Listrik --}}
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700">Tagihan Listrik</label>
+                    <div class="flex flex-wrap gap-3">
+                        {{-- All-in hanya untuk KOS --}}
+                        <label x-show="propertyType === 'kos'" class="flex items-center gap-2 cursor-pointer" style="display:none;">
+                            <input type="radio" name="electricity_config" value="all_in" {{ old('electricity_config', $property->electricity_config ?? 'all_in') == 'all_in' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">All-in dengan Sewa</span>
+                            <span class="text-xs text-gray-400">(sudah termasuk dalam biaya sewa)</span>
+                        </label>
+                        {{-- Token untuk semua --}}
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="electricity_config" value="token" {{ old('electricity_config', $property->electricity_config) == 'token' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">Token / Prabayar</span>
+                            <span class="text-xs text-gray-400">(penyewa isi token sendiri)</span>
+                        </label>
+                        {{-- Pascabayar hanya untuk Kontrakan --}}
+                        <label x-show="propertyType === 'kontrakan'" class="flex items-center gap-2 cursor-pointer" style="display:none;">
+                            <input type="radio" name="electricity_config" value="postpaid" {{ old('electricity_config', $property->electricity_config) == 'postpaid' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">Pascabayar</span>
+                            <span class="text-xs text-gray-400">(pengelola input tagihan listrik tiap bulan)</span>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Air — hanya untuk Kontrakan --}}
+                <div x-show="propertyType === 'kontrakan'" style="display:none;">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700">Tagihan Air</label>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="water_config" value="pdam" {{ old('water_config', $property->water_config ?? 'pdam') == 'pdam' || old('water_config', $property->water_config) == 'postpaid' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">PDAM / Meteran Air</span>
+                            <span class="text-xs text-gray-400">(pengelola input tagihan air tiap bulan)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="water_config" value="pump" {{ old('water_config', $property->water_config) == 'pump' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">Pompa / Sumur</span>
+                            <span class="text-xs text-gray-400">(tagihan air all-in dengan listrik, tidak ditagih terpisah)</span>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Info Air untuk KOS --}}
+                <div x-show="propertyType === 'kos'" style="display:none;" class="text-xs text-gray-500 italic">
+                    💧 Untuk kos, tagihan air bersifat all-in (ditanggung oleh pengelola dari iuran sewa).
+                </div>
+            </div>
+
+            {{-- Konfigurasi Tagihan Apartemen --}}
+            <div x-show="propertyType === 'apartemen'" style="display:none;" class="rounded-xl border border-blue-200 bg-blue-50 p-5 space-y-4 mb-4.5">
+                <h5 class="font-bold text-blue-800 text-sm">🏢 Konfigurasi Tagihan Apartemen</h5>
+                <p class="text-xs text-blue-700">Listrik dan air dicatat manual oleh pengelola setiap bulan berdasarkan meteran. Pengelola juga bisa menagih IPL tiap bulan dari halaman detail kontrak penyewa.</p>
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-blue-800">Biaya IPL / Maintenance Fee per Bulan (Rp)</label>
+                    <input type="number" name="ipl_amount" value="{{ old('ipl_amount', $property->ipl_amount ?? 0) }}" min="0" step="1000" placeholder="Contoh: 150000"
+                        class="w-full rounded-lg border border-blue-300 py-2.5 px-4 text-sm outline-none focus:border-blue-500 transition bg-white">
+                    <p class="mt-1 text-xs text-blue-600">Diisi 0 jika tidak ada IPL. Nilai ini digunakan sebagai default saat membuat tagihan IPL.</p>
+                </div>
+            </div>
+
+            <div class="mb-4.5">
                 <label class="mb-1.5 block text-sm font-medium text-gray-700">Deskripsi</label>
                 <textarea name="description" rows="3"
                     class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">{{ old('description', $property->description) }}</textarea>
@@ -185,9 +249,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 let map, marker;
-const initLat = {{ $property->latitude ?? -6.2 }};
-const initLng = {{ $property->longitude ?? 106.8 }};
-const hasCoords = {{ $property->latitude ? 'true' : 'false' }};
+const initLat = Number("{{ $property->latitude ?? -6.2 }}");
+const initLng = Number("{{ $property->longitude ?? 106.8 }}");
+const hasCoords = "{{ $property->latitude ? 'true' : 'false' }}" === "true";
 
 document.addEventListener('DOMContentLoaded', () => {
     map = L.map('map').setView([initLat, initLng], hasCoords ? 16 : 12);

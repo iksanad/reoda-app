@@ -15,6 +15,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // Generate tagihan otomatis H-7 (jam 00.00 dini hari)
+        $schedule->command('reoda:generate-invoices')->dailyAt('00:00');
+
         // Kirim email/notifikasi pengingat tagihan jatuh tempo (jam 08.00 pagi)
         $schedule->command('reoda:send-payment-reminders')->dailyAt('08:00');
 

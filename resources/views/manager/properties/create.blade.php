@@ -46,7 +46,6 @@
                         <option value="kos" {{ old('type')=='kos' ? 'selected' : '' }}>Kos-kosan</option>
                         <option value="kontrakan" {{ old('type')=='kontrakan' ? 'selected' : '' }}>Kontrakan</option>
                         <option value="apartemen" {{ old('type')=='apartemen' ? 'selected' : '' }}>Apartemen</option>
-                        <option value="rumah" {{ old('type')=='rumah' ? 'selected' : '' }}>Rumah</option>
                     </select>
                 </div>
             </div>
@@ -58,7 +57,7 @@
             </div>
 
             {{-- Diskon Tahunan — Hanya untuk Kontrakan/Apartemen --}}
-            <div x-show="propertyType === 'kontrakan' || propertyType === 'apartemen' || propertyType === 'rumah'" style="display:none;">
+            <div x-show="propertyType === 'kontrakan' || propertyType === 'apartemen'" style="display:none;">
                 <label class="mb-1.5 block text-sm font-medium text-gray-700">
                     Diskon Jika Dibayar Tahunan (%)
                     <span class="text-xs text-gray-400 font-normal ml-1">— contoh: 10 berarti 10% lebih murah jika bayar 1 tahun sekaligus</span>
@@ -78,10 +77,75 @@
                     placeholder="Contoh:&#10;1. Dilarang membawa tamu menginap.&#10;2. Jam malam pukul 22.00 WIB.&#10;3. Pembayaran paling lambat tanggal 10 setiap bulannya.&#10;4. Dilarang memasak menggunakan kompor gas."
                     class="w-full rounded-lg border border-stroke py-3 px-4 text-sm outline-none focus:border-reoda transition">{{ old('property_terms') }}</textarea>
             </div>
+
+            {{-- Konfigurasi Tagihan (muncul sesuai jenis hunian) --}}
+            <div x-show="propertyType === 'kos' || propertyType === 'kontrakan'" style="display:none;" class="rounded-xl border border-reoda/20 bg-reoda-lightest/30 p-5 space-y-4">
+                <h5 class="font-bold text-reoda-dark text-sm">⚡ Konfigurasi Tagihan Listrik & Air</h5>
+
+                {{-- Listrik --}}
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700">Tagihan Listrik</label>
+                    <div class="flex flex-wrap gap-3">
+                        {{-- All-in hanya untuk KOS --}}
+                        <label x-show="propertyType === 'kos'" class="flex items-center gap-2 cursor-pointer" style="display:none;">
+                            <input type="radio" name="electricity_config" value="all_in" {{ old('electricity_config','all_in') == 'all_in' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">All-in dengan Sewa</span>
+                            <span class="text-xs text-gray-400">(sudah termasuk dalam biaya sewa)</span>
+                        </label>
+                        {{-- Token untuk semua --}}
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="electricity_config" value="token" {{ old('electricity_config') == 'token' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">Token / Prabayar</span>
+                            <span class="text-xs text-gray-400">(penyewa isi token sendiri)</span>
+                        </label>
+                        {{-- Pascabayar hanya untuk Kontrakan --}}
+                        <label x-show="propertyType === 'kontrakan'" class="flex items-center gap-2 cursor-pointer" style="display:none;">
+                            <input type="radio" name="electricity_config" value="postpaid" {{ old('electricity_config') == 'postpaid' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">Pascabayar</span>
+                            <span class="text-xs text-gray-400">(pengelola input tagihan listrik tiap bulan)</span>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Air — hanya untuk Kontrakan --}}
+                <div x-show="propertyType === 'kontrakan'" style="display:none;">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700">Tagihan Air</label>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="water_config" value="pdam" {{ old('water_config','pdam') == 'pdam' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">PDAM / Meteran Air</span>
+                            <span class="text-xs text-gray-400">(pengelola input tagihan air tiap bulan)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="water_config" value="pump" {{ old('water_config') == 'pump' ? 'checked' : '' }} class="accent-reoda">
+                            <span class="text-sm font-medium">Pompa / Sumur</span>
+                            <span class="text-xs text-gray-400">(tagihan air all-in dengan listrik, tidak ditagih terpisah)</span>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Info Air untuk KOS --}}
+                <div x-show="propertyType === 'kos'" style="display:none;" class="text-xs text-gray-500 italic">
+                    💧 Untuk kos, tagihan air bersifat all-in (ditanggung oleh pengelola dari iuran sewa).
+                </div>
+            </div>
+
+            {{-- Konfigurasi Tagihan Apartemen --}}
+            <div x-show="propertyType === 'apartemen'" style="display:none;" class="rounded-xl border border-blue-200 bg-blue-50 p-5 space-y-4">
+                <h5 class="font-bold text-blue-800 text-sm">🏢 Konfigurasi Tagihan Apartemen</h5>
+                <p class="text-xs text-blue-700">Listrik dan air dicatat manual oleh pengelola setiap bulan berdasarkan meteran. Pengelola juga bisa menagih IPL tiap bulan dari halaman detail kontrak penyewa.</p>
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-blue-800">Biaya IPL / Maintenance Fee per Bulan (Rp)</label>
+                    <input type="number" name="ipl_amount" value="{{ old('ipl_amount', 0) }}" min="0" step="1000" placeholder="Contoh: 150000"
+                        class="w-full rounded-lg border border-blue-300 py-2.5 px-4 text-sm outline-none focus:border-blue-500 transition bg-white">
+                    <p class="mt-1 text-xs text-blue-600">Diisi 0 jika tidak ada IPL. Nilai ini digunakan sebagai default saat membuat tagihan IPL.</p>
+                </div>
+            </div>
         </div>
     </div>
 
     {{-- Bagian 2: Alamat & Lokasi --}}
+
     <div class="rounded-xl border border-stroke bg-white shadow-sm mb-5">
         <div class="border-b border-stroke px-6 py-4"><h4 class="font-bold text-black">Alamat & Lokasi</h4></div>
         <div class="p-6 space-y-5">

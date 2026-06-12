@@ -105,6 +105,7 @@ Route::middleware(['auth', 'role:manager', 'manager.terms'])->prefix('manager')-
     Route::post('/contracts/{contract}/terminate', [\App\Http\Controllers\Manager\ContractController::class, 'terminate'])->name('contracts.terminate');
     Route::post('/contracts/{contract}/approve-request', [\App\Http\Controllers\Manager\ContractController::class, 'approveRequest'])->name('contracts.approve-request');
     Route::post('/contracts/{contract}/reject-request', [\App\Http\Controllers\Manager\ContractController::class, 'rejectRequest'])->name('contracts.reject-request');
+    Route::post('/contracts/{contract}/invoices', [\App\Http\Controllers\Manager\ContractController::class, 'storeInvoice'])->name('contracts.invoices.store');
 
     // Laporan
     Route::get('/reports', [\App\Http\Controllers\Manager\ReportController::class, 'index'])->name('reports.index');
@@ -158,3 +159,6 @@ Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->g
     Route::post('/services/emergency', [\App\Http\Controllers\Tenant\ServiceRequestController::class, 'storeEmergency'])->name('services.emergency');
     Route::post('/services/contract', [\App\Http\Controllers\Tenant\ServiceRequestController::class, 'storeContractRequest'])->name('services.contract');
 });
+
+// Midtrans Webhook (no CSRF, no auth)
+Route::post('/midtrans/webhook', [\App\Http\Controllers\MidtransWebhookController::class, 'handle'])->name('midtrans.webhook');

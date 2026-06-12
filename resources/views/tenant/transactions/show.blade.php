@@ -17,23 +17,33 @@
 @if(session('error'))
 <div class="mb-5 rounded-md border-l-4 border-error-500 bg-error-50 px-5 py-3 text-sm font-medium text-error-700">{{ session('error') }}</div>
 @endif
-@if($errors->any())
-<div class="mb-5 rounded-md border-l-4 border-error-400 bg-error-50 px-5 py-3 text-sm text-error-700">
-    <ul class="list-disc list-inside">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
-</div>
+@if(session('info'))
+<div class="mb-5 rounded-md border-l-4 border-blue-400 bg-blue-50 px-5 py-3 text-sm font-medium text-blue-700">{{ session('info') }}</div>
 @endif
 
 @php
-    $unit = $invoice->leaseContract->unit;
-    $prop = $unit->property;
+    $unit    = $invoice->leaseContract->unit;
+    $prop    = $unit->property;
     $manager = $prop->manager;
+
+    $typeLabels = [
+        'rent'        => 'Sewa Hunian',
+        'electricity' => 'Tagihan Listrik',
+        'water'       => 'Tagihan Air',
+        'ipl'         => 'IPL / Maintenance Fee',
+        'deposit'     => 'Deposit / Uang Jaminan',
+    ];
+
     $sc = match($invoice->status) {
-        'unpaid'  => ['label'=>'Belum Dibayar','class'=>'bg-error-50 text-error-700 border-error-200'],
-        'pending' => ['label'=>'Menunggu Konfirmasi Pengelola','class'=>'bg-warning-50 text-warning-700 border-warning-200'],
-        'paid'    => ['label'=>'Lunas','class'=>'bg-success-50 text-success-700 border-success-200'],
-        default   => ['label'=>ucfirst($invoice->status),'class'=>'bg-gray-50 text-gray-700 border-gray-200'],
+        'unpaid'  => ['label'=>'Belum Dibayar',               'class'=>'bg-error-50 text-error-700 border-error-200'],
+        'pending' => ['label'=>'Menunggu Konfirmasi Pembayaran','class'=>'bg-warning-50 text-warning-700 border-warning-200'],
+        'paid'    => ['label'=>'Lunas',                        'class'=>'bg-success-50 text-success-700 border-success-200'],
+        'overdue' => ['label'=>'Jatuh Tempo',                  'class'=>'bg-error-50 text-error-800 border-error-300'],
+        default   => ['label'=>ucfirst($invoice->status),      'class'=>'bg-gray-50 text-gray-700 border-gray-200'],
     };
+
     $latestPayment = $invoice->payments->first();
+    $totalBayar = $invoice->amount + ($platformFee ?? 0) + ($gatewayFee ?? 0) - ($discountAmount ?? 0);
 @endphp
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -49,126 +59,81 @@
             <div class="border-b border-stroke px-6 py-4"><h4 class="font-bold text-black">Detail Tagihan</h4></div>
             <div class="p-6 grid grid-cols-2 gap-4 text-sm">
                 <div><p class="text-xs text-gray-400 mb-0.5">No. Invoice</p><p class="font-mono font-semibold">{{ $invoice->invoice_number }}</p></div>
-                <div><p class="text-xs text-gray-400 mb-0.5">Jenis</p><p class="font-semibold capitalize">{{ $invoice->type === 'rent' ? 'Sewa Hunian' : ucfirst($invoice->type) }}</p></div>
+                <div><p class="text-xs text-gray-400 mb-0.5">Jenis</p><p class="font-semibold">{{ $typeLabels[$invoice->type] ?? ucfirst($invoice->type) }}</p></div>
                 <div><p class="text-xs text-gray-400 mb-0.5">Periode</p><p class="font-semibold">{{ $invoice->billing_month }}/{{ $invoice->billing_year }}</p></div>
                 <div><p class="text-xs text-gray-400 mb-0.5">Jatuh Tempo</p><p class="font-semibold {{ $invoice->due_date && $invoice->due_date->isPast() && $invoice->status !== 'paid' ? 'text-error-600' : '' }}">{{ $invoice->due_date?->format('d M Y') }}</p></div>
-                @if(isset($discountAmount) && $discountAmount > 0)
-                <div class="col-span-2 pt-2 border-t border-stroke flex justify-between items-end">
-                    <div>
-                        <p class="text-xs text-gray-400 mb-0.5">Voucher Diskon Referral</p>
-                        <p class="text-lg font-bold text-success-500">- Rp {{ number_format($discountAmount, 0, ',', '.') }}</p>
-                    </div>
+
+                @if($invoice->meter_start && $invoice->meter_end)
+                <div class="col-span-2 grid grid-cols-3 gap-3 pt-2 border-t border-stroke">
+                    <div><p class="text-xs text-gray-400 mb-0.5">Meter Awal</p><p class="font-semibold">{{ number_format($invoice->meter_start, 0) }}</p></div>
+                    <div><p class="text-xs text-gray-400 mb-0.5">Meter Akhir</p><p class="font-semibold">{{ number_format($invoice->meter_end, 0) }}</p></div>
+                    <div><p class="text-xs text-gray-400 mb-0.5">Pemakaian</p><p class="font-semibold text-reoda">{{ number_format($invoice->meter_end - $invoice->meter_start, 0) }} unit</p></div>
                 </div>
                 @endif
-                <div class="col-span-2 pt-2 border-t border-stroke flex justify-between items-end">
-                    <div>
-                        <p class="text-xs text-gray-400 mb-0.5">Total Tagihan (termasuk biaya admin)</p>
-                        <p class="text-2xl font-extrabold text-reoda">Rp {{ number_format($invoice->amount + 14000 - ($discountAmount ?? 0), 0, ',', '.') }}</p>
-                    </div>
-                    @if(isset($snapToken) && $invoice->status === 'unpaid')
-                        <button id="pay-button" class="rounded-lg bg-reoda px-6 py-2.5 font-bold text-white hover:bg-reoda-dark transition shadow-md flex items-center gap-2">
+
+                @if($invoice->notes)
+                <div class="col-span-2 pt-2 border-t border-stroke">
+                    <p class="text-xs text-gray-400 mb-0.5">Catatan</p>
+                    <p class="font-medium text-gray-600">{{ $invoice->notes }}</p>
+                </div>
+                @endif
+
+                {{-- Total + Pay Button --}}
+                <div class="col-span-2 pt-3 border-t border-stroke">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                        <div>
+                            <p class="text-xs text-gray-400 mb-1">Rincian Pembayaran</p>
+                            <div class="space-y-0.5 text-sm">
+                                <div class="flex justify-between gap-8"><span class="text-gray-500">Tagihan pokok</span><span class="font-medium">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</span></div>
+                                @if(isset($platformFee) && $platformFee > 0)
+                                <div class="flex justify-between gap-8"><span class="text-gray-500">Biaya admin REODA</span><span class="font-medium">Rp {{ number_format($platformFee, 0, ',', '.') }}</span></div>
+                                @endif
+                                @if(isset($gatewayFee) && $gatewayFee > 0)
+                                <div class="flex justify-between gap-8"><span class="text-gray-500">Biaya payment gateway</span><span class="font-medium">Rp {{ number_format($gatewayFee, 0, ',', '.') }}</span></div>
+                                @endif
+                                @if(isset($discountAmount) && $discountAmount > 0)
+                                <div class="flex justify-between gap-8"><span class="text-success-600">Diskon Referral</span><span class="font-medium text-success-600">- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span></div>
+                                @endif
+                                <div class="flex justify-between gap-8 pt-1 border-t mt-1"><span class="font-bold text-black">Total</span><span class="font-extrabold text-xl text-reoda">Rp {{ number_format($totalBayar, 0, ',', '.') }}</span></div>
+                            </div>
+                        </div>
+                        @if(isset($snapToken) && in_array($invoice->status, ['unpaid']))
+                        <button id="pay-button" class="flex-shrink-0 rounded-xl bg-reoda px-8 py-3 font-bold text-white hover:bg-reoda-dark transition shadow-md flex items-center gap-2 text-base">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            Bayar Otomatis
+                            Bayar Sekarang
                         </button>
-                    @endif
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
 
-        {{-- Latest Payment Proof if exists --}}
-        @if($latestPayment && $latestPayment->proof_of_payment)
-        <div class="rounded-xl border border-stroke bg-white shadow-sm">
-            <div class="border-b border-stroke px-6 py-4 flex items-center justify-between">
-                <h4 class="font-bold text-black">Bukti Pembayaran Terakhir</h4>
-                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold
-                    {{ $latestPayment->status === 'verified' ? 'bg-success-50 text-success-700' : ($latestPayment->status === 'rejected' ? 'bg-error-50 text-error-700' : 'bg-warning-50 text-warning-700') }}">
-                    {{ ucfirst($latestPayment->status) }}
-                </span>
-            </div>
-            <div class="p-4">
-                <img src="{{ asset('storage/'.$latestPayment->proof_of_payment) }}" alt="Bukti" class="max-h-64 w-full object-contain rounded-lg bg-gray-50 border border-stroke">
-            </div>
-            @if($latestPayment->status === 'rejected')
-            <div class="border-t border-stroke px-6 py-3 bg-error-50 text-sm text-error-700">
-                <span class="font-semibold">Alasan Penolakan:</span> {{ $latestPayment->rejection_reason }}
-            </div>
-            @endif
+        {{-- Pending state info --}}
+        @if($invoice->status === 'pending')
+        <div class="rounded-xl border border-warning-200 bg-warning-50 px-6 py-4 text-sm text-warning-700">
+            <p class="font-bold mb-1">⏳ Menunggu Konfirmasi Pembayaran</p>
+            <p>Pembayaran Anda sedang diproses. Sistem akan otomatis mengkonfirmasi setelah pembayaran berhasil diverifikasi oleh Midtrans.</p>
         </div>
         @endif
 
-        {{-- Upload Payment Form --}}
-        @if($invoice->status === 'unpaid' || $invoice->status === 'rejected' || ($latestPayment && $latestPayment->status === 'rejected'))
-        <div class="rounded-xl border border-stroke bg-white shadow-sm">
-            <div class="border-b border-stroke px-6 py-4"><h4 class="font-bold text-black">Upload Bukti Pembayaran</h4></div>
-            <form action="{{ route('tenant.transactions.pay', $invoice) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
-                @csrf
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <div class="flex-1">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700">Metode Pembayaran <span class="text-error-500">*</span></label>
-                        <select name="payment_method" required class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition" x-data x-model="method">
-                            <option value="">Pilih Metode</option>
-                            <option value="transfer">Transfer Bank</option>
-                            <option value="cash">Bayar Tunai</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div x-data="{ method: '' }">
-                    <select name="payment_method" required class="hidden" x-ref="sel"></select>
-                    {{-- Bank info fields for transfer --}}
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="flex-1">
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700">Nama Bank Pengirim</label>
-                            <input type="text" name="bank_name" value="{{ old('bank_name') }}" placeholder="Contoh: BCA, BRI, BNI..." class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition">
-                        </div>
-                        <div class="flex-1">
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700">No. Rekening Pengirim</label>
-                            <input type="text" name="bank_account" value="{{ old('bank_account') }}" placeholder="No. Rek / Nama akun" class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition">
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700">Foto Bukti Transfer <span class="text-error-500">*</span></label>
-                    <div class="flex items-center justify-center w-full">
-                        <label for="proof_of_payment" class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-reoda-lighter rounded-xl cursor-pointer bg-reoda-lightest/50 hover:bg-reoda-lightest transition">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <svg class="w-10 h-10 text-reoda mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                                <p class="text-sm font-medium text-gray-600">Klik untuk upload atau drag & drop</p>
-                                <p class="text-xs text-gray-400 mt-1">JPG, PNG, WEBP — Maks 5MB</p>
-                            </div>
-                            <input id="proof_of_payment" name="proof_of_payment" type="file" accept="image/*" class="hidden" required>
-                        </label>
-                    </div>
-                </div>
-
-                {{-- Rekening Tujuan Transfer --}}
-                <div class="rounded-lg bg-reoda-lightest border border-reoda-lighter p-4 text-sm">
-                    <p class="font-bold text-reoda-dark mb-1">Rekening Tujuan Transfer</p>
-                    <p class="text-gray-600">Bank: <span class="font-semibold text-black">{{ $manager->bank_name ?? 'Hubungi pengelola' }}</span></p>
-                    <p class="text-gray-600">No. Rek: <span class="font-semibold text-black">{{ $manager->bank_account_number ?? '-' }}</span></p>
-                    <p class="text-gray-600">Atas Nama: <span class="font-semibold text-black">{{ $manager->bank_account_name ?? $manager->name }}</span></p>
-                    <p class="font-bold text-reoda mt-2">Jumlah: Rp {{ number_format($invoice->amount,0,',','.') }}</p>
-                </div>
-
-                <button type="submit" class="w-full flex items-center justify-center gap-2 rounded-lg bg-reoda py-3 font-bold text-white hover:bg-reoda-dark transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    Kirim Bukti Pembayaran
-                </button>
-            </form>
+        {{-- Paid state --}}
+        @if($invoice->status === 'paid')
+        <div class="rounded-xl border border-success-200 bg-success-50 px-6 py-4 text-sm text-success-700">
+            <p class="font-bold mb-1">✅ Pembayaran Berhasil!</p>
+            <p>Tagihan ini telah lunas. Terima kasih atas pembayaran Anda.</p>
         </div>
         @endif
 
     </div>
 
-    {{-- Right: Unit Info + Manager --}}
+    {{-- Right Sidebar --}}
     <div class="space-y-5">
         <div class="rounded-xl border border-stroke bg-white shadow-sm p-6">
             <h4 class="font-bold text-black mb-4">Info Unit</h4>
             <div class="space-y-2.5 text-sm">
                 <div class="flex justify-between"><span class="text-gray-500">Properti</span><span class="font-semibold text-right">{{ $prop->name }}</span></div>
                 <div class="flex justify-between"><span class="text-gray-500">Unit</span><span class="font-semibold">{{ $unit->unit_code }}</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">Tipe</span><span class="font-semibold">{{ $unit->type }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Tipe</span><span class="font-semibold capitalize">{{ $unit->type }}</span></div>
                 <div class="flex justify-between border-t border-stroke pt-2 mt-1">
                     <span class="text-gray-500">Harga Sewa</span>
                     <span class="font-bold text-reoda">Rp {{ number_format($unit->rent_price,0,',','.') }}/bln</span>
@@ -192,23 +157,27 @@
     </div>
 </div>
 
-@if(isset($snapToken) && $invoice->status === 'unpaid')
-<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+@if(isset($snapToken) && in_array($invoice->status, ['unpaid']))
+<script src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+    data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 <script>
-    document.getElementById('pay-button').onclick = function(){
+    document.getElementById('pay-button').onclick = function() {
         snap.pay('{{ $snapToken }}', {
-            onSuccess: function(result){
-                alert("Pembayaran berhasil!");
+            onSuccess: function(result) {
+                // Show success message while webhook processes
+                document.getElementById('pay-button').textContent = '✅ Memverifikasi...';
+                document.getElementById('pay-button').disabled = true;
+                setTimeout(() => window.location.reload(), 3000);
+            },
+            onPending: function(result) {
+                alert('Pembayaran dalam proses. Halaman akan diperbarui.');
                 window.location.reload();
             },
-            onPending: function(result){
-                alert("Menunggu pembayaran Anda!");
+            onError: function(result) {
+                alert('Pembayaran gagal. Silakan coba lagi.');
             },
-            onError: function(result){
-                alert("Pembayaran gagal!");
-            },
-            onClose: function(){
-                console.log('Customer closed the popup without finishing the payment');
+            onClose: function() {
+                console.log('Popup ditutup sebelum pembayaran selesai.');
             }
         });
     };

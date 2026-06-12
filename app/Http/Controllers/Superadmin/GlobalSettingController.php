@@ -29,13 +29,23 @@ class GlobalSettingController extends Controller
             'smtp_port'                 => 'nullable|integer',
             'smtp_email'                => 'nullable|email|max:100',
             'smtp_password'             => 'nullable|string|max:100',
+            // Payment fee tiers
+            'fee_tier_1_max'            => 'nullable|numeric|min:0',
+            'fee_tier_1_amount'         => 'nullable|numeric|min:0',
+            'fee_tier_2_max'            => 'nullable|numeric|min:0',
+            'fee_tier_2_amount'         => 'nullable|numeric|min:0',
+            'fee_tier_3_amount'         => 'nullable|numeric|min:0',
+            'gateway_fee_fixed'         => 'nullable|numeric|min:0',
         ]);
 
         $keys = [
             'site_name', 'site_tagline', 'contact_email', 'contact_phone', 
             'default_late_fee_percent', 'max_late_fee_percent', 
             'default_grace_period_days', 'max_grace_period_days',
-            'smtp_host', 'smtp_port', 'smtp_email', 'smtp_password'
+            'smtp_host', 'smtp_port', 'smtp_email', 'smtp_password',
+            'fee_tier_1_max', 'fee_tier_1_amount',
+            'fee_tier_2_max', 'fee_tier_2_amount',
+            'fee_tier_3_amount', 'gateway_fee_fixed',
         ];
 
         foreach ($keys as $key) {

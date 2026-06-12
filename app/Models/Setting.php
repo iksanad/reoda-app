@@ -29,6 +29,12 @@ class Setting extends Model
         return $setting ? $setting->value : $default;
     }
 
+    /** Alias for get() */
+    public static function getValue(string $key, $default = null)
+    {
+        return self::get($key, $default);
+    }
+
     /**
      * Helper untuk mengatur/update nilai setting.
      *

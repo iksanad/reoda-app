@@ -57,10 +57,9 @@
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1.5">Tipe Properti</label>
                     <select name="filter_type" class="w-full rounded-lg border border-stroke text-sm outline-none px-3 py-2.5">
                         <option value="">Semua Tipe</option>
-                        <option value="kos" {{ request('filter_type') == 'kos' ? 'selected' : '' }}>Kos</option>
+                        <option value="kos" {{ request('filter_type') == 'kos' ? 'selected' : '' }}>Kos-kosan</option>
                         <option value="kontrakan" {{ request('filter_type') == 'kontrakan' ? 'selected' : '' }}>Kontrakan</option>
                         <option value="apartemen" {{ request('filter_type') == 'apartemen' ? 'selected' : '' }}>Apartemen</option>
-                        <option value="rumah" {{ request('filter_type') == 'rumah' ? 'selected' : '' }}>Rumah</option>
                     </select>
                 </div>
                 <div class="w-full md:w-1/4">
@@ -316,11 +315,18 @@
     });
 </script>
 
+<script id="cities-by-prov-data" type="application/json">
+    {!! json_encode($citiesByProvince) !!}
+</script>
+<script id="all-cities-data" type="application/json">
+    {!! json_encode($allCities) !!}
+</script>
+
 <script>
 (function() {
-    const citiesByProv = @json($citiesByProvince);
-    const allCities   = @json($allCities);
-    const activeCity  = '{{ request('filter_city', '') }}';
+    const citiesByProv = JSON.parse(document.getElementById('cities-by-prov-data').textContent);
+    const allCities   = JSON.parse(document.getElementById('all-cities-data').textContent);
+    const activeCity  = "{{ request('filter_city', '') }}";
 
     const selectProvince = document.getElementById('select-province');
     const selectCity     = document.getElementById('select-city');

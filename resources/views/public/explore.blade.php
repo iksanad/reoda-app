@@ -48,7 +48,7 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Tipe Hunian</label>
                         <div class="space-y-2">
-                            @foreach(['kos'=>'🏠 Kos-kosan','kontrakan'=>'🏡 Kontrakan','apartemen'=>'🏢 Apartemen','rumah'=>'🏘️ Rumah'] as $val=>$lbl)
+                            @foreach(['kos'=>'🏠 Kos-kosan','kontrakan'=>'🏡 Kontrakan','apartemen'=>'🏢 Apartemen'] as $val=>$lbl)
                             <label class="flex items-center gap-2.5 cursor-pointer group">
                                 <input type="radio" name="type" value="{{ $val }}" class="accent-reoda"
                                     {{ request('type')===$val ? 'checked' : '' }}
@@ -172,7 +172,6 @@
                         'kos'       => ['bg-emerald-100 text-emerald-700', '🏠 Kos'],
                         'kontrakan' => ['bg-blue-100 text-blue-700',       '🏡 Kontrakan'],
                         'apartemen' => ['bg-purple-100 text-purple-700',   '🏢 Apartemen'],
-                        'rumah'     => ['bg-orange-100 text-orange-700',   '🏘️ Rumah'],
                         default     => ['bg-gray-100 text-gray-600',       ucfirst($property->type)],
                     };
                 @endphp

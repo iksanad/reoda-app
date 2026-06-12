@@ -15,6 +15,8 @@ class Unit extends Model
         'unit_code',
         'name',
         'type',
+        'pln_customer_id',
+        'pdam_customer_id',
         'rent_price',
         'area_sqm',
         'floor',

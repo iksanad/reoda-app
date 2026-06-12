@@ -29,8 +29,29 @@ class Property extends Model
         'status',
         'property_terms',
         'yearly_discount_percent',
+        'ipl_amount',
         'maps_url',
+        'electricity_config',
+        'water_config',
     ];
+
+    /** Apakah pengelola perlu menginput tagihan listrik manual tiap bulan? */
+    public function needsElectricityBilling(): bool
+    {
+        return $this->electricity_config === 'postpaid';
+    }
+
+    /** Apakah pengelola perlu menginput tagihan air manual tiap bulan? */
+    public function needsWaterBilling(): bool
+    {
+        return $this->water_config === 'postpaid' || ($this->type === 'apartemen');
+    }
+
+    /** Apakah properti ini mengenakan IPL/Maintenance Fee? */
+    public function needsIplBilling(): bool
+    {
+        return $this->type === 'apartemen';
+    }
 
     public function manager()
     {

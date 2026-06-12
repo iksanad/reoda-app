@@ -29,11 +29,15 @@
             <div class="relative h-56 bg-gray-100">
                 <img src="{{ $property->cover_image_url }}" alt="{{ $property->name }}"
                     class="w-full h-full object-cover">
-                <span class="absolute top-4 left-4 inline-flex rounded-full px-3 py-1 text-xs font-bold text-white
-                    @if($property->type === 'kos') bg-blue-500
-                    @elseif($property->type === 'kontrakan') bg-green-500
-                    @elseif($property->type === 'apartemen') bg-purple-500
-                    @else bg-gray-500 @endif">
+                @php
+                    $bgClass = match($property->type) {
+                        'kos' => 'bg-blue-500',
+                        'kontrakan' => 'bg-green-500',
+                        'apartemen' => 'bg-purple-500',
+                        default => 'bg-gray-500',
+                    };
+                @endphp
+                <span class="absolute top-4 left-4 inline-flex rounded-full px-3 py-1 text-xs font-bold text-white {{ $bgClass }}">
                     {{ ucfirst($property->type) }}
                 </span>
             </div>
@@ -66,7 +70,7 @@
                     </div>
                     <div class="text-right">
                         <p class="font-bold text-reoda">Rp {{ number_format($unit->rent_price, 0, ',', '.') }}<span class="text-xs font-normal text-gray-400">/bln</span></p>
-                        @if($property->yearly_discount_percent > 0 && in_array($property->type, ['kontrakan','apartemen','rumah']))
+                        @if($property->yearly_discount_percent > 0 && in_array($property->type, ['kontrakan','apartemen']))
                         <p class="text-xs text-green-600 mt-0.5">Hemat {{ $property->yearly_discount_percent }}% jika bayar tahunan</p>
                         @endif
                     </div>
@@ -180,11 +184,13 @@
 @if($property->latitude && $property->longitude)
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const map = L.map('detail-map').setView([{{ $property->latitude }}, {{ $property->longitude }}], 16);
+    const lat = Number("{{ $property->latitude }}");
+    const lng = Number("{{ $property->longitude }}");
+    const map = L.map('detail-map').setView([lat, lng], 16);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap', maxZoom: 19
     }).addTo(map);
-    L.marker([{{ $property->latitude }}, {{ $property->longitude }}])
+    L.marker([lat, lng])
         .addTo(map)
         .bindPopup('<strong>{{ addslashes($property->name) }}</strong><br>{{ addslashes($property->address) }}')
         .openPopup();

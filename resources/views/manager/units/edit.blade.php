@@ -62,6 +62,26 @@
                 </div>
             </div>
 
+            @if($unit->property->electricity_config === 'token' || $unit->property->water_config === 'pdam')
+            <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                @if($unit->property->electricity_config === 'token')
+                <div class="w-full xl:w-1/2">
+                    <label class="mb-2.5 block text-black font-medium">ID Pelanggan PLN / Nomor Meter</label>
+                    <input type="text" name="pln_customer_id" value="{{ old('pln_customer_id', $unit->pln_customer_id) }}" placeholder="Contoh: 1400XXXX" class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-reoda active:border-reoda" />
+                    <p class="mt-1 text-xs text-gray-500">Opsional. Berguna jika properti menggunakan listrik Token / Prabayar.</p>
+                </div>
+                @endif
+                
+                @if($unit->property->water_config === 'pdam')
+                <div class="w-full xl:w-1/2">
+                    <label class="mb-2.5 block text-black font-medium">ID Pelanggan PDAM / Air</label>
+                    <input type="text" name="pdam_customer_id" value="{{ old('pdam_customer_id', $unit->pdam_customer_id) }}" placeholder="Contoh: 543XXXX" class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-reoda active:border-reoda" />
+                    <p class="mt-1 text-xs text-gray-500">Opsional. Berguna jika properti menggunakan air PDAM terpisah.</p>
+                </div>
+                @endif
+            </div>
+            @endif
+
             <div class="mb-6 flex flex-col gap-6 xl:flex-row">
                 <div class="w-full xl:w-1/2">
                     <label class="mb-2.5 block text-black font-medium">Lantai</label>

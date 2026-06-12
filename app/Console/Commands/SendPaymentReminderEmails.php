@@ -18,6 +18,44 @@ class SendPaymentReminderEmails extends Command
     {
         $today = Carbon::today();
 
+        // 0. Invoice jatuh tempo dalam 3 Hari dan 1 Hari (H-3 dan H-1)
+        $daysToRemind = [3, 1];
+        foreach ($daysToRemind as $days) {
+            $targetDate = $today->copy()->addDays($days);
+            $upcoming = Invoice::whereIn('status', ['unpaid', 'pending'])
+                ->whereDate('due_date', $targetDate)
+                ->with(['leaseContract.tenant', 'leaseContract.unit.property'])
+                ->get();
+
+            foreach ($upcoming as $invoice) {
+                $tenant   = $invoice->leaseContract->tenant;
+                $contract = $invoice->leaseContract;
+                $unit     = $contract->unit;
+                $property = $unit->property ?? null;
+
+                if (!$tenant || !$tenant->email) continue;
+
+                // In-app notification
+                Notification::create([
+                    'user_id' => $tenant->id,
+                    'type'    => 'payment_upcoming',
+                    'title'   => '🔔 Pengingat: Tagihan Jatuh Tempo dalam ' . $days . ' Hari',
+                    'message' => 'Tagihan sewa ' . ($property->name ?? '') . ' unit ' . ($unit->unit_code ?? '') .
+                                 ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') .
+                                 ' akan jatuh tempo pada ' . $targetDate->format('d M Y') . '. Mohon persiapkan pembayaran.',
+                ]);
+
+                // Send email
+                if ($tenant->email) {
+                    try {
+                        Mail::to($tenant->email)->send(new PaymentReminderMail($invoice, $contract, 'upcoming_' . $days));
+                    } catch (\Exception $e) {
+                        $this->warn("Email gagal ke {$tenant->email}: " . $e->getMessage());
+                    }
+                }
+            }
+        }
+
         // 1. Invoice jatuh tempo HARI INI (unpaid)
         $dueToday = Invoice::whereIn('status', ['unpaid', 'pending'])
             ->whereDate('due_date', $today)

@@ -52,135 +52,115 @@ class TransactionController extends Controller
 
         $invoice->load(['leaseContract.unit.property.manager', 'payments' => fn($q) => $q->latest()]);
 
-        $snapToken = null;
+        $snapToken      = null;
         $discountAmount = 0;
+        $platformFee    = 0;
+        $gatewayFee     = 0;
+
         if ($invoice->status === 'unpaid') {
-            // Setup Midtrans Config
-            Config::$serverKey = config('services.midtrans.server_key');
-            Config::$isProduction = config('services.midtrans.is_production');
-            Config::$isSanitized = true;
-            Config::$is3ds = true;
+            // Calculate tiered platform fee from global settings
+            $amount = (float) $invoice->amount;
+            $tier1Max    = (float) (\App\Models\Setting::getValue('fee_tier_1_max', 1000000));
+            $tier1Amount = (float) (\App\Models\Setting::getValue('fee_tier_1_amount', 5000));
+            $tier2Max    = (float) (\App\Models\Setting::getValue('fee_tier_2_max', 3000000));
+            $tier2Amount = (float) (\App\Models\Setting::getValue('fee_tier_2_amount', 10000));
+            $tier3Amount = (float) (\App\Models\Setting::getValue('fee_tier_3_amount', 15000));
+            $gatewayFee  = (float) (\App\Models\Setting::getValue('gateway_fee_fixed', 4000));
 
-            // Admin fee & Gateway fee (Platform fee = 10k, Gateway = ~4k)
-            $platformFee = 10000;
-            $gatewayFee = 4000;
-            $totalAmount = $invoice->amount + $platformFee + $gatewayFee;
+            if ($amount <= $tier1Max) {
+                $platformFee = $tier1Amount;
+            } elseif ($amount <= $tier2Max) {
+                $platformFee = $tier2Amount;
+            } else {
+                $platformFee = $tier3Amount;
+            }
 
-            $params = [
-                'transaction_details' => [
-                    'order_id' => $invoice->invoice_number . '-' . time(),
-                    'gross_amount' => $totalAmount,
-                ],
-                'customer_details' => [
-                    'first_name' => Auth::user()->name,
-                    'email' => Auth::user()->email,
-                    'phone' => Auth::user()->phone,
-                ],
-                'item_details' => [
-                    [
-                        'id' => 'RENT-' . $invoice->id,
-                        'price' => $invoice->amount,
-                        'quantity' => 1,
-                        'name' => 'Sewa: ' . $invoice->leaseContract->unit->property->name,
-                    ],
-                    [
-                        'id' => 'FEE-PLATFORM',
-                        'price' => $platformFee,
-                        'quantity' => 1,
-                        'name' => 'Biaya Admin Reoda',
-                    ],
-                    [
-                        'id' => 'FEE-PG',
-                        'price' => $gatewayFee,
-                        'quantity' => 1,
-                        'name' => 'Biaya Payment Gateway',
-                    ]
-                ]
-            ];
+            $totalAmount = $amount + $platformFee + $gatewayFee;
 
-            // Apply Discount if available
+            // Apply referral discount if available
             if (Auth::user()->discount_quota > 0) {
                 $discountAmount = 50000;
-                // Ensure total amount doesn't go below minimum (Midtrans min is usually 10k or 1k, we set 10k)
                 if ($totalAmount - $discountAmount < 10000) {
                     $discountAmount = $totalAmount - 10000;
                 }
-                
                 if ($discountAmount > 0) {
                     $totalAmount -= $discountAmount;
-                    $params['transaction_details']['gross_amount'] = $totalAmount;
-                    $params['item_details'][] = [
-                        'id' => 'DISC-REF',
-                        'price' => -$discountAmount,
-                        'quantity' => 1,
-                        'name' => 'Voucher Diskon Referral',
-                    ];
                 }
             }
 
+            $typeLabels = [
+                'rent'        => 'Sewa Hunian',
+                'electricity' => 'Tagihan Listrik',
+                'water'       => 'Tagihan Air',
+                'ipl'         => 'IPL / Maintenance Fee',
+                'deposit'     => 'Deposit / Uang Jaminan',
+            ];
+            $itemName = ($typeLabels[$invoice->type] ?? ucfirst($invoice->type))
+                . ': ' . ($invoice->leaseContract->unit->property->name ?? '');
+
+            // Setup Midtrans
+            Config::$serverKey    = config('services.midtrans.server_key');
+            Config::$isProduction = config('services.midtrans.is_production');
+            Config::$isSanitized  = true;
+            Config::$is3ds        = true;
+
+            $orderId = $invoice->invoice_number . '-' . time();
+
+            $itemDetails = [
+                ['id' => 'ITEM-' . $invoice->id, 'price' => (int)$amount,       'quantity' => 1, 'name' => $itemName],
+                ['id' => 'FEE-PLATFORM',           'price' => (int)$platformFee,  'quantity' => 1, 'name' => 'Biaya Admin REODA'],
+                ['id' => 'FEE-PG',                 'price' => (int)$gatewayFee,   'quantity' => 1, 'name' => 'Biaya Payment Gateway'],
+            ];
+            if ($discountAmount > 0) {
+                $itemDetails[] = ['id' => 'DISC-REF', 'price' => -(int)$discountAmount, 'quantity' => 1, 'name' => 'Voucher Diskon Referral'];
+            }
+
+            $params = [
+                'transaction_details' => [
+                    'order_id'     => $orderId,
+                    'gross_amount' => (int)$totalAmount,
+                ],
+                'customer_details' => [
+                    'first_name' => Auth::user()->name,
+                    'email'      => Auth::user()->email,
+                    'phone'      => Auth::user()->phone ?? '',
+                ],
+                'item_details' => $itemDetails,
+            ];
+
             try {
                 $snapToken = Snap::getSnapToken($params);
+
+                // Pre-create payment record so webhook can find it
+                $existing = Payment::where('midtrans_order_id', $orderId)->first();
+                if (!$existing) {
+                    Payment::create([
+                        'payment_code'       => 'PAY-' . strtoupper(Str::random(10)),
+                        'invoice_id'         => $invoice->id,
+                        'tenant_id'          => Auth::id(),
+                        'manager_id'         => $invoice->manager_id,
+                        'amount'             => $invoice->amount,
+                        'platform_fee'       => $platformFee,
+                        'gateway_fee'        => $gatewayFee,
+                        'payment_method'     => 'midtrans',
+                        'midtrans_order_id'  => $orderId,
+                        'status'             => 'pending',
+                    ]);
+                    $invoice->update(['status' => 'pending']);
+                }
             } catch (\Exception $e) {
-                // Ignore if fails
+                Log::error('Midtrans snap token error: ' . $e->getMessage());
             }
         }
 
-        return view('tenant.transactions.show', compact('invoice', 'snapToken', 'discountAmount'));
+        return view('tenant.transactions.show', compact('invoice', 'snapToken', 'discountAmount', 'platformFee', 'gatewayFee'));
     }
 
     public function pay(Request $request, Invoice $invoice)
     {
-        if ($invoice->tenant_id !== Auth::id()) {
-            abort(403);
-        }
-
-        if ($invoice->status === 'paid') {
-            return back()->with('error', 'Invoice ini sudah lunas.');
-        }
-
-        $request->validate([
-            'payment_method'  => 'required|in:transfer,cash',
-            'bank_name'       => 'required_if:payment_method,transfer|nullable|string|max:100',
-            'bank_account'    => 'required_if:payment_method,transfer|nullable|string|max:100',
-            'proof_of_payment'=> 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
-        ], [
-            'proof_of_payment.required' => 'Bukti pembayaran wajib diunggah.',
-            'proof_of_payment.image'    => 'File harus berupa gambar.',
-            'proof_of_payment.max'      => 'Ukuran file maksimal 5MB.',
-        ]);
-
-        // Store proof image
-        $path = $request->file('proof_of_payment')->store('payments/proofs', 'public');
-
-        $payment = Payment::create([
-            'payment_code'     => 'PAY-' . strtoupper(Str::random(10)),
-            'invoice_id'       => $invoice->id,
-            'tenant_id'        => Auth::id(),
-            'manager_id'       => $invoice->manager_id,
-            'amount'           => $invoice->amount,
-            'payment_method'   => $request->payment_method,
-            'bank_name'        => $request->bank_name,
-            'bank_account'     => $request->bank_account,
-            'proof_of_payment' => $path,
-            'status'           => 'pending',
-            'paid_at'          => now(),
-        ]);
-
-        // Update invoice status to pending (waiting manager approval)
-        $invoice->update(['status' => 'pending']);
-
-        // Kirim email ke pengelola
-        try {
-            $payment->load('invoice.leaseContract.unit.property.manager');
-            $manager = $invoice->leaseContract->unit->property->manager ?? null;
-            if ($manager && $manager->email) {
-                Mail::to($manager->email)->send(new PaymentReceivedMail($payment));
-            }
-        } catch (\Exception $e) {
-            // Email gagal, tapi jangan block proses
-        }
-
+        // This endpoint is now handled by Midtrans Snap directly in show()
+        // and confirmed automatically via webhook. Redirect back.
         return redirect()->route('tenant.transactions.show', $invoice)
-            ->with('success', 'Bukti pembayaran berhasil diunggah. Pengelola akan segera mengkonfirmasi.');
+            ->with('info', 'Silakan gunakan tombol Bayar Sekarang untuk melanjutkan pembayaran.');
     }
 }

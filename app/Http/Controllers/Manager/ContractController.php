@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
+use App\Models\Invoice;
 use App\Models\LeaseContract;
 use App\Models\Property;
 use App\Models\User;
 use App\Exports\ContractExport;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -125,6 +127,42 @@ class ContractController extends Controller
             'manager_approved_at' => now(),
         ]);
 
+        // Auto-generate invoices based on property type
+        $property = $contract->unit->property;
+        $startDate = Carbon::parse($contract->start_date);
+
+        // Deposit invoice (if deposit_amount > 0 and property has contract)
+        if ($contract->deposit_amount > 0 && in_array($property->type, ['kontrakan', 'apartemen'])) {
+            Invoice::create([
+                'invoice_number'    => 'INV-DEP-' . strtoupper(Str::random(6)),
+                'lease_contract_id' => $contract->id,
+                'tenant_id'         => $contract->tenant_id,
+                'manager_id'        => $contract->manager_id,
+                'type'              => 'deposit',
+                'billing_month'     => $startDate->month,
+                'billing_year'      => $startDate->year,
+                'amount'            => $contract->deposit_amount,
+                'due_date'          => now()->addDays(3),
+                'status'            => 'unpaid',
+                'notes'             => 'Deposit / Uang Jaminan',
+            ]);
+        }
+
+        // First rent invoice
+        Invoice::create([
+            'invoice_number'    => 'INV-' . strtoupper(Str::random(8)),
+            'lease_contract_id' => $contract->id,
+            'tenant_id'         => $contract->tenant_id,
+            'manager_id'        => $contract->manager_id,
+            'type'              => 'rent',
+            'billing_month'     => $startDate->month,
+            'billing_year'      => $startDate->year,
+            'amount'            => $contract->rent_amount,
+            'due_date'          => now()->addDays(7),
+            'status'            => 'unpaid',
+            'notes'             => 'Tagihan sewa periode pertama',
+        ]);
+
         // Notify tenant
         \App\Models\Notification::create([
             'user_id'         => $contract->tenant_id,
@@ -186,6 +224,62 @@ class ContractController extends Controller
         }
 
         return back()->with('success', 'Pengajuan kontrak ditolak.');
+    }
+
+    public function storeInvoice(Request $request, LeaseContract $contract)
+    {
+        if ($contract->manager_id !== Auth::id()) abort(403);
+        if ($contract->status !== 'active') {
+            return back()->with('error', 'Tagihan hanya dapat dibuat untuk kontrak yang aktif.');
+        }
+
+        $request->validate([
+            'type'         => 'required|in:rent,electricity,water,ipl',
+            'billing_month'=> 'required|integer|min:1|max:12',
+            'billing_year' => 'required|integer|min:2020|max:2100',
+            'amount'       => 'required|numeric|min:1000',
+            'due_date'     => 'required|date|after:yesterday',
+            'meter_start'  => 'nullable|numeric|min:0',
+            'meter_end'    => 'nullable|numeric|min:0|gte:meter_start',
+            'price_per_unit'=> 'nullable|numeric|min:0',
+            'notes'        => 'nullable|string|max:500',
+        ]);
+
+        $typeLabels = [
+            'rent'        => 'Sewa Hunian',
+            'electricity' => 'Listrik',
+            'water'       => 'Air',
+            'ipl'         => 'IPL / Maintenance Fee',
+        ];
+
+        Invoice::create([
+            'invoice_number'    => 'INV-' . strtoupper(Str::random(8)),
+            'lease_contract_id' => $contract->id,
+            'tenant_id'         => $contract->tenant_id,
+            'manager_id'        => Auth::id(),
+            'type'              => $request->type,
+            'billing_month'     => $request->billing_month,
+            'billing_year'      => $request->billing_year,
+            'amount'            => $request->amount,
+            'meter_start'       => $request->meter_start,
+            'meter_end'         => $request->meter_end,
+            'price_per_unit'    => $request->price_per_unit,
+            'due_date'          => $request->due_date,
+            'status'            => 'unpaid',
+            'notes'             => $request->notes,
+        ]);
+
+        // Notify tenant
+        \App\Models\Notification::create([
+            'user_id'         => $contract->tenant_id,
+            'notifiable_type' => \App\Models\User::class,
+            'notifiable_id'   => $contract->tenant_id,
+            'type'            => 'payment_due',
+            'title'           => 'Tagihan Baru: ' . ($typeLabels[$request->type] ?? ucfirst($request->type)),
+            'message'         => 'Anda memiliki tagihan baru untuk ' . ($typeLabels[$request->type] ?? '') . ' periode ' . $request->billing_month . '/' . $request->billing_year . '. Jatuh tempo: ' . $request->due_date . '.',
+        ]);
+
+        return back()->with('success', 'Tagihan berhasil dibuat dan penyewa telah diberitahu.');
     }
 
     public function export(Request $request)

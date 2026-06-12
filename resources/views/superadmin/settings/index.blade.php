@@ -120,6 +120,70 @@
         </div>
     </div>
 
+    {{-- Biaya Admin Transaksi --}}
+    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 mb-6">
+        <h3 class="text-base font-bold text-reoda-dark mb-2 pb-3 border-b border-gray-100">💳 Biaya Admin Transaksi (Bertingkat)</h3>
+        <p class="text-sm text-gray-500 mb-5">Atur biaya admin yang dikenakan ke penyewa setiap kali melakukan pembayaran, berdasarkan nominal transaksi.</p>
+
+        <div class="overflow-x-auto rounded-xl border border-gray-100">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Tier</th>
+                        <th class="px-4 py-3 text-left">Berlaku Jika Transaksi</th>
+                        <th class="px-4 py-3 text-left">Biaya Admin (Rp)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr>
+                        <td class="px-4 py-3 font-semibold text-gray-700">Tier 1</td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-500">≤ Rp</span>
+                                <input type="number" name="fee_tier_1_max" value="{{ $settings['fee_tier_1_max'] ?? 1000000 }}" min="0" step="1000"
+                                    class="w-36 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-800 focus:border-reoda focus:outline-none transition">
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="number" name="fee_tier_1_amount" value="{{ $settings['fee_tier_1_amount'] ?? 5000 }}" min="0" step="500"
+                                class="w-32 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-800 focus:border-reoda focus:outline-none transition">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-3 font-semibold text-gray-700">Tier 2</td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-500">≤ Rp</span>
+                                <input type="number" name="fee_tier_2_max" value="{{ $settings['fee_tier_2_max'] ?? 3000000 }}" min="0" step="1000"
+                                    class="w-36 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-800 focus:border-reoda focus:outline-none transition">
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="number" name="fee_tier_2_amount" value="{{ $settings['fee_tier_2_amount'] ?? 10000 }}" min="0" step="500"
+                                class="w-32 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-800 focus:border-reoda focus:outline-none transition">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-3 font-semibold text-gray-700">Tier 3</td>
+                        <td class="px-4 py-3 text-gray-500 italic">&gt; Batas Tier 2</td>
+                        <td class="px-4 py-3">
+                            <input type="number" name="fee_tier_3_amount" value="{{ $settings['fee_tier_3_amount'] ?? 15000 }}" min="0" step="500"
+                                class="w-32 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-800 focus:border-reoda focus:outline-none transition">
+                        </td>
+                    </tr>
+                    <tr class="bg-blue-50/50">
+                        <td class="px-4 py-3 font-semibold text-blue-700">Gateway Fee</td>
+                        <td class="px-4 py-3 text-gray-500 italic text-xs">Biaya payment gateway (Midtrans), berlaku di semua tier</td>
+                        <td class="px-4 py-3">
+                            <input type="number" name="gateway_fee_fixed" value="{{ $settings['gateway_fee_fixed'] ?? 4000 }}" min="0" step="500"
+                                class="w-32 rounded-lg border border-blue-200 px-3 py-1.5 text-sm text-blue-800 focus:border-blue-400 focus:outline-none transition">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     {{-- Action --}}
     <div class="flex justify-end gap-3">
         <button type="submit" class="rounded-xl bg-reoda px-6 py-2.5 text-sm font-bold text-white shadow hover:bg-reoda-dark transition">
@@ -127,5 +191,6 @@
         </button>
     </div>
 </form>
+
 
 @endsection

@@ -61,10 +61,13 @@ class PropertyController extends Controller
         }
         $validated = $request->validate([
             'name'                    => 'required|string|max:255',
-            'type'                    => 'required|in:kos,kontrakan,apartemen,rumah',
+            'type'                    => 'required|in:kos,kontrakan,apartemen',
             'description'             => 'nullable|string',
             'property_terms'          => 'nullable|string',
             'yearly_discount_percent' => 'nullable|numeric|min:0|max:50',
+            'ipl_amount'              => 'nullable|numeric|min:0',
+            'electricity_config'      => 'nullable|in:all_in,token,postpaid',
+            'water_config'            => 'nullable|in:all_in,pdam,pump',
             'address'                 => 'required|string',
             'province'                => 'required|string|max:100',
             'city'                    => 'required|string|max:100',
@@ -80,6 +83,19 @@ class PropertyController extends Controller
         $validated['manager_id'] = Auth::id();
         $validated['status'] = 'active';
         $validated['yearly_discount_percent'] = $validated['yearly_discount_percent'] ?? 0;
+
+        // Default billing configs based on property type
+        $type = $validated['type'];
+        if ($type === 'kos') {
+            $validated['electricity_config'] = $validated['electricity_config'] ?? 'all_in';
+            $validated['water_config'] = 'all_in';
+        } elseif ($type === 'kontrakan') {
+            $validated['electricity_config'] = $validated['electricity_config'] ?? 'token';
+            $validated['water_config'] = $validated['water_config'] ?? 'pdam';
+        } elseif ($type === 'apartemen') {
+            $validated['electricity_config'] = 'postpaid';
+            $validated['water_config'] = 'postpaid';
+        }
 
         $property = Property::create($validated);
 
@@ -116,10 +132,13 @@ class PropertyController extends Controller
 
         $validated = $request->validate([
             'name'                    => 'required|string|max:255',
-            'type'                    => 'required|in:kos,kontrakan,apartemen,rumah',
+            'type'                    => 'required|in:kos,kontrakan,apartemen',
             'description'             => 'nullable|string',
             'property_terms'          => 'nullable|string',
             'yearly_discount_percent' => 'nullable|numeric|min:0|max:50',
+            'ipl_amount'              => 'nullable|numeric|min:0',
+            'electricity_config'      => 'nullable|in:all_in,token,postpaid',
+            'water_config'            => 'nullable|in:all_in,pdam,pump,postpaid',
             'address'                 => 'required|string',
             'province'                => 'required|string|max:100',
             'city'                    => 'required|string|max:100',
@@ -132,6 +151,14 @@ class PropertyController extends Controller
             'longitude'               => 'nullable|numeric',
             'maps_url'                => 'nullable|string|max:500',
         ]);
+
+        // Force billing configs for apartemen
+        if ($validated['type'] === 'apartemen') {
+            $validated['electricity_config'] = 'postpaid';
+            $validated['water_config'] = 'postpaid';
+        } elseif ($validated['type'] === 'kos') {
+            $validated['water_config'] = 'all_in';
+        }
 
         $property->update($validated);
 
