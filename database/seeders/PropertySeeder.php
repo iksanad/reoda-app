@@ -42,10 +42,12 @@ class PropertySeeder extends Seeder
             'longitude'   => '113.720815',
             'maps_url'    => 'https://www.openstreetmap.org/?mlat=-8.168532&mlon=113.720815&zoom=16',
             'status'      => 'active',
+            'electricity_config' => 'all_in',
+            'water_config'       => 'all_in',
         ]);
         $this->syncFacilities($p1, [$wifi, $ac, $kmDlm, $parkir]);
         $this->createUnits($p1->id, [
-            // [kode, nama, tipe, harga/bln, luas_m2, status]
+            // [kode, nama, tipe, harga/bln, luas_m2, status, pln, pdam]
             ['MLT-A01', 'Kamar A1', 'standard', 750000,  14, 'occupied'],
             ['MLT-A02', 'Kamar A2', 'standard', 750000,  14, 'occupied'],
             ['MLT-A03', 'Kamar A3', 'standard', 750000,  14, 'available'],
@@ -68,12 +70,14 @@ class PropertySeeder extends Seeder
             'longitude'   => '113.714545',
             'maps_url'    => 'https://www.openstreetmap.org/?mlat=-8.156554&mlon=113.714545&zoom=16',
             'status'      => 'active',
+            'electricity_config' => 'token',
+            'water_config'       => 'all_in',
         ]);
         $this->syncFacilities($p2, [$wifi, $kmDlm, $parkir]);
         $this->createUnits($p2->id, [
-            ['BND-01', 'Kamar 1', 'standard', 650000, 12, 'occupied'],
-            ['BND-02', 'Kamar 2', 'standard', 650000, 12, 'available'],
-            ['BND-03', 'Kamar 3', 'standard', 650000, 12, 'available'],
+            ['BND-01', 'Kamar 1', 'standard', 650000, 12, 'occupied', '12345678901'],
+            ['BND-02', 'Kamar 2', 'standard', 650000, 12, 'available', '12345678902'],
+            ['BND-03', 'Kamar 3', 'standard', 650000, 12, 'available', '12345678903'],
         ]);
 
         // ═══════════════════════════════════════════════════════
@@ -96,12 +100,14 @@ class PropertySeeder extends Seeder
             'longitude'   => '112.616688',
             'maps_url'    => 'https://www.openstreetmap.org/?mlat=-7.944372&mlon=112.616688&zoom=16',
             'status'      => 'active',
+            'electricity_config' => 'postpaid',
+            'water_config'       => 'pdam',
         ]);
         $this->syncFacilities($p3, [$wifi, $parkir, $laundry, $dapur]);
         $this->createUnits($p3->id, [
-            ['SJH-01', 'Unit A', 'standard', 1600000, 45, 'occupied'],
-            ['SJH-02', 'Unit B', 'standard', 1600000, 45, 'occupied'],
-            ['SJH-03', 'Unit C', 'deluxe',   2100000, 60, 'available'],
+            ['SJH-01', 'Unit A', 'standard', 1600000, 45, 'occupied', 'PLN-A01', 'PDAM-A01'],
+            ['SJH-02', 'Unit B', 'standard', 1600000, 45, 'occupied', 'PLN-A02', 'PDAM-A02'],
+            ['SJH-03', 'Unit C', 'deluxe',   2100000, 60, 'available', 'PLN-A03', 'PDAM-A03'],
         ]);
 
         // P-004: Apartemen Grand Surabaya
@@ -119,13 +125,16 @@ class PropertySeeder extends Seeder
             'longitude'   => '112.723146',
             'maps_url'    => 'https://www.openstreetmap.org/?mlat=-7.329864&mlon=112.723146&zoom=16',
             'status'      => 'active',
+            'electricity_config' => 'token',
+            'water_config'       => 'pdam',
+            'ipl_amount'         => 350000,
         ]);
         $this->syncFacilities($p4, [$wifi, $ac, $kmDlm, $parkir, $kolam, $gym]);
         $this->createUnits($p4->id, [
-            ['GRD-S01', 'Studio 1',  'standard', 2600000, 28, 'occupied'],
-            ['GRD-S02', 'Studio 2',  'standard', 2600000, 28, 'available'],
-            ['GRD-1BR', '1 Bedroom', 'deluxe',   3700000, 42, 'occupied'],
-            ['GRD-2BR', '2 Bedroom', 'vip',      5200000, 65, 'available'],
+            ['GRD-S01', 'Studio 1',  'standard', 2600000, 28, 'occupied', '33300001', '55500001'],
+            ['GRD-S02', 'Studio 2',  'standard', 2600000, 28, 'available', '33300002', '55500002'],
+            ['GRD-1BR', '1 Bedroom', 'deluxe',   3700000, 42, 'occupied', '33300003', '55500003'],
+            ['GRD-2BR', '2 Bedroom', 'vip',      5200000, 65, 'available', '33300004', '55500004'],
         ]);
 
         // ═══════════════════════════════════════════════════════
@@ -247,16 +256,18 @@ class PropertySeeder extends Seeder
 
     private function createUnits(int $propertyId, array $units): void
     {
-        foreach ($units as [$code, $name, $type, $price, $area, $status]) {
+        foreach ($units as $u) {
             Unit::updateOrCreate(
-                ['unit_code' => $code],
+                ['unit_code' => $u[0]],
                 [
-                    'property_id' => $propertyId,
-                    'name'        => $name,
-                    'type'        => $type,   // standard | deluxe | vip
-                    'rent_price'  => $price,
-                    'area_sqm'    => $area,
-                    'status'      => $status, // available | occupied
+                    'property_id'      => $propertyId,
+                    'name'             => $u[1],
+                    'type'             => $u[2],   // standard | deluxe | vip
+                    'rent_price'       => $u[3],
+                    'area_sqm'         => $u[4],
+                    'status'           => $u[5], // available | occupied
+                    'pln_customer_id'  => $u[6] ?? null,
+                    'pdam_customer_id' => $u[7] ?? null,
                 ]
             );
         }
