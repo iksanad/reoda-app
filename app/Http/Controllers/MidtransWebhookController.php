@@ -20,6 +20,13 @@ class MidtransWebhookController extends Controller
         Config::$serverKey    = config('services.midtrans.server_key');
         Config::$isProduction = config('services.midtrans.is_production');
 
+        // Midtrans URL test sends an empty POST — respond 200 so the test passes
+        $body = $request->getContent();
+        if (empty($body) || $body === '{}' || !$request->has('order_id')) {
+            Log::info('Midtrans webhook: received ping/test request, responding OK.');
+            return response()->json(['message' => 'OK'], 200);
+        }
+
         try {
             $notification = new Notification();
         } catch (\Exception $e) {
