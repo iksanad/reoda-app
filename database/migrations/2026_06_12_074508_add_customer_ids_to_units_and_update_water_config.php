@@ -12,6 +12,9 @@ return new class extends Migration
         // 1. Add fields to units
         Schema::table('units', function (Blueprint $table) {
             $table->string('pln_customer_id')->nullable()->after('type');
+        });
+        
+        Schema::table('units', function (Blueprint $table) {
             $table->string('pdam_customer_id')->nullable()->after('pln_customer_id');
         });
 

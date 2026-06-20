@@ -20,9 +20,18 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
 
+        // Get the active contract to detect PLN/PDAM config
+        $activeContract = \App\Models\LeaseContract::where('tenant_id', $user->id)
+            ->where('status', 'active')
+            ->with('unit.property')
+            ->latest()
+            ->first();
+
         $query = Invoice::where('tenant_id', $user->id)
             ->with(['leaseContract.unit.property', 'payments' => fn($q) => $q->latest()->first()])
-            ->latest();
+            // Priority: unpaid → pending → paid, then newest first
+            ->orderByRaw("FIELD(status, 'unpaid', 'pending', 'paid', 'expired')")
+            ->orderBy('due_date', 'asc');
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -30,6 +39,14 @@ class TransactionController extends Controller
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
+        }
+
+        if ($request->filled('year')) {
+            $query->where('billing_year', $request->year);
+        }
+
+        if ($request->filled('month')) {
+            $query->where('billing_month', $request->month);
         }
 
         $invoices = $query->paginate(12)->appends(request()->query());
@@ -41,7 +58,13 @@ class TransactionController extends Controller
             'paid'    => Invoice::where('tenant_id', $user->id)->where('status', 'paid')->count(),
         ];
 
-        return view('tenant.transactions.index', compact('invoices', 'counts'));
+        // Get available years for filter dropdown
+        $availableYears = Invoice::where('tenant_id', $user->id)
+            ->selectRaw('DISTINCT billing_year')
+            ->orderBy('billing_year', 'desc')
+            ->pluck('billing_year');
+
+        return view('tenant.transactions.index', compact('invoices', 'counts', 'availableYears', 'activeContract'));
     }
 
     public function show(Invoice $invoice)

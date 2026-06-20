@@ -42,6 +42,7 @@ Route::post('/password/reset', [\App\Http\Controllers\Auth\PasswordResetControll
 
 // General Authenticated Routes
 Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
 });
@@ -128,6 +129,9 @@ Route::middleware(['auth', 'role:manager', 'manager.terms'])->prefix('manager')-
 // Tenant Routes
 Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Tenant\DashboardController::class, 'index'])->name('dashboard');
+
+    // Laporan
+    Route::get('/reports', [\App\Http\Controllers\Tenant\ReportController::class, 'index'])->name('reports.index');
 
     // Explore Market
     Route::get('/explore', [\App\Http\Controllers\Tenant\ExploreController::class, 'index'])->name('explore.index');

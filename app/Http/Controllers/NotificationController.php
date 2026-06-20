@@ -7,6 +7,15 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
+    public function index()
+    {
+        $notifications = AppNotification::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+            
+        return view('notifications.index', compact('notifications'));
+    }
+
     public function markAsRead(Request $request, $id)
     {
         $notification = AppNotification::where('user_id', auth()->id())->findOrFail($id);

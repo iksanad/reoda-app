@@ -10,6 +10,7 @@
     <style>
         .hero-banner-bg {
             background-color: #eef5fe;
+            background-image: none;
             /* No background image below desktop - hidden on mobile */
         }
         @media (min-width: 1024px) {
@@ -92,15 +93,6 @@
                     </form>
                 </div>
                 
-                <!-- Mobile/Tablet Image (shown below text on small screens) -->
-                <div class="mt-10 sm:mt-12 lg:hidden flex justify-center">
-                    <img 
-                        src="{{ asset('template/welcome-home.png') }}" 
-                        alt="Welcome to REODA" 
-                        class="w-full max-w-md object-contain"
-                    />
-                </div>
-                
             </div>
         </div>
         
@@ -141,7 +133,7 @@
 <section class="bg-gray-50 py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-extrabold text-gray-900 mb-6">Cari Berdasarkan Tipe</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             @php
                 $categories = [
                     ['type'=>'kos',       'icon'=>'🏠', 'label'=>'Kos-kosan',  'color'=>'from-reoda to-blue-600'],

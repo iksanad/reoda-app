@@ -3,12 +3,13 @@
 @section('title', 'Daftar - REODA')
 
 @section('content')
-<div class="max-w-md mx-auto" x-data="{ role: '{{ request()->query('role', 'tenant') }}' }">
-    <div class="mb-8 text-center md:text-left">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Buat Akun Baru</h1>
-        <p class="text-gray-500">Bergabung dengan REODA untuk kemudahan pengelolaan sewa.</p>
-    </div>
+<div class="text-center mb-8">
+    <h1 class="text-3xl font-extrabold text-[#6E9CE8] tracking-wide mb-3">Reoda</h1>
+    <h2 class="text-xl font-bold text-[#3A5370] mb-2">Buat Akun Baru</h2>
+    <p class="text-[#8C9BAF]">Bergabung dengan Reoda untuk pengalaman terbaik.</p>
+</div>
 
+<div class="max-w-md mx-auto" x-data="{ role: '{{ request()->query('role', 'tenant') }}' }">
     @if ($errors->any())
         <div class="mb-4 bg-red-50 text-red-600 p-3 rounded-lg text-sm">
             <ul class="list-disc list-inside">
@@ -74,7 +75,7 @@
         </div>
         --}}
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input type="password" name="password" id="password" required

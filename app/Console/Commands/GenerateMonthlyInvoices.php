@@ -15,7 +15,7 @@ class GenerateMonthlyInvoices extends Command
     public function handle()
     {
         $today = Carbon::today();
-        $daysBefore = 7;
+        $daysBefore = 5;
         $targetDate = $today->copy()->addDays($daysBefore);
 
         $this->info("Running auto-invoice generation.");

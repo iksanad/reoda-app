@@ -12,7 +12,14 @@ return new class extends Migration
         // 1. Add billing config columns to properties
         Schema::table('properties', function (Blueprint $table) {
             $table->enum('electricity_config', ['all_in', 'token', 'postpaid'])->default('all_in')->after('maps_url');
+        });
+        
+        Schema::table('properties', function (Blueprint $table) {
             $table->enum('water_config', ['all_in', 'pdam', 'pump'])->default('all_in')->after('electricity_config');
+        });
+
+        Schema::table('properties', function (Blueprint $table) {
+            $table->decimal('ipl_amount', 10, 2)->default(0)->after('yearly_discount_percent');
         });
 
         // 2. Convert 'rumah' to 'kontrakan' before altering the enum
@@ -27,6 +34,9 @@ return new class extends Migration
         // 5. Add platform_fee and gateway_fee to payments
         Schema::table('payments', function (Blueprint $table) {
             $table->decimal('platform_fee', 10, 2)->default(0)->after('amount');
+        });
+        
+        Schema::table('payments', function (Blueprint $table) {
             $table->decimal('gateway_fee', 10, 2)->default(0)->after('platform_fee');
         });
     }

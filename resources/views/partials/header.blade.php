@@ -73,7 +73,7 @@
                     <div
                         x-show="notifOpen"
                         @click.outside="notifOpen = false"
-                        class="absolute -right-27 mt-4 flex h-90 w-75 flex-col rounded-sm border border-gray-200 bg-white shadow-default sm:right-0 sm:w-80 z-50"
+                        class="absolute right-[-20px] sm:right-0 mt-4 flex max-h-96 w-[300px] sm:w-80 flex-col rounded-sm border border-gray-200 bg-white shadow-default z-50"
                         style="display: none;"
                     >
                         <div class="px-4.5 py-3 border-b border-gray-200 flex justify-between items-center">
@@ -117,6 +117,10 @@
                             </li>
                             @endforelse
                         </ul>
+                        
+                        <div class="px-4.5 py-3 border-t border-gray-200 text-center">
+                            <a href="{{ route('notifications.index') }}" class="text-sm font-medium text-reoda hover:text-reoda-dark hover:underline">Lihat Semua Notifikasi</a>
+                        </div>
                     </div>
                 </li>
 
