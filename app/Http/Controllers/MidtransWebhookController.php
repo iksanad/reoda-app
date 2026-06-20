@@ -27,6 +27,14 @@ class MidtransWebhookController extends Controller
             return response()->json(['message' => 'OK'], 200);
         }
 
+        // Midtrans dashboard "Test URL" sends a dummy notification with order_id
+        // starting with "payment_notif_test_" — skip processing, just return 200
+        $orderId = $request->input('order_id', '');
+        if (str_starts_with($orderId, 'payment_notif_test_')) {
+            Log::info('Midtrans webhook: received dashboard test notification, responding OK.');
+            return response()->json(['message' => 'OK'], 200);
+        }
+
         try {
             $notification = new Notification();
         } catch (\Exception $e) {
