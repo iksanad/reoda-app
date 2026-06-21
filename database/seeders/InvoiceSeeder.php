@@ -57,11 +57,12 @@ class InvoiceSeeder extends Seeder
                     $status = 'paid';
                 } elseif ($isBulanIni && $isOverdueContract) {
                     // Kontrak khusus overdue untuk testing
-                    $status = 'unpaid';
-                    $dueDate = $current->copy()->subDays(5); // due date sudah lewat
+                    $status  = 'unpaid';
+                    $dueDate = now()->subDays(5); // due date sudah lewat 5 hari lalu
                 } else {
-                    // Bulan berjalan → unpaid (invoice baru terbit)
-                    $status = 'unpaid';
+                    // Bulan berjalan → unpaid, due date akhir bulan ini
+                    $status  = 'unpaid';
+                    $dueDate = $current->copy()->endOfMonth(); // belum jatuh tempo
                 }
 
                 // Buat invoice sewa
