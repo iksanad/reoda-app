@@ -49,7 +49,7 @@ class MidtransWebhookController extends Controller
         Log::info("Midtrans Webhook: order_id={$orderId}, status={$transactionStatus}, fraud={$fraudStatus}");
 
         // Find payment by order_id
-        $payment = Payment::where('midtrans_order_id', $orderId)->first();
+        $payment = Payment::where(['midtrans_order_id' => $orderId])->first();
         if (!$payment) {
             return response()->json(['message' => 'Payment not found'], 404);
         }
@@ -111,6 +111,11 @@ class MidtransWebhookController extends Controller
                 } catch (\Exception $e) {
                     Log::error('Failed to send payment confirmation email: ' . $e->getMessage());
                 }
+
+            } elseif ($transactionStatus === 'pending' && !in_array($invoice->status, ['paid'])) {
+                // User has chosen a payment method (e.g. bank transfer/VA) but hasn't paid yet
+                // Now it's correct to mark invoice as pending
+                $invoice->update(['status' => 'pending']);
 
             } elseif ($isFailed && !in_array($invoice->status, ['paid'])) {
                 $payment->update(['status' => 'rejected']);

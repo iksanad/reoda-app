@@ -127,7 +127,18 @@ class TransactionController extends Controller
             Config::$isSanitized  = true;
             Config::$is3ds        = true;
 
-            $orderId = $invoice->invoice_number . '-' . time();
+            // Reuse existing pending payment's order_id to prevent duplicates on page refresh
+            $existingPayment = Payment::where('invoice_id', $invoice->id)
+                ->where('status', 'pending')
+                ->whereNotNull('midtrans_order_id')
+                ->latest()
+                ->first();
+
+            if ($existingPayment) {
+                $orderId = $existingPayment->midtrans_order_id;
+            } else {
+                $orderId = $invoice->invoice_number . '-' . time();
+            }
 
             $itemDetails = [
                 ['id' => 'ITEM-' . $invoice->id, 'price' => (int)$amount,       'quantity' => 1, 'name' => $itemName],
@@ -149,14 +160,17 @@ class TransactionController extends Controller
                     'phone'      => Auth::user()->phone ?? '',
                 ],
                 'item_details' => $itemDetails,
+                'callbacks'    => [
+                    'finish' => route('tenant.transactions.index'),
+                ],
             ];
 
             try {
                 $snapToken = Snap::getSnapToken($params);
 
-                // Pre-create payment record so webhook can find it
-                $existing = Payment::where('midtrans_order_id', $orderId)->first();
-                if (!$existing) {
+                // Pre-create payment record so webhook can find it by order_id
+                // Do NOT change invoice status here — let the webhook handle it
+                if (!$existingPayment) {
                     Payment::create([
                         'payment_code'       => 'PAY-' . strtoupper(Str::random(10)),
                         'invoice_id'         => $invoice->id,
@@ -168,8 +182,8 @@ class TransactionController extends Controller
                         'payment_method'     => 'midtrans',
                         'midtrans_order_id'  => $orderId,
                         'status'             => 'pending',
+                        // NOTE: invoice status stays 'unpaid' until webhook confirms
                     ]);
-                    $invoice->update(['status' => 'pending']);
                 }
             } catch (\Exception $e) {
                 Log::error('Midtrans snap token error: ' . $e->getMessage());
