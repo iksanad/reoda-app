@@ -128,23 +128,20 @@ class TransactionController extends Controller
             Config::$isSanitized  = true;
             Config::$is3ds        = true;
 
-            // Reuse existing pending payment's order_id to prevent duplicates on page refresh
-            $existingPayment = Payment::where('invoice_id', $invoice->id)
+            // Always fresh order_id — format INV-{invoice_id}-{timestamp}
+            // Webhook will parse invoice_id from this to find the invoice.
+            // Clean up any stale pending payment records first.
+            Payment::where('invoice_id', $invoice->id)
                 ->where('status', 'pending')
-                ->whereNotNull('midtrans_order_id')
-                ->latest()
-                ->first();
+                ->whereNull('midtrans_transaction_id')
+                ->delete();
 
-            if ($existingPayment) {
-                $orderId = $existingPayment->midtrans_order_id;
-            } else {
-                $orderId = $invoice->invoice_number . '-' . time();
-            }
+            $orderId = 'INV-' . $invoice->id . '-' . time();
 
             $itemDetails = [
-                ['id' => 'ITEM-' . $invoice->id, 'price' => (int)$amount,       'quantity' => 1, 'name' => $itemName],
-                ['id' => 'FEE-PLATFORM',           'price' => (int)$platformFee,  'quantity' => 1, 'name' => 'Biaya Admin REODA'],
-                ['id' => 'FEE-PG',                 'price' => (int)$gatewayFee,   'quantity' => 1, 'name' => 'Biaya Payment Gateway'],
+                ['id' => 'ITEM-' . $invoice->id, 'price' => (int)$amount,      'quantity' => 1, 'name' => $itemName],
+                ['id' => 'FEE-PLATFORM',          'price' => (int)$platformFee, 'quantity' => 1, 'name' => 'Biaya Admin REODA'],
+                ['id' => 'FEE-PG',                'price' => (int)$gatewayFee,  'quantity' => 1, 'name' => 'Biaya Payment Gateway'],
             ];
             if ($discountAmount > 0) {
                 $itemDetails[] = ['id' => 'DISC-REF', 'price' => -(int)$discountAmount, 'quantity' => 1, 'name' => 'Voucher Diskon Referral'];
@@ -169,23 +166,20 @@ class TransactionController extends Controller
             try {
                 $snapToken = Snap::getSnapToken($params);
 
-                // Pre-create payment record so webhook can find it by order_id
-                // Do NOT change invoice status here — let the webhook handle it
-                if (!$existingPayment) {
-                    Payment::create([
-                        'payment_code'       => 'PAY-' . strtoupper(Str::random(10)),
-                        'invoice_id'         => $invoice->id,
-                        'tenant_id'          => Auth::id(),
-                        'manager_id'         => $invoice->manager_id,
-                        'amount'             => $invoice->amount,
-                        'platform_fee'       => $platformFee,
-                        'gateway_fee'        => $gatewayFee,
-                        'payment_method'     => 'midtrans',
-                        'midtrans_order_id'  => $orderId,
-                        'status'             => 'pending',
-                        // NOTE: invoice status stays 'unpaid' until webhook confirms
-                    ]);
-                }
+                // Store a pending payment record so we have fee info when webhook arrives
+                // The webhook will find the invoice via the order_id format INV-{id}-{ts}
+                Payment::create([
+                    'payment_code'      => 'PAY-' . strtoupper(Str::random(10)),
+                    'invoice_id'        => $invoice->id,
+                    'tenant_id'         => Auth::id(),
+                    'manager_id'        => $invoice->manager_id,
+                    'amount'            => $invoice->amount,
+                    'platform_fee'      => $platformFee,
+                    'gateway_fee'       => $gatewayFee,
+                    'payment_method'    => 'midtrans',
+                    'midtrans_order_id' => $orderId,
+                    'status'            => 'pending',
+                ]);
             } catch (\Exception $e) {
                 Log::error('Midtrans snap token error: ' . $e->getMessage());
             }

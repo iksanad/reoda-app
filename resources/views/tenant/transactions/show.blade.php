@@ -98,9 +98,9 @@
                             </div>
                         </div>
                         @if(isset($snapToken) && in_array($invoice->status, ['unpaid']))
-                        <button id="pay-button" class="flex-shrink-0 rounded-xl bg-reoda px-8 py-3 font-bold text-white hover:bg-reoda-dark transition shadow-md flex items-center gap-2 text-base">
+                        <button id="pay-button" onclick="openSnapEmbed()" class="flex-shrink-0 rounded-xl bg-reoda px-8 py-3 font-bold text-white hover:bg-reoda-dark transition shadow-md flex items-center gap-2 text-base">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            Bayar Sekarang
+                            Pilih Metode Bayar
                         </button>
                         @endif
                     </div>
@@ -158,29 +158,56 @@
 </div>
 
 @if(isset($snapToken) && in_array($invoice->status, ['unpaid']))
+{{-- Embedded Midtrans Snap --}}
+<div id="snap-embed-container" class="mt-5 hidden">
+    <div class="rounded-xl border border-stroke bg-white shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-stroke flex items-center justify-between">
+            <h4 class="font-bold text-black">Pilih Metode Pembayaran</h4>
+            <button onclick="closeSnapEmbed()" class="text-sm text-gray-400 hover:text-gray-600">✕ Tutup</button>
+        </div>
+        <div id="snap-container" class="p-4"></div>
+    </div>
+</div>
+
 <script src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
     data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 <script>
-    document.getElementById('pay-button').onclick = function() {
-        snap.pay('{{ $snapToken }}', {
+    function openSnapEmbed() {
+        const container = document.getElementById('snap-embed-container');
+        const btn = document.getElementById('pay-button');
+        container.classList.remove('hidden');
+        if (btn) btn.classList.add('hidden');
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        snap.embed('{{ $snapToken }}', {
+            embedId: 'snap-container',
             onSuccess: function(result) {
-                // Show success message while webhook processes
-                document.getElementById('pay-button').textContent = '✅ Memverifikasi...';
-                document.getElementById('pay-button').disabled = true;
+                console.log('Payment success', result);
+                // Wait briefly for webhook to process then reload
                 setTimeout(() => window.location.reload(), 3000);
             },
             onPending: function(result) {
-                alert('Pembayaran dalam proses. Halaman akan diperbarui.');
-                window.location.reload();
+                console.log('Payment pending', result);
+                setTimeout(() => window.location.reload(), 2000);
             },
             onError: function(result) {
+                console.log('Payment error', result);
+                closeSnapEmbed();
                 alert('Pembayaran gagal. Silakan coba lagi.');
             },
             onClose: function() {
-                console.log('Popup ditutup sebelum pembayaran selesai.');
+                closeSnapEmbed();
             }
         });
-    };
+    }
+
+    function closeSnapEmbed() {
+        document.getElementById('snap-embed-container').classList.add('hidden');
+        const btn = document.getElementById('pay-button');
+        if (btn) btn.classList.remove('hidden');
+        // Reload to get fresh snap token
+        window.location.reload();
+    }
 </script>
 @endif
 @endsection

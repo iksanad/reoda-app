@@ -49,8 +49,23 @@ class MidtransWebhookController extends Controller
         Log::info("Midtrans Webhook: order_id={$orderId}, status={$transactionStatus}, fraud={$fraudStatus}");
 
         // Find payment by order_id
-        $payment = Payment::where(['midtrans_order_id' => $orderId])->first();
+        $payment = Payment::where('midtrans_order_id', $orderId)->first();
+
+        // Fallback: parse invoice_id from order_id format "INV-{id}-{timestamp}"
+        if (!$payment && preg_match('/^INV-(\d+)-\d+$/', $orderId, $matches)) {
+            $payment = Payment::where('invoice_id', $matches[1])
+                ->where('status', 'pending')
+                ->whereNull('midtrans_transaction_id')
+                ->latest()
+                ->first();
+            // Update the payment record with the correct order_id
+            if ($payment) {
+                $payment->update(['midtrans_order_id' => $orderId]);
+            }
+        }
+
         if (!$payment) {
+            Log::warning("Midtrans webhook: payment not found for order_id={$orderId}");
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
