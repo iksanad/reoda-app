@@ -183,12 +183,13 @@
             embedId: 'snap-container',
             onSuccess: function(result) {
                 console.log('Payment success', result);
-                // Wait briefly for webhook to process then reload
-                setTimeout(() => window.location.reload(), 3000);
+                document.getElementById('snap-container').innerHTML = '<div class="p-8 text-center"><div class="text-success-500 mb-4"><svg class="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><h3 class="text-xl font-bold mb-2">Pembayaran Berhasil!</h3><p class="text-gray-500">Mengarahkan kembali ke daftar tagihan...</p></div>';
+                setTimeout(() => window.location.href = "{{ route('tenant.transactions.index') }}", 2000);
             },
             onPending: function(result) {
                 console.log('Payment pending', result);
-                setTimeout(() => window.location.reload(), 2000);
+                document.getElementById('snap-container').innerHTML = '<div class="p-8 text-center"><div class="text-yellow-500 mb-4"><svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><h3 class="text-xl font-bold mb-2">Menunggu Pembayaran</h3><p class="text-gray-500">Mengarahkan kembali ke daftar tagihan...</p></div>';
+                setTimeout(() => window.location.href = "{{ route('tenant.transactions.index') }}", 2000);
             },
             onError: function(result) {
                 console.log('Payment error', result);
