@@ -25,6 +25,7 @@ class NotificationService
         'manager_approved',
         'facility_request',
         'emergency_report',
+        'contract_requested',
     ];
 
     /**
@@ -97,6 +98,14 @@ class NotificationService
                 }
 
                 Mail::to($user->email)->send(new ManagerApprovedMail($user, $action, $notes));
+            } elseif ($notification->type === 'contract_requested') {
+                $contract = $notification->notifiable;
+                if ($contract) {
+                    $contract->loadMissing(['unit.property', 'tenant', 'manager']);
+                    Mail::to($user->email)->send(new \App\Mail\ContractRequestedMail($contract));
+                } else {
+                    throw new \Exception('Data kontrak terkait tidak ditemukan.');
+                }
             } else {
                 Mail::to($user->email)->send(new SyncNotificationMail($notification));
             }

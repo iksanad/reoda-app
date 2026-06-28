@@ -110,25 +110,18 @@ class ContractRequestController extends Controller
             // Mark unit as occupied (optimistic lock — manager can revert)
             $unit->update(['status' => 'occupied']);
 
-            // Notify manager
-            Notification::create([
-                'user_id'         => $property->manager_id,
-                'notifiable_type' => \App\Models\User::class,
-                'notifiable_id'   => $property->manager_id,
-                'type'            => 'general',
-                'title'           => 'Pengajuan Kontrak Baru',
-                'message'         => Auth::user()->name . ' mengajukan kontrak untuk unit ' . $unit->name . ' di ' . $property->name . '. Silakan tinjau dan setujui.',
-            ]);
-
             DB::commit();
 
-            // Try to send email to manager (silently fail if SMTP is broken so it doesn't break user flow)
-            try {
-                if ($property->manager && $property->manager->email) {
-                    Mail::to($property->manager->email)->send(new ContractRequestedMail($contract));
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to send ContractRequestedMail: ' . $e->getMessage());
+            // Notify manager via NotificationService (handles DB notification, email, and logging safely)
+            if ($property->manager) {
+                app(\App\Services\NotificationService::class)->send(
+                    $property->manager,
+                    'Pengajuan Kontrak Baru',
+                    Auth::user()->name . ' mengajukan kontrak untuk unit ' . $unit->name . ' di ' . $property->name . '. Silakan tinjau dan setujui.',
+                    'contract_requested',
+                    route('manager.contracts.show', $contract->id),
+                    $contract
+                );
             }
 
             return redirect()->route('tenant.contract.show')
