@@ -151,7 +151,7 @@ class NotificationService
             case 'contract_requested':
                 $contract = $notification->notifiable;
                 if (!$contract) {
-                    throw new \Exception('Data kontrak terkait tidak ditemukan.');
+                    throw new Exception('Data kontrak terkait tidak ditemukan.');
                 }
                 $contract->loadMissing(['unit.property', 'tenant', 'manager']);
                 Mail::to($user->email)->send(new ContractRequestedMail($contract));
@@ -160,7 +160,7 @@ class NotificationService
             case 'contract_approved':
                 $contract = $notification->notifiable;
                 if (!$contract) {
-                    throw new \Exception('Data kontrak terkait tidak ditemukan.');
+                    throw new Exception('Data kontrak terkait tidak ditemukan.');
                 }
                 $contract->loadMissing(['unit.property', 'tenant', 'manager']);
                 Mail::to($user->email)->send(new ContractApprovedMail($contract, true));
@@ -169,7 +169,7 @@ class NotificationService
             case 'contract_rejected':
                 $contract = $notification->notifiable;
                 if (!$contract) {
-                    throw new \Exception('Data kontrak terkait tidak ditemukan.');
+                    throw new Exception('Data kontrak terkait tidak ditemukan.');
                 }
                 $contract->loadMissing(['unit.property', 'tenant', 'manager']);
                 Mail::to($user->email)->send(new ContractApprovedMail($contract, false));
@@ -178,7 +178,7 @@ class NotificationService
             case 'payment_approved':
                 $payment = $notification->notifiable;
                 if (!$payment) {
-                    throw new \Exception('Data pembayaran terkait tidak ditemukan.');
+                    throw new Exception('Data pembayaran terkait tidak ditemukan.');
                 }
                 $payment->loadMissing(['invoice.leaseContract.unit.property', 'invoice.leaseContract.tenant', 'tenant']);
                 Mail::to($user->email)->send(new PaymentApprovedMail($payment, 'approved'));
@@ -187,7 +187,7 @@ class NotificationService
             case 'payment_rejected':
                 $payment = $notification->notifiable;
                 if (!$payment) {
-                    throw new \Exception('Data pembayaran terkait tidak ditemukan.');
+                    throw new Exception('Data pembayaran terkait tidak ditemukan.');
                 }
                 $payment->loadMissing(['invoice.leaseContract.unit.property', 'invoice.leaseContract.tenant', 'tenant']);
                 // Extract rejection reason from message if any

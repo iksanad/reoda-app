@@ -149,7 +149,7 @@
 
             {{-- Create Invoice Modal --}}
             <div x-show="openInvoice" x-transition style="display:none"
-                class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-sm" @click.self="openInvoice = false">
+                class="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-sm" @click.self="openInvoice = false">
                 <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-y-auto max-h-[90vh]" x-data="{ invType: 'rent', iplDefault: {{ $contract->unit->property->ipl_amount ?? 0 }} }">
                     <div class="sticky top-0 z-10 border-b border-gray-100 bg-white/90 px-6 py-5 backdrop-blur-md flex items-center justify-between">
                         <div>
