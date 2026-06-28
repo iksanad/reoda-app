@@ -35,7 +35,6 @@ class GlobalSettingController extends Controller
             'fee_tier_2_max'            => 'nullable|numeric|min:0',
             'fee_tier_2_amount'         => 'nullable|numeric|min:0',
             'fee_tier_3_amount'         => 'nullable|numeric|min:0',
-            'gateway_fee_fixed'         => 'nullable|numeric|min:0',
         ]);
 
         $keys = [
@@ -45,7 +44,7 @@ class GlobalSettingController extends Controller
             'smtp_host', 'smtp_port', 'smtp_email', 'smtp_password',
             'fee_tier_1_max', 'fee_tier_1_amount',
             'fee_tier_2_max', 'fee_tier_2_amount',
-            'fee_tier_3_amount', 'gateway_fee_fixed',
+            'fee_tier_3_amount',
         ];
 
         foreach ($keys as $key) {

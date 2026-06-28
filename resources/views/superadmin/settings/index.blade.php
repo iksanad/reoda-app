@@ -171,14 +171,7 @@
                                 class="w-32 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-800 focus:border-reoda focus:outline-none transition">
                         </td>
                     </tr>
-                    <tr class="bg-blue-50/50">
-                        <td class="px-4 py-3 font-semibold text-blue-700">Gateway Fee</td>
-                        <td class="px-4 py-3 text-gray-500 italic text-xs">Biaya payment gateway (Midtrans), berlaku di semua tier</td>
-                        <td class="px-4 py-3">
-                            <input type="number" name="gateway_fee_fixed" value="{{ $settings['gateway_fee_fixed'] ?? 4000 }}" min="0" step="500"
-                                class="w-32 rounded-lg border border-blue-200 px-3 py-1.5 text-sm text-blue-800 focus:border-blue-400 focus:outline-none transition">
-                        </td>
-                    </tr>
+
                 </tbody>
             </table>
         </div>
