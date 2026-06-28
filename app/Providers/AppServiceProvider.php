@@ -36,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
                         'mail.mailers.smtp.port' => $settings->get('smtp_port'),
                         'mail.mailers.smtp.username' => $settings->get('smtp_email'),
                         'mail.mailers.smtp.password' => $settings->get('smtp_password'),
+                        'mail.mailers.smtp.encryption' => $settings->get('smtp_port') == 465 ? 'ssl' : 'tls',
                         'mail.from.address' => $settings->get('smtp_email'),
                         'mail.from.name' => 'REODA',
                     ]);
