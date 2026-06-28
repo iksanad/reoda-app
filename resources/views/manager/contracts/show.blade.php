@@ -50,50 +50,6 @@
             </div>
         </div>
 
-        {{-- Invoice History --}}
-        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <div class="border-b border-gray-100 px-6 py-5 bg-gray-50/50 flex justify-between items-center">
-                <h4 class="font-extrabold text-reoda-dark text-lg">Riwayat Invoice</h4>
-                <span class="inline-flex items-center justify-center bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded-full">{{ $contract->invoices->count() }}</span>
-            </div>
-            @if($contract->invoices->count() > 0)
-            <div class="overflow-x-auto p-4">
-                <table class="w-full text-sm border-separate" style="border-spacing: 0 4px;">
-                    <thead><tr>
-                        <th class="py-3 px-6 bg-reoda-lightest text-left font-bold text-reoda-dark rounded-l-full">No. Invoice</th>
-                        <th class="py-3 px-4 bg-reoda-lightest text-left font-bold text-reoda-dark mx-1">Jenis</th>
-                        <th class="py-3 px-4 bg-reoda-lightest text-left font-bold text-reoda-dark mx-1">Periode</th>
-                        <th class="py-3 px-4 bg-reoda-lightest text-left font-bold text-reoda-dark mx-1">Nominal</th>
-                        <th class="py-3 px-4 bg-reoda-lightest text-left font-bold text-reoda-dark rounded-r-full">Status</th>
-                    </tr></thead>
-                    <tbody>
-                        @foreach($contract->invoices as $inv)
-                        @php
-                            $is = match($inv->status) {
-                                'paid'    => 'bg-[#b0ebb0] text-[#1a5e1a]',
-                                'pending' => 'bg-[#fce599] text-[#7a5c00]',
-                                'unpaid'  => 'bg-[#f9c5c5] text-[#7a1c1c]',
-                                default   => 'bg-gray-200 text-gray-700',
-                            };
-                        @endphp
-                        <tr class="even:bg-[#e6f4f1] odd:bg-white transition hover:bg-gray-50">
-                            <td class="py-3 px-6 font-mono text-xs font-bold text-reoda-dark rounded-l-full">{{ $inv->invoice_number }}</td>
-                            <td class="py-3 px-4 font-bold text-gray-600 capitalize">{{ $inv->type }}</td>
-                            <td class="py-3 px-4 font-bold text-gray-600">{{ $inv->billing_month }}/{{ $inv->billing_year }}</td>
-                            <td class="py-3 px-4 font-extrabold text-reoda-dark">Rp {{ number_format($inv->amount,0,',','.') }}</td>
-                            <td class="py-3 px-4 rounded-r-full"><span class="inline-flex rounded-full px-3 py-1 text-xs font-bold {{ $is }}">{{ ucfirst($inv->status) }}</span></td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            @else
-            <div class="py-12 text-center flex flex-col items-center">
-                <svg class="h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                <span class="text-sm font-medium text-gray-500">Belum ada invoice untuk kontrak ini.</span>
-            </div>
-            @endif
-        </div>
 
         {{-- Approval Actions --}}
         @if($contract->status === 'awaiting_approval')

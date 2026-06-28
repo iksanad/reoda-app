@@ -70,10 +70,11 @@ class MidtransWebhookController extends Controller
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
-        $invoice = $payment->invoice;
-
         DB::beginTransaction();
         try {
+            // Re-fetch invoice with lock to prevent concurrent webhook executions from causing duplicate wallet transactions
+            $invoice = Invoice::where('id', $payment->invoice_id)->lockForUpdate()->first();
+
             $isSettled = in_array($transactionStatus, ['settlement', 'capture'])
                 && ($fraudStatus === null || $fraudStatus === 'accept');
 
