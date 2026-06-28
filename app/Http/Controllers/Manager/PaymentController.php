@@ -97,7 +97,7 @@ class PaymentController extends Controller
                 'Pembayaran Dikonfirmasi ✅',
                 'Pembayaran Anda untuk invoice ' . ($payment->invoice->invoice_number ?? '') . ' telah dikonfirmasi oleh pengelola.',
                 'payment_approved',
-                route('tenant.invoices.index'),
+                route('tenant.transactions.index'),
                 $payment
             );
         }
@@ -128,7 +128,7 @@ class PaymentController extends Controller
                 'Pembayaran Ditolak ❌',
                 'Pembayaran Anda untuk invoice ' . ($payment->invoice->invoice_number ?? '') . ' ditolak. Alasan: ' . $request->rejection_reason,
                 'payment_rejected',
-                route('tenant.invoices.index'),
+                route('tenant.transactions.index'),
                 $payment
             );
         }

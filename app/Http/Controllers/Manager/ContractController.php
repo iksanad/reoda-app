@@ -265,7 +265,7 @@ class ContractController extends Controller
                 'Tagihan Baru: ' . ($typeLabels[$request->type] ?? ucfirst($request->type)),
                 'Anda memiliki tagihan baru untuk ' . ($typeLabels[$request->type] ?? '') . ' periode ' . $request->billing_month . '/' . $request->billing_year . '. Jatuh tempo: ' . $request->due_date . '.',
                 'payment_due',
-                route('tenant.invoices.index')
+                route('tenant.transactions.index')
             );
         }
 

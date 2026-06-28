@@ -116,7 +116,7 @@ class MidtransWebhookController extends Controller
                         'Pembayaran Berhasil ✅',
                         'Pembayaran untuk invoice ' . $invoice->invoice_number . ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') . ' telah berhasil dikonfirmasi.',
                         'payment_received',
-                        route('tenant.invoices.index'),
+                        route('tenant.transactions.index'),
                         $payment,
                         true  // noRetry
                     );
