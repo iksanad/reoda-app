@@ -81,7 +81,7 @@ class TransactionController extends Controller
         $platformFee    = 0;
         $gatewayFee     = 0;
 
-        if ($invoice->status === 'unpaid') {
+        if (in_array($invoice->status, ['unpaid', 'pending'])) {
             // Calculate tiered platform fee from global settings
             $amount = (float) $invoice->amount;
             $tier1Max    = (float) (\App\Models\Setting::getValue('fee_tier_1_max', 1000000));

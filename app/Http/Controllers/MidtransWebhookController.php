@@ -127,14 +127,15 @@ class MidtransWebhookController extends Controller
                     Log::error('Failed to send payment confirmation email: ' . $e->getMessage());
                 }
 
+            } elseif ($transactionStatus === 'pending' && !in_array($invoice->status, ['paid'])) {
+                // User has chosen a payment method (e.g. bank transfer/VA) but hasn't paid yet
+                $invoice->update(['status' => 'pending']);
+
             } elseif ($isFailed && !in_array($invoice->status, ['paid'])) {
                 // Payment cancelled/expired/denied — reset invoice so tenant can retry
                 $payment->update(['status' => 'rejected']);
                 $invoice->update(['status' => 'unpaid']);
             }
-            // NOTE: Midtrans 'pending' status (bank transfer VA not yet paid) is intentionally
-            // NOT handled here — invoice stays 'unpaid' until actual settlement arrives.
-
             DB::commit();
             return response()->json(['message' => 'OK']);
 

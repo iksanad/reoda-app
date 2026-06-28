@@ -97,7 +97,7 @@
                                 <div class="flex justify-between gap-8 pt-1 border-t mt-1"><span class="font-bold text-black">Total</span><span class="font-extrabold text-xl text-reoda">Rp {{ number_format($totalBayar, 0, ',', '.') }}</span></div>
                             </div>
                         </div>
-                        @if(isset($snapToken) && in_array($invoice->status, ['unpaid']))
+                        @if(isset($snapToken) && in_array($invoice->status, ['unpaid', 'pending']))
                         <button id="pay-button" onclick="openSnapEmbed()" class="shrink-0 rounded-xl bg-reoda px-8 py-3 font-bold text-white hover:bg-reoda-dark transition shadow-md flex items-center gap-2 text-base">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             Bayar Sekarang
@@ -157,7 +157,7 @@
     </div>
 </div>
 
-@if(isset($snapToken) && in_array($invoice->status, ['unpaid']))
+@if(isset($snapToken) && in_array($invoice->status, ['unpaid', 'pending']))
 {{-- Embedded Midtrans Snap --}}
 <div id="snap-embed-container" class="mt-5 hidden">
     <div class="rounded-xl border border-stroke bg-white shadow-sm overflow-hidden">
