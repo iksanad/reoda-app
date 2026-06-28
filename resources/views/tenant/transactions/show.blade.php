@@ -88,9 +88,7 @@
                                 @if(isset($platformFee) && $platformFee > 0)
                                 <div class="flex justify-between gap-8"><span class="text-gray-500">Biaya admin REODA</span><span class="font-medium">Rp {{ number_format($platformFee, 0, ',', '.') }}</span></div>
                                 @endif
-                                @if(isset($gatewayFee) && $gatewayFee > 0)
-                                <div class="flex justify-between gap-8"><span class="text-gray-500">Biaya payment gateway</span><span class="font-medium">Rp {{ number_format($gatewayFee, 0, ',', '.') }}</span></div>
-                                @endif
+
                                 @if(isset($discountAmount) && $discountAmount > 0)
                                 <div class="flex justify-between gap-8"><span class="text-success-600">Diskon Referral</span><span class="font-medium text-success-600">- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span></div>
                                 @endif

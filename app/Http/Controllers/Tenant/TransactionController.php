@@ -79,7 +79,6 @@ class TransactionController extends Controller
         $snapToken      = null;
         $discountAmount = 0;
         $platformFee    = 0;
-        $gatewayFee     = 0;
 
         if (in_array($invoice->status, ['unpaid', 'pending'])) {
             // Calculate tiered platform fee from global settings
@@ -89,7 +88,6 @@ class TransactionController extends Controller
             $tier2Max    = (float) (\App\Models\Setting::getValue('fee_tier_2_max', 3000000));
             $tier2Amount = (float) (\App\Models\Setting::getValue('fee_tier_2_amount', 10000));
             $tier3Amount = (float) (\App\Models\Setting::getValue('fee_tier_3_amount', 15000));
-            $gatewayFee  = (float) (\App\Models\Setting::getValue('gateway_fee_fixed', 4000));
 
             if ($amount <= $tier1Max) {
                 $platformFee = $tier1Amount;
@@ -99,7 +97,7 @@ class TransactionController extends Controller
                 $platformFee = $tier3Amount;
             }
 
-            $totalAmount = $amount + $platformFee + $gatewayFee;
+            $totalAmount = $amount + $platformFee;
 
             // Apply referral discount if available
             if (Auth::user()->discount_quota > 0) {
@@ -141,7 +139,6 @@ class TransactionController extends Controller
             $itemDetails = [
                 ['id' => 'ITEM-' . $invoice->id, 'price' => (int)$amount,      'quantity' => 1, 'name' => $itemName],
                 ['id' => 'FEE-PLATFORM',          'price' => (int)$platformFee, 'quantity' => 1, 'name' => 'Biaya Admin REODA'],
-                ['id' => 'FEE-PG',                'price' => (int)$gatewayFee,  'quantity' => 1, 'name' => 'Biaya Payment Gateway'],
             ];
             if ($discountAmount > 0) {
                 $itemDetails[] = ['id' => 'DISC-REF', 'price' => -(int)$discountAmount, 'quantity' => 1, 'name' => 'Voucher Diskon Referral'];
@@ -175,7 +172,7 @@ class TransactionController extends Controller
                     'manager_id'        => $invoice->manager_id,
                     'amount'            => $invoice->amount,
                     'platform_fee'      => $platformFee,
-                    'gateway_fee'       => $gatewayFee,
+                    'gateway_fee'       => 0,
                     'payment_method'    => 'midtrans',
                     'midtrans_order_id' => $orderId,
                     'status'            => 'pending',
@@ -185,7 +182,7 @@ class TransactionController extends Controller
             }
         }
 
-        return view('tenant.transactions.show', compact('invoice', 'snapToken', 'discountAmount', 'platformFee', 'gatewayFee'));
+        return view('tenant.transactions.show', compact('invoice', 'snapToken', 'discountAmount', 'platformFee'));
     }
 
     public function pay(Request $request, Invoice $invoice)

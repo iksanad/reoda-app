@@ -123,6 +123,10 @@ class MidtransWebhookController extends Controller
                         \Illuminate\Support\Facades\Mail::to($invoice->tenant->email)
                             ->send(new \App\Mail\PaymentApprovedMail($payment, 'approved'));
                     }
+                    if ($manager && $manager->email) {
+                        \Illuminate\Support\Facades\Mail::to($manager->email)
+                            ->send(new \App\Mail\ManagerPaymentReceivedMail($payment));
+                    }
                 } catch (\Exception $e) {
                     Log::error('Failed to send payment confirmation email: ' . $e->getMessage());
                 }

@@ -18,11 +18,11 @@ class DashboardController extends Controller
             'total_tenants'        => User::where('role', 'tenant')->count(),
             'total_properties'     => Property::count(),
             'active_contracts'     => LeaseContract::where('status', 'active')->count(),
-            'total_revenue'        => Payment::where('status', 'verified')->sum('amount'),
-            'revenue_this_month'   => Payment::where('status', 'verified')
+            'total_revenue'        => Payment::whereIn('status', ['verified', 'approved'])->sum('platform_fee'),
+            'revenue_this_month'   => Payment::whereIn('status', ['verified', 'approved'])
                                         ->whereMonth('created_at', now()->month)
                                         ->whereYear('created_at', now()->year)
-                                        ->sum('amount'),
+                                        ->sum('platform_fee'),
         ];
 
         $pendingManagers = User::where('role', 'manager')

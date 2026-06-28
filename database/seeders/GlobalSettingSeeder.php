@@ -27,6 +27,11 @@ class GlobalSettingSeeder extends Seeder
             ['key' => 'smtp_port', 'value' => '587'],
             ['key' => 'smtp_email', 'value' => ''],
             ['key' => 'smtp_password', 'value' => ''],
+            ['key' => 'fee_tier_1_max', 'value' => '1000000'],
+            ['key' => 'fee_tier_1_amount', 'value' => '5000'],
+            ['key' => 'fee_tier_2_max', 'value' => '3000000'],
+            ['key' => 'fee_tier_2_amount', 'value' => '10000'],
+            ['key' => 'fee_tier_3_amount', 'value' => '15000'],
         ];
 
         foreach ($settings as $setting) {
