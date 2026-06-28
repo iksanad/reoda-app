@@ -76,12 +76,10 @@ class TransactionController extends Controller
 
         $invoice->load(['leaseContract.unit.property.manager', 'payments' => fn($q) => $q->latest()]);
 
-        $snapToken      = null;
         $discountAmount = 0;
         $platformFee    = 0;
 
         if (in_array($invoice->status, ['unpaid', 'pending'])) {
-            // Calculate tiered platform fee from global settings
             $amount = (float) $invoice->amount;
             $tier1Max    = (float) (\App\Models\Setting::getValue('fee_tier_1_max', 1000000));
             $tier1Amount = (float) (\App\Models\Setting::getValue('fee_tier_1_amount', 5000));
@@ -99,97 +97,141 @@ class TransactionController extends Controller
 
             $totalAmount = $amount + $platformFee;
 
-            // Apply referral discount if available
             if (Auth::user()->discount_quota > 0) {
                 $discountAmount = 50000;
                 if ($totalAmount - $discountAmount < 10000) {
                     $discountAmount = $totalAmount - 10000;
                 }
-                if ($discountAmount > 0) {
-                    $totalAmount -= $discountAmount;
-                }
-            }
-
-            $typeLabels = [
-                'rent'        => 'Sewa Hunian',
-                'electricity' => 'Tagihan Listrik',
-                'water'       => 'Tagihan Air',
-                'ipl'         => 'IPL / Maintenance Fee',
-                'deposit'     => 'Deposit / Uang Jaminan',
-            ];
-            $itemName = ($typeLabels[$invoice->type] ?? ucfirst($invoice->type))
-                . ': ' . ($invoice->leaseContract->unit->property->name ?? '');
-
-            // Setup Midtrans
-            Config::$serverKey    = config('services.midtrans.server_key');
-            Config::$isProduction = config('services.midtrans.is_production');
-            Config::$isSanitized  = true;
-            Config::$is3ds        = true;
-
-            // Always fresh order_id — format INV-{invoice_id}-{timestamp}
-            // Webhook will parse invoice_id from this to find the invoice.
-            // Clean up any stale pending payment records first.
-            Payment::where('invoice_id', $invoice->id)
-                ->where('status', 'pending')
-                ->whereNull('midtrans_transaction_id')
-                ->delete();
-
-            $orderId = 'INV-' . $invoice->id . '-' . time();
-
-            $itemDetails = [
-                ['id' => 'ITEM-' . $invoice->id, 'price' => (int)$amount,      'quantity' => 1, 'name' => $itemName],
-                ['id' => 'FEE-PLATFORM',          'price' => (int)$platformFee, 'quantity' => 1, 'name' => 'Biaya Admin REODA'],
-            ];
-            if ($discountAmount > 0) {
-                $itemDetails[] = ['id' => 'DISC-REF', 'price' => -(int)$discountAmount, 'quantity' => 1, 'name' => 'Voucher Diskon Referral'];
-            }
-
-            $params = [
-                'transaction_details' => [
-                    'order_id'     => $orderId,
-                    'gross_amount' => (int)$totalAmount,
-                ],
-                'customer_details' => [
-                    'first_name' => Auth::user()->name,
-                    'email'      => Auth::user()->email,
-                    'phone'      => Auth::user()->phone ?? '',
-                ],
-                'item_details' => $itemDetails,
-                'callbacks'    => [
-                    'finish' => route('tenant.transactions.index'),
-                ],
-            ];
-
-            try {
-                $snapToken = Snap::getSnapToken($params);
-
-                // Store a pending payment record so we have fee info when webhook arrives
-                // The webhook will find the invoice via the order_id format INV-{id}-{ts}
-                Payment::create([
-                    'payment_code'      => 'PAY-' . strtoupper(Str::random(10)),
-                    'invoice_id'        => $invoice->id,
-                    'tenant_id'         => Auth::id(),
-                    'manager_id'        => $invoice->manager_id,
-                    'amount'            => $invoice->amount,
-                    'platform_fee'      => $platformFee,
-                    'gateway_fee'       => 0,
-                    'payment_method'    => 'midtrans',
-                    'midtrans_order_id' => $orderId,
-                    'status'            => 'pending',
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Midtrans snap token error: ' . $e->getMessage());
             }
         }
 
-        return view('tenant.transactions.show', compact('invoice', 'snapToken', 'discountAmount', 'platformFee'));
+        return view('tenant.transactions.show', compact('invoice', 'discountAmount', 'platformFee'));
     }
 
     public function pay(Request $request, Invoice $invoice)
     {
-        // This endpoint is now handled by Midtrans Snap directly in show()
-        // and confirmed automatically via webhook. Redirect back.
-        return redirect()->route('tenant.transactions.show', $invoice)
-            ->with('info', 'Silakan gunakan tombol Bayar Sekarang untuk melanjutkan pembayaran.');
+        if ($invoice->tenant_id !== Auth::id() || !in_array($invoice->status, ['unpaid', 'pending'])) {
+            return response()->json(['error' => 'Invoice tidak valid'], 403);
+        }
+
+        $request->validate([
+            'method' => 'required|string'
+        ]);
+
+        $method = $request->input('method');
+
+        // Setup Midtrans
+        Config::$serverKey    = config('services.midtrans.server_key');
+        Config::$isProduction = config('services.midtrans.is_production');
+        Config::$isSanitized  = true;
+        Config::$is3ds        = true;
+
+        $amount = (float) $invoice->amount;
+
+        // Platform Fee
+        $tier1Max    = (float) (\App\Models\Setting::getValue('fee_tier_1_max', 1000000));
+        $tier1Amount = (float) (\App\Models\Setting::getValue('fee_tier_1_amount', 5000));
+        $tier2Max    = (float) (\App\Models\Setting::getValue('fee_tier_2_max', 3000000));
+        $tier2Amount = (float) (\App\Models\Setting::getValue('fee_tier_2_amount', 10000));
+        $tier3Amount = (float) (\App\Models\Setting::getValue('fee_tier_3_amount', 15000));
+
+        if ($amount <= $tier1Max) {
+            $platformFee = $tier1Amount;
+        } elseif ($amount <= $tier2Max) {
+            $platformFee = $tier2Amount;
+        } else {
+            $platformFee = $tier3Amount;
+        }
+
+        $subtotal = $amount + $platformFee;
+
+        if (Auth::user()->discount_quota > 0) {
+            $discountAmount = 50000;
+            if ($subtotal - $discountAmount < 10000) {
+                $discountAmount = $subtotal - 10000;
+            }
+            if ($discountAmount > 0) {
+                $subtotal -= $discountAmount;
+            }
+        } else {
+            $discountAmount = 0;
+        }
+
+        // Calculate Gateway Fee
+        $gatewayFee = 0;
+        if (in_array($method, ['bca_va', 'mandiri_va', 'bni_va', 'bri_va', 'permata_va', 'other_va'])) {
+            $gatewayFee = 4440; // Rp 4.000 + 11% PPN
+        } elseif ($method === 'gopay') {
+            $gatewayFee = ceil($subtotal * 0.02); // 2% of subtotal
+        } elseif ($method === 'qris') {
+            $gatewayFee = ceil($subtotal * 0.007); // 0.7% of subtotal
+        }
+        
+        $totalAmount = $subtotal + $gatewayFee;
+
+        $typeLabels = [
+            'rent'        => 'Sewa Hunian',
+            'electricity' => 'Tagihan Listrik',
+            'water'       => 'Tagihan Air',
+            'ipl'         => 'IPL / Maintenance Fee',
+            'deposit'     => 'Deposit / Uang Jaminan',
+        ];
+        $itemName = ($typeLabels[$invoice->type] ?? ucfirst($invoice->type))
+            . ': ' . ($invoice->leaseContract->unit->property->name ?? '');
+
+        Payment::where('invoice_id', $invoice->id)
+            ->where('status', 'pending')
+            ->whereNull('midtrans_transaction_id')
+            ->delete();
+
+        $orderId = 'INV-' . $invoice->id . '-' . time();
+
+        $itemDetails = [
+            ['id' => 'ITEM-' . $invoice->id, 'price' => (int)$amount,      'quantity' => 1, 'name' => $itemName],
+            ['id' => 'FEE-PLATFORM',          'price' => (int)$platformFee, 'quantity' => 1, 'name' => 'Biaya Admin REODA'],
+            ['id' => 'FEE-GATEWAY',           'price' => (int)$gatewayFee,  'quantity' => 1, 'name' => 'Biaya Payment Gateway'],
+        ];
+        if ($discountAmount > 0) {
+            $itemDetails[] = ['id' => 'DISC-REF', 'price' => -(int)$discountAmount, 'quantity' => 1, 'name' => 'Voucher Diskon Referral'];
+        }
+
+        $params = [
+            'transaction_details' => [
+                'order_id'     => $orderId,
+                'gross_amount' => (int)$totalAmount,
+            ],
+            'customer_details' => [
+                'first_name' => Auth::user()->name,
+                'email'      => Auth::user()->email,
+                'phone'      => Auth::user()->phone ?? '',
+            ],
+            'item_details' => $itemDetails,
+            'enabled_payments' => [$method],
+            'callbacks'    => [
+                'finish' => route('tenant.transactions.index'),
+            ],
+        ];
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+
+            Payment::create([
+                'payment_code'      => 'PAY-' . strtoupper(Str::random(10)),
+                'invoice_id'        => $invoice->id,
+                'tenant_id'         => Auth::id(),
+                'manager_id'        => $invoice->manager_id,
+                'amount'            => $invoice->amount,
+                'platform_fee'      => $platformFee,
+                'gateway_fee'       => $gatewayFee,
+                'payment_method'    => 'midtrans',
+                'midtrans_order_id' => $orderId,
+                'status'            => 'pending',
+            ]);
+
+            return response()->json(['snapToken' => $snapToken]);
+        } catch (\Exception $e) {
+            Log::error('Midtrans snap token error: ' . $e->getMessage());
+            return response()->json(['error' => 'Gagal menghubungi Midtrans'], 500);
+        }
     }
 }

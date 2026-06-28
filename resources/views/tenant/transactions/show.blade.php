@@ -3,87 +3,69 @@
 @section('title', 'Detail Tagihan - REODA')
 
 @section('content')
-<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <h2 class="text-title-md2 font-bold text-black">Detail Tagihan</h2>
-    <nav><ol class="flex items-center gap-2">
-        <li><a class="font-medium hover:text-reoda" href="{{ route('tenant.transactions.index') }}">Transaksi /</a></li>
-        <li class="font-medium text-reoda">Detail</li>
-    </ol></nav>
+
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <a href="{{ route('tenant.transactions.index') }}" class="text-sm font-semibold text-gray-500 hover:text-reoda flex items-center gap-1 mb-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            Kembali
+        </a>
+        <h1 class="text-3xl font-extrabold text-reoda-dark flex items-center gap-3">
+            Tagihan #{{ $invoice->invoice_number }}
+            @if($invoice->status === 'paid')
+                <span class="rounded-full bg-success-100 px-3 py-1 text-sm font-bold text-success-700 border border-success-200">Lunas</span>
+            @elseif($invoice->status === 'pending')
+                <span class="rounded-full bg-warning-100 px-3 py-1 text-sm font-bold text-warning-700 border border-warning-200">Menunggu</span>
+            @else
+                <span class="rounded-full bg-gray-100 px-3 py-1 text-sm font-bold text-gray-600 border border-gray-200">Belum Dibayar</span>
+            @endif
+        </h1>
+    </div>
 </div>
 
-@if(session('success'))
-<div class="mb-5 rounded-md border-l-4 border-success-500 bg-success-50 px-5 py-3 text-sm font-medium text-success-700">{{ session('success') }}</div>
-@endif
-@if(session('error'))
-<div class="mb-5 rounded-md border-l-4 border-error-500 bg-error-50 px-5 py-3 text-sm font-medium text-error-700">{{ session('error') }}</div>
-@endif
 @if(session('info'))
-<div class="mb-5 rounded-md border-l-4 border-blue-400 bg-blue-50 px-5 py-3 text-sm font-medium text-blue-700">{{ session('info') }}</div>
+<div class="mb-6 rounded-xl border border-blue-200 bg-blue-50 px-6 py-4 text-sm text-blue-700 shadow-sm flex items-start gap-3">
+    <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <div>{{ session('info') }}</div>
+</div>
 @endif
 
 @php
-    $unit    = $invoice->leaseContract->unit;
-    $prop    = $unit->property;
+    $unit = $invoice->leaseContract->unit;
+    $prop = $unit->property;
     $manager = $prop->manager;
-
-    $typeLabels = [
-        'rent'        => 'Sewa Hunian',
-        'electricity' => 'Tagihan Listrik',
-        'water'       => 'Tagihan Air',
-        'ipl'         => 'IPL / Maintenance Fee',
-        'deposit'     => 'Deposit / Uang Jaminan',
-    ];
-
-    $sc = match($invoice->status) {
-        'unpaid'  => ['label'=>'Belum Dibayar',               'class'=>'bg-error-50 text-error-700 border-error-200'],
-        'pending' => ['label'=>'Menunggu Konfirmasi Pembayaran','class'=>'bg-warning-50 text-warning-700 border-warning-200'],
-        'paid'    => ['label'=>'Lunas',                        'class'=>'bg-success-50 text-success-700 border-success-200'],
-        'overdue' => ['label'=>'Jatuh Tempo',                  'class'=>'bg-error-50 text-error-800 border-error-300'],
-        default   => ['label'=>ucfirst($invoice->status),      'class'=>'bg-gray-50 text-gray-700 border-gray-200'],
-    };
-
-    $latestPayment = $invoice->payments->first();
-    $totalBayar = $invoice->amount + ($platformFee ?? 0) + ($gatewayFee ?? 0) - ($discountAmount ?? 0);
+    $subtotal = $invoice->amount + ($platformFee ?? 0);
+    $totalBayar = $subtotal - ($discountAmount ?? 0);
 @endphp
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 space-y-5">
-
-        {{-- Status Banner --}}
-        <div class="flex items-center gap-3 rounded-xl border px-5 py-3.5 {{ $sc['class'] }}">
-            <p class="font-bold text-sm">Status: {{ $sc['label'] }}</p>
-        </div>
-
-        {{-- Invoice Detail --}}
-        <div class="rounded-xl border border-stroke bg-white shadow-sm">
-            <div class="border-b border-stroke px-6 py-4"><h4 class="font-bold text-black">Detail Tagihan</h4></div>
-            <div class="p-6 grid grid-cols-2 gap-4 text-sm">
-                <div><p class="text-xs text-gray-400 mb-0.5">No. Invoice</p><p class="font-mono font-semibold">{{ $invoice->invoice_number }}</p></div>
-                <div><p class="text-xs text-gray-400 mb-0.5">Jenis</p><p class="font-semibold">{{ $typeLabels[$invoice->type] ?? ucfirst($invoice->type) }}</p></div>
-                <div><p class="text-xs text-gray-400 mb-0.5">Periode</p><p class="font-semibold">{{ $invoice->billing_month }}/{{ $invoice->billing_year }}</p></div>
-                <div><p class="text-xs text-gray-400 mb-0.5">Jatuh Tempo</p><p class="font-semibold {{ $invoice->due_date && $invoice->due_date->isPast() && $invoice->status !== 'paid' ? 'text-error-600' : '' }}">{{ $invoice->due_date?->format('d M Y') }}</p></div>
-
-                @if($invoice->meter_start && $invoice->meter_end)
-                <div class="col-span-2 grid grid-cols-3 gap-3 pt-2 border-t border-stroke">
-                    <div><p class="text-xs text-gray-400 mb-0.5">Meter Awal</p><p class="font-semibold">{{ number_format($invoice->meter_start, 0) }}</p></div>
-                    <div><p class="text-xs text-gray-400 mb-0.5">Meter Akhir</p><p class="font-semibold">{{ number_format($invoice->meter_end, 0) }}</p></div>
-                    <div><p class="text-xs text-gray-400 mb-0.5">Pemakaian</p><p class="font-semibold text-reoda">{{ number_format($invoice->meter_end - $invoice->meter_start, 0) }} unit</p></div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    {{-- Left Content --}}
+    <div class="lg:col-span-2">
+        <div class="rounded-xl border border-stroke bg-white shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-stroke bg-gray-50 flex items-center justify-between">
+                <h3 class="font-bold text-black text-lg">Informasi Tagihan</h3>
+                <span class="text-sm text-gray-500">{{ $invoice->created_at->format('d M Y') }}</span>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <p class="text-xs text-gray-400 mb-1">Ditagihkan Kepada</p>
+                        <p class="font-bold text-black">{{ Auth::user()->name }}</p>
+                        <p class="text-sm text-gray-500">{{ Auth::user()->email }}</p>
+                    </div>
+                    <div class="md:text-right">
+                        <p class="text-xs text-gray-400 mb-1">Jatuh Tempo</p>
+                        <p class="font-bold text-danger">{{ \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') }}</p>
+                    </div>
                 </div>
-                @endif
-
-                @if($invoice->notes)
-                <div class="col-span-2 pt-2 border-t border-stroke">
-                    <p class="text-xs text-gray-400 mb-0.5">Catatan</p>
-                    <p class="font-medium text-gray-600">{{ $invoice->notes }}</p>
-                </div>
-                @endif
 
                 {{-- Total + Pay Button --}}
-                <div class="col-span-2 pt-3 border-t border-stroke">
-                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                        <div>
-                            <p class="text-xs text-gray-400 mb-1">Rincian Pembayaran</p>
-                            <div class="space-y-0.5 text-sm">
+                <div class="pt-3 border-t border-stroke">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
+                        <div class="w-full sm:w-2/3">
+                            <p class="text-xs text-gray-400 mb-2 font-bold uppercase tracking-wider">Rincian Pembayaran</p>
+                            <div class="space-y-1.5 text-sm">
                                 <div class="flex justify-between gap-8"><span class="text-gray-500">Tagihan pokok</span><span class="font-medium">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</span></div>
                                 @if(isset($platformFee) && $platformFee > 0)
                                 <div class="flex justify-between gap-8"><span class="text-gray-500">Biaya admin REODA</span><span class="font-medium">Rp {{ number_format($platformFee, 0, ',', '.') }}</span></div>
@@ -92,31 +74,168 @@
                                 @if(isset($discountAmount) && $discountAmount > 0)
                                 <div class="flex justify-between gap-8"><span class="text-success-600">Diskon Referral</span><span class="font-medium text-success-600">- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span></div>
                                 @endif
-                                <div class="flex justify-between gap-8 pt-1 border-t mt-1"><span class="font-bold text-black">Total</span><span class="font-extrabold text-xl text-reoda">Rp {{ number_format($totalBayar, 0, ',', '.') }}</span></div>
+
+                                <div id="gateway-fee-row" class="flex justify-between gap-8 hidden text-orange-600">
+                                    <span>Biaya Payment Gateway</span>
+                                    <span id="gateway-fee-amount" class="font-medium">Rp 0</span>
+                                </div>
+
+                                <div class="flex justify-between gap-8 pt-2 border-t mt-2">
+                                    <span class="font-bold text-black">Total</span>
+                                    <span id="total-amount-display" class="font-extrabold text-xl text-reoda">Rp {{ number_format($totalBayar, 0, ',', '.') }}</span>
+                                </div>
                             </div>
                         </div>
-                        @if(isset($snapToken) && in_array($invoice->status, ['unpaid', 'pending']))
-                        <button id="pay-button" onclick="openSnapEmbed()" class="shrink-0 rounded-xl bg-reoda px-8 py-3 font-bold text-white hover:bg-reoda-dark transition shadow-md flex items-center gap-2 text-base">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            Bayar Sekarang
-                        </button>
-                        @endif
                     </div>
                 </div>
             </div>
         </div>
 
+        @if(in_array($invoice->status, ['unpaid', 'pending']))
+        {{-- Payment Methods Selection --}}
+        <div id="payment-methods-section" class="mt-8 rounded-xl border border-stroke bg-white shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-stroke bg-gray-50">
+                <h3 class="font-bold text-black text-lg">Pilih Metode Pembayaran</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="payment-methods-container">
+                    <!-- VA BCA -->
+                    <label class="cursor-pointer relative">
+                        <input type="radio" name="payment_method" value="bca_va" class="peer sr-only" onchange="updateFee('bca_va')">
+                        <div class="rounded-xl border border-gray-200 p-4 hover:border-reoda peer-checked:border-reoda peer-checked:bg-reoda/5 peer-checked:ring-1 peer-checked:ring-reoda transition flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white border border-gray-100 rounded flex items-center justify-center p-1">
+                                    <span class="font-bold text-blue-800 text-xs">BCA VA</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm text-black">BCA Virtual Account</p>
+                                    <p class="text-xs text-gray-500">Biaya: Rp 4.440</p>
+                                </div>
+                            </div>
+                            <div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center peer-checked:border-reoda peer-checked:bg-reoda">
+                                <div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Mandiri VA -->
+                    <label class="cursor-pointer relative">
+                        <input type="radio" name="payment_method" value="mandiri_va" class="peer sr-only" onchange="updateFee('mandiri_va')">
+                        <div class="rounded-xl border border-gray-200 p-4 hover:border-reoda peer-checked:border-reoda peer-checked:bg-reoda/5 peer-checked:ring-1 peer-checked:ring-reoda transition flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white border border-gray-100 rounded flex items-center justify-center p-1">
+                                    <span class="font-bold text-blue-900 text-[10px] leading-tight text-center">Mandiri VA</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm text-black">Mandiri Virtual Account</p>
+                                    <p class="text-xs text-gray-500">Biaya: Rp 4.440</p>
+                                </div>
+                            </div>
+                            <div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center peer-checked:border-reoda peer-checked:bg-reoda">
+                                <div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    <!-- BNI VA -->
+                    <label class="cursor-pointer relative">
+                        <input type="radio" name="payment_method" value="bni_va" class="peer sr-only" onchange="updateFee('bni_va')">
+                        <div class="rounded-xl border border-gray-200 p-4 hover:border-reoda peer-checked:border-reoda peer-checked:bg-reoda/5 peer-checked:ring-1 peer-checked:ring-reoda transition flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white border border-gray-100 rounded flex items-center justify-center p-1">
+                                    <span class="font-bold text-orange-500 text-[10px]">BNI VA</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm text-black">BNI Virtual Account</p>
+                                    <p class="text-xs text-gray-500">Biaya: Rp 4.440</p>
+                                </div>
+                            </div>
+                            <div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center peer-checked:border-reoda peer-checked:bg-reoda">
+                                <div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- BRI VA -->
+                    <label class="cursor-pointer relative">
+                        <input type="radio" name="payment_method" value="bri_va" class="peer sr-only" onchange="updateFee('bri_va')">
+                        <div class="rounded-xl border border-gray-200 p-4 hover:border-reoda peer-checked:border-reoda peer-checked:bg-reoda/5 peer-checked:ring-1 peer-checked:ring-reoda transition flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white border border-gray-100 rounded flex items-center justify-center p-1">
+                                    <span class="font-bold text-blue-500 text-[10px]">BRI VA</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm text-black">BRI Virtual Account</p>
+                                    <p class="text-xs text-gray-500">Biaya: Rp 4.440</p>
+                                </div>
+                            </div>
+                            <div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center peer-checked:border-reoda peer-checked:bg-reoda">
+                                <div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- GoPay -->
+                    <label class="cursor-pointer relative">
+                        <input type="radio" name="payment_method" value="gopay" class="peer sr-only" onchange="updateFee('gopay')">
+                        <div class="rounded-xl border border-gray-200 p-4 hover:border-reoda peer-checked:border-reoda peer-checked:bg-reoda/5 peer-checked:ring-1 peer-checked:ring-reoda transition flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white border border-gray-100 rounded flex items-center justify-center p-1">
+                                    <span class="font-bold text-green-500 text-[10px]">GoPay</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm text-black">GoPay</p>
+                                    <p class="text-xs text-gray-500">Biaya: 2%</p>
+                                </div>
+                            </div>
+                            <div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center peer-checked:border-reoda peer-checked:bg-reoda">
+                                <div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- QRIS -->
+                    <label class="cursor-pointer relative">
+                        <input type="radio" name="payment_method" value="qris" class="peer sr-only" onchange="updateFee('qris')">
+                        <div class="rounded-xl border border-gray-200 p-4 hover:border-reoda peer-checked:border-reoda peer-checked:bg-reoda/5 peer-checked:ring-1 peer-checked:ring-reoda transition flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white border border-gray-100 rounded flex items-center justify-center p-1">
+                                    <span class="font-bold text-red-500 text-[10px]">QRIS</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm text-black">QRIS</p>
+                                    <p class="text-xs text-gray-500">Biaya: 0.7%</p>
+                                </div>
+                            </div>
+                            <div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center peer-checked:border-reoda peer-checked:bg-reoda">
+                                <div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button id="pay-button" onclick="processCheckout()" class="rounded-xl bg-reoda px-8 py-3 font-bold text-white hover:bg-reoda-dark transition shadow-md flex items-center gap-2 text-base opacity-50 cursor-not-allowed" disabled>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Lanjutkan Pembayaran
+                    </button>
+                </div>
+            </div>
+        </div>
+        @endif
+
         {{-- Pending state info --}}
         @if($invoice->status === 'pending')
-        <div class="rounded-xl border border-warning-200 bg-warning-50 px-6 py-4 text-sm text-warning-700">
+        <div class="mt-6 rounded-xl border border-warning-200 bg-warning-50 px-6 py-4 text-sm text-warning-700">
             <p class="font-bold mb-1">⏳ Menunggu Konfirmasi Pembayaran</p>
-            <p>Pembayaran Anda sedang diproses. Sistem akan otomatis mengkonfirmasi setelah pembayaran berhasil diverifikasi oleh Midtrans.</p>
+            <p>Anda telah membuat permintaan pembayaran. Sistem akan otomatis mengkonfirmasi setelah pembayaran berhasil diverifikasi oleh Midtrans.</p>
+            <p class="mt-2 text-xs opacity-80">Pilih metode di atas jika Anda ingin mengulangi proses bayar.</p>
         </div>
         @endif
 
         {{-- Paid state --}}
         @if($invoice->status === 'paid')
-        <div class="rounded-xl border border-success-200 bg-success-50 px-6 py-4 text-sm text-success-700">
+        <div class="mt-6 rounded-xl border border-success-200 bg-success-50 px-6 py-4 text-sm text-success-700">
             <p class="font-bold mb-1">✅ Pembayaran Berhasil!</p>
             <p>Tagihan ini telah lunas. Terima kasih atas pembayaran Anda.</p>
         </div>
@@ -155,13 +274,13 @@
     </div>
 </div>
 
-@if(isset($snapToken) && in_array($invoice->status, ['unpaid', 'pending']))
+@if(in_array($invoice->status, ['unpaid', 'pending']))
 {{-- Embedded Midtrans Snap --}}
 <div id="snap-embed-container" class="mt-5 hidden">
     <div class="rounded-xl border border-stroke bg-white shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-stroke flex items-center justify-between">
-            <h4 class="font-bold text-black">Pilih Metode Pembayaran</h4>
-            <button onclick="closeSnapEmbed()" class="text-sm text-gray-400 hover:text-gray-600">✕ Tutup</button>
+            <h4 class="font-bold text-black">Selesaikan Pembayaran</h4>
+            <button onclick="closeSnapEmbed()" class="text-sm text-gray-400 hover:text-gray-600">✕ Ganti Metode</button>
         </div>
         <div id="snap-container" class="p-4"></div>
     </div>
@@ -170,14 +289,82 @@
 <script src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
     data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 <script>
-    function openSnapEmbed() {
-        const container = document.getElementById('snap-embed-container');
+    const subtotalAmount = {{ $subtotal - ($discountAmount ?? 0) }};
+    
+    function formatRupiah(number) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+    }
+
+    function updateFee(method) {
+        let gatewayFee = 0;
+        if (['bca_va', 'mandiri_va', 'bni_va', 'bri_va', 'permata_va'].includes(method)) {
+            gatewayFee = 4440;
+        } else if (method === 'gopay') {
+            gatewayFee = Math.ceil(subtotalAmount * 0.02);
+        } else if (method === 'qris') {
+            gatewayFee = Math.ceil(subtotalAmount * 0.007);
+        }
+
+        const total = subtotalAmount + gatewayFee;
+        
+        document.getElementById('gateway-fee-row').classList.remove('hidden');
+        document.getElementById('gateway-fee-amount').innerText = formatRupiah(gatewayFee);
+        document.getElementById('total-amount-display').innerText = formatRupiah(total);
+        
         const btn = document.getElementById('pay-button');
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+
+    function processCheckout() {
+        const selectedMethod = document.querySelector('input[name="payment_method"]:checked');
+        if (!selectedMethod) return;
+
+        const btn = document.getElementById('pay-button');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = 'Memproses...';
+
+        fetch('{{ route("tenant.transactions.pay", $invoice) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ method: selectedMethod.value })
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            if (data.snapToken) {
+                openSnapEmbed(data.snapToken);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            alert('Terjadi kesalahan saat memproses checkout.');
+        });
+    }
+
+    function openSnapEmbed(token) {
+        const container = document.getElementById('snap-embed-container');
+        const methodsSection = document.getElementById('payment-methods-section');
+        
         container.classList.remove('hidden');
-        if (btn) btn.classList.add('hidden');
+        if (methodsSection) methodsSection.classList.add('hidden');
+        
         container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-        snap.embed('{{ $snapToken }}', {
+        snap.embed(token, {
             embedId: 'snap-container',
             onSuccess: function(result) {
                 console.log('Payment success', result);
@@ -195,18 +382,21 @@
                 alert('Pembayaran gagal. Silakan coba lagi.');
             },
             onClose: function() {
-                closeSnapEmbed();
+                // Do not reload automatically so they can see the QR/instructions if they close it, 
+                // actually Midtrans handles UI inside the embed. If they close it, they might want to change method.
+                // It's okay to let them click "Ganti Metode" to reload.
             }
         });
     }
 
     function closeSnapEmbed() {
         document.getElementById('snap-embed-container').classList.add('hidden');
-        const btn = document.getElementById('pay-button');
-        if (btn) btn.classList.remove('hidden');
-        // Reload to get fresh snap token
+        const methodsSection = document.getElementById('payment-methods-section');
+        if (methodsSection) methodsSection.classList.remove('hidden');
+        // We might need to refresh the page to clear the snap iframe fully
         window.location.reload();
     }
 </script>
 @endif
+
 @endsection
