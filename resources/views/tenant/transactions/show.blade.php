@@ -289,7 +289,7 @@
 <script src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
     data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 <script>
-    const subtotalAmount = {{ $subtotal - ($discountAmount ?? 0) }};
+    const subtotalAmount = Number("{{ $subtotal - ($discountAmount ?? 0) }}");
     
     function formatRupiah(number) {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);

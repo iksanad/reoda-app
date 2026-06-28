@@ -22,7 +22,7 @@ class TransactionController extends Controller
         $user = Auth::user();
 
         // Get the active contract to detect PLN/PDAM config
-        $activeContract = \App\Models\LeaseContract::where('tenant_id', $user->id)
+        $activeContract = LeaseContract::where('tenant_id', $user->id)
             ->where('status', 'active')
             ->with('unit.property')
             ->latest()
