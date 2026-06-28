@@ -109,6 +109,7 @@ class MidtransWebhookController extends Controller
                 }
 
                 // Notify tenant via NotificationService (logs email to Superadmin Email Logs)
+                // noRetry=true: webhook must respond quickly, email will be retried via Superadmin if failed
                 if ($invoice->tenant) {
                     app(NotificationService::class)->send(
                         $invoice->tenant,
@@ -116,11 +117,13 @@ class MidtransWebhookController extends Controller
                         'Pembayaran untuk invoice ' . $invoice->invoice_number . ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') . ' telah berhasil dikonfirmasi.',
                         'payment_received',
                         route('tenant.invoices.index'),
-                        $payment
+                        $payment,
+                        true  // noRetry
                     );
                 }
 
                 // Notify manager via NotificationService
+                // noRetry=true: webhook must respond quickly
                 if ($manager) {
                     app(NotificationService::class)->send(
                         $manager,
@@ -128,7 +131,8 @@ class MidtransWebhookController extends Controller
                         'Pembayaran invoice ' . $invoice->invoice_number . ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') . ' dari ' . ($invoice->tenant->name ?? '') . ' telah diterima.',
                         'payment_manager_received',
                         route('manager.payments.index'),
-                        $payment
+                        $payment,
+                        true  // noRetry
                     );
                 }
 

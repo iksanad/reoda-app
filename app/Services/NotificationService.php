@@ -37,8 +37,11 @@ class NotificationService
 
     /**
      * Send notification to web (database) and optionally to email if crucial.
+     *
+     * @param bool $noRetry  Pass true in time-sensitive contexts (e.g. webhooks)
+     *                       to skip the sleep-based retry and return immediately.
      */
-    public function send(User $user, string $title, string $message, string $type, ?string $link = null, $notifiable = null)
+    public function send(User $user, string $title, string $message, string $type, ?string $link = null, $notifiable = null, bool $noRetry = false)
     {
         $shouldSendEmail = in_array($type, $this->crucialTypes);
 
@@ -54,7 +57,7 @@ class NotificationService
         ]);
 
         if ($shouldSendEmail) {
-            $this->dispatchEmail($notification, $user);
+            $this->dispatchEmail($notification, $user, $noRetry);
         }
 
         return $notification;
@@ -80,11 +83,13 @@ class NotificationService
     /**
      * Dispatch email logic and update DB status.
      * Attempts up to 2 times with a 2-second delay between attempts.
+     *
+     * @param bool $noRetry  Skip the sleep-based retry (for time-sensitive callers like webhooks).
      */
-    protected function dispatchEmail(AppNotification $notification, User $user)
+    protected function dispatchEmail(AppNotification $notification, User $user, bool $noRetry = false)
     {
         $lastError = null;
-        $attempts  = 2;
+        $attempts  = $noRetry ? 1 : 2;
 
         for ($i = 1; $i <= $attempts; $i++) {
             try {
@@ -99,8 +104,8 @@ class NotificationService
             } catch (\Throwable $e) {
                 $lastError = $e;
 
-                // Wait before retrying (skip sleep on last attempt)
-                if ($i < $attempts) {
+                // Wait before retrying (skip sleep on last attempt or when noRetry=true)
+                if ($i < $attempts && !$noRetry) {
                     sleep(2);
                 }
             }
