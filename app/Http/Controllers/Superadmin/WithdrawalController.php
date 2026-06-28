@@ -95,10 +95,12 @@ class WithdrawalController extends Controller
             ]);
 
             Notification::create([
-                'user_id' => $withdrawal->user_id,
-                'type'    => 'withdrawal_approved',
-                'title'   => 'Penarikan Dana Diproses ✅',
-                'message' => 'Dana sebesar Rp ' . number_format($amountTransferred, 0, ',', '.') . ' (setelah potongan admin Rp ' . number_format($adminFee, 0, ',', '.') . ') sedang ditransfer ke rekening ' . $withdrawal->bank_name . ' Anda via sistem otomatis.',
+                'user_id'         => $withdrawal->user_id,
+                'type'            => 'withdrawal_approved',
+                'title'           => 'Penarikan Dana Diproses ✅',
+                'message'         => 'Dana sebesar Rp ' . number_format($amountTransferred, 0, ',', '.') . ' (setelah potongan admin Rp ' . number_format($adminFee, 0, ',', '.') . ') sedang ditransfer ke rekening ' . $withdrawal->bank_name . ' Anda via sistem otomatis.',
+                'notifiable_type' => Withdrawal::class,
+                'notifiable_id'   => $withdrawal->id,
             ]);
 
             DB::commit();
@@ -148,10 +150,12 @@ class WithdrawalController extends Controller
             ]);
 
             Notification::create([
-                'user_id' => $withdrawal->user_id,
-                'type'    => 'withdrawal_rejected',
-                'title'   => 'Penarikan Dana Ditolak',
-                'message' => 'Penarikan Rp ' . number_format($withdrawal->amount, 0, ',', '.') . ' ditolak dan saldo dikembalikan ke akun Anda. Alasan: ' . $request->rejection_reason,
+                'user_id'         => $withdrawal->user_id,
+                'type'            => 'withdrawal_rejected',
+                'title'           => 'Penarikan Dana Ditolak',
+                'message'         => 'Penarikan Rp ' . number_format($withdrawal->amount, 0, ',', '.') . ' ditolak dan saldo dikembalikan ke akun Anda. Alasan: ' . $request->rejection_reason,
+                'notifiable_type' => Withdrawal::class,
+                'notifiable_id'   => $withdrawal->id,
             ]);
 
             DB::commit();
