@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\WalletTransaction;
 use App\Models\Setting;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -107,28 +108,28 @@ class MidtransWebhookController extends Controller
                     ]);
                 }
 
-                // Notify tenant
-                \App\Models\Notification::create([
-                    'user_id'         => $invoice->tenant_id,
-                    'notifiable_type' => \App\Models\User::class,
-                    'notifiable_id'   => $invoice->tenant_id,
-                    'type'            => 'payment_received',
-                    'title'           => 'Pembayaran Berhasil ✅',
-                    'message'         => 'Pembayaran untuk invoice ' . $invoice->invoice_number . ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') . ' telah berhasil dikonfirmasi.',
-                ]);
+                // Notify tenant via NotificationService (logs email to Superadmin Email Logs)
+                if ($invoice->tenant) {
+                    app(NotificationService::class)->send(
+                        $invoice->tenant,
+                        'Pembayaran Berhasil ✅',
+                        'Pembayaran untuk invoice ' . $invoice->invoice_number . ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') . ' telah berhasil dikonfirmasi.',
+                        'payment_received',
+                        route('tenant.invoices.index'),
+                        $payment
+                    );
+                }
 
-                // Send email confirmation
-                try {
-                    if ($invoice->tenant && $invoice->tenant->email) {
-                        \Illuminate\Support\Facades\Mail::to($invoice->tenant->email)
-                            ->send(new \App\Mail\PaymentApprovedMail($payment, 'approved'));
-                    }
-                    if ($manager && $manager->email) {
-                        \Illuminate\Support\Facades\Mail::to($manager->email)
-                            ->send(new \App\Mail\ManagerPaymentReceivedMail($payment));
-                    }
-                } catch (\Exception $e) {
-                    Log::error('Failed to send payment confirmation email: ' . $e->getMessage());
+                // Notify manager via NotificationService
+                if ($manager) {
+                    app(NotificationService::class)->send(
+                        $manager,
+                        'Pembayaran Diterima dari ' . ($invoice->tenant->name ?? 'Penyewa'),
+                        'Pembayaran invoice ' . $invoice->invoice_number . ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') . ' dari ' . ($invoice->tenant->name ?? '') . ' telah diterima.',
+                        'payment_manager_received',
+                        route('manager.payments.index'),
+                        $payment
+                    );
                 }
 
             } elseif ($transactionStatus === 'pending' && !in_array($invoice->status, ['paid'])) {

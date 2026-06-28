@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\PaymentApprovedMail;
 use App\Models\Payment;
 use App\Exports\PaymentExport;
+use App\Services\NotificationService;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -88,14 +89,17 @@ class PaymentController extends Controller
         // Mark related invoice as paid
         $payment->invoice->update(['status' => 'paid']);
 
-        // Kirim email ke penyewa
-        try {
-            $tenant = $payment->invoice->leaseContract->tenant ?? $payment->tenant;
-            if ($tenant) {
-                Mail::to($tenant->email)->send(new PaymentApprovedMail($payment, 'approved'));
-            }
-        } catch (\Exception $e) {
-            // Email gagal, tapi jangan block proses
+        // Notify tenant via NotificationService (logs email to Superadmin Email Logs)
+        $tenant = $payment->invoice->leaseContract->tenant ?? $payment->tenant;
+        if ($tenant) {
+            app(NotificationService::class)->send(
+                $tenant,
+                'Pembayaran Dikonfirmasi ✅',
+                'Pembayaran Anda untuk invoice ' . ($payment->invoice->invoice_number ?? '') . ' telah dikonfirmasi oleh pengelola.',
+                'payment_approved',
+                route('tenant.invoices.index'),
+                $payment
+            );
         }
 
         return redirect()->route('manager.payments.show', $payment)
@@ -116,14 +120,17 @@ class PaymentController extends Controller
         // Revert invoice back to unpaid
         $payment->invoice->update(['status' => 'unpaid']);
 
-        // Kirim email ke penyewa
-        try {
-            $tenant = $payment->invoice->leaseContract->tenant ?? $payment->tenant;
-            if ($tenant) {
-                Mail::to($tenant->email)->send(new PaymentApprovedMail($payment, 'rejected', $request->rejection_reason));
-            }
-        } catch (\Exception $e) {
-            // Email gagal, tapi jangan block proses
+        // Notify tenant via NotificationService (logs email to Superadmin Email Logs)
+        $tenant = $payment->invoice->leaseContract->tenant ?? $payment->tenant;
+        if ($tenant) {
+            app(NotificationService::class)->send(
+                $tenant,
+                'Pembayaran Ditolak ❌',
+                'Pembayaran Anda untuk invoice ' . ($payment->invoice->invoice_number ?? '') . ' ditolak. Alasan: ' . $request->rejection_reason,
+                'payment_rejected',
+                route('tenant.invoices.index'),
+                $payment
+            );
         }
 
         return redirect()->route('manager.payments.show', $payment)

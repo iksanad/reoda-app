@@ -8,6 +8,7 @@ use App\Models\LeaseContract;
 use App\Models\Property;
 use App\Models\User;
 use App\Exports\ContractExport;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -163,22 +164,16 @@ class ContractController extends Controller
             'notes'             => 'Tagihan sewa periode pertama',
         ]);
 
-        // Notify tenant
-        \App\Models\Notification::create([
-            'user_id'         => $contract->tenant_id,
-            'notifiable_type' => \App\Models\User::class,
-            'notifiable_id'   => $contract->tenant_id,
-            'type'            => 'general',
-            'title'           => 'Kontrak Disetujui! 🎉',
-            'message'         => 'Pengajuan kontrak Anda untuk unit ' . ($contract->unit->name ?? '') . ' di ' . ($contract->unit->property->name ?? '') . ' telah disetujui oleh pengelola.',
-        ]);
-
-        try {
-            if ($contract->tenant && $contract->tenant->email) {
-                \Illuminate\Support\Facades\Mail::to($contract->tenant->email)->send(new \App\Mail\ContractApprovedMail($contract, true));
-            }
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send ContractApprovedMail: ' . $e->getMessage());
+        // Notify tenant via NotificationService (logs email to Superadmin Email Logs)
+        if ($contract->tenant) {
+            app(NotificationService::class)->send(
+                $contract->tenant,
+                'Kontrak Disetujui! 🎉',
+                'Pengajuan kontrak Anda untuk unit ' . ($contract->unit->name ?? '') . ' di ' . ($contract->unit->property->name ?? '') . ' telah disetujui oleh pengelola.',
+                'contract_approved',
+                route('tenant.contract.show'),
+                $contract
+            );
         }
 
         return back()->with('success', 'Kontrak berhasil disetujui. Penyewa telah diberitahu.');
@@ -205,22 +200,16 @@ class ContractController extends Controller
         // Free the unit
         $contract->unit->update(['status' => 'available']);
 
-        // Notify tenant
-        \App\Models\Notification::create([
-            'user_id'         => $contract->tenant_id,
-            'notifiable_type' => \App\Models\User::class,
-            'notifiable_id'   => $contract->tenant_id,
-            'type'            => 'general',
-            'title'           => 'Pengajuan Kontrak Ditolak',
-            'message'         => 'Maaf, pengajuan kontrak Anda ditolak. Alasan: ' . $request->rejection_reason,
-        ]);
-
-        try {
-            if ($contract->tenant && $contract->tenant->email) {
-                \Illuminate\Support\Facades\Mail::to($contract->tenant->email)->send(new \App\Mail\ContractApprovedMail($contract, false));
-            }
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send ContractApprovedMail: ' . $e->getMessage());
+        // Notify tenant via NotificationService (logs email to Superadmin Email Logs)
+        if ($contract->tenant) {
+            app(NotificationService::class)->send(
+                $contract->tenant,
+                'Pengajuan Kontrak Ditolak',
+                'Maaf, pengajuan kontrak Anda ditolak. Alasan: ' . $request->rejection_reason,
+                'contract_rejected',
+                route('tenant.contract.show'),
+                $contract
+            );
         }
 
         return back()->with('success', 'Pengajuan kontrak ditolak.');
@@ -269,15 +258,16 @@ class ContractController extends Controller
             'notes'             => $request->notes,
         ]);
 
-        // Notify tenant
-        \App\Models\Notification::create([
-            'user_id'         => $contract->tenant_id,
-            'notifiable_type' => \App\Models\User::class,
-            'notifiable_id'   => $contract->tenant_id,
-            'type'            => 'payment_due',
-            'title'           => 'Tagihan Baru: ' . ($typeLabels[$request->type] ?? ucfirst($request->type)),
-            'message'         => 'Anda memiliki tagihan baru untuk ' . ($typeLabels[$request->type] ?? '') . ' periode ' . $request->billing_month . '/' . $request->billing_year . '. Jatuh tempo: ' . $request->due_date . '.',
-        ]);
+        // Notify tenant via NotificationService (logs email to Superadmin Email Logs)
+        if ($contract->tenant) {
+            app(NotificationService::class)->send(
+                $contract->tenant,
+                'Tagihan Baru: ' . ($typeLabels[$request->type] ?? ucfirst($request->type)),
+                'Anda memiliki tagihan baru untuk ' . ($typeLabels[$request->type] ?? '') . ' periode ' . $request->billing_month . '/' . $request->billing_year . '. Jatuh tempo: ' . $request->due_date . '.',
+                'payment_due',
+                route('tenant.invoices.index')
+            );
+        }
 
         return back()->with('success', 'Tagihan berhasil dibuat dan penyewa telah diberitahu.');
     }
