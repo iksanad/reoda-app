@@ -33,6 +33,8 @@ class NotificationService
         'contract_approved',
         'contract_rejected',
         'payment_manager_received',
+        'withdrawal_approved',
+        'withdrawal_rejected',
     ];
 
     /**
