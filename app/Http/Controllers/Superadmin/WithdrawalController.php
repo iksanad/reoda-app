@@ -29,16 +29,42 @@ class WithdrawalController extends Controller
     }
 
     /**
-     * Mark withdrawal as SUCCESS — transfer has been done manually by admin.
-     * Deduct balance_hold and deduct balance accordingly.
+     * Mark withdrawal as SUCCESS — transfer via Midtrans Iris.
      */
-    public function approve(Request $request, $id)
+    public function approve(Request $request, $id, \App\Services\MidtransIrisService $irisService)
     {
         $withdrawal = Withdrawal::findOrFail($id);
 
         if (!in_array($withdrawal->status, ['PENDING', 'PROCESSING'])) {
             return back()->with('error', 'Status penarikan tidak valid untuk dikonfirmasi.');
         }
+
+        // Calculate amount to transfer
+        $adminFee = 5000;
+        $amountTransferred = $withdrawal->amount - $adminFee;
+
+        if ($amountTransferred <= 0) {
+            return back()->with('error', 'Nominal penarikan terlalu kecil setelah dipotong biaya admin.');
+        }
+
+        // Hit Midtrans Iris API
+        $payoutData = [
+            'beneficiary_name' => $withdrawal->account_name,
+            'beneficiary_account' => $withdrawal->bank_account,
+            'beneficiary_bank' => strtolower($withdrawal->bank_name),
+            'beneficiary_email' => $withdrawal->user->email,
+            'amount' => $amountTransferred,
+            'notes' => 'Withdrawal Reoda - ' . $withdrawal->user->name,
+        ];
+
+        $irisResponse = $irisService->createPayout($payoutData);
+
+        if (isset($irisResponse['error']) && $irisResponse['error'] === true) {
+            return back()->with('error', 'Gagal memanggil API Midtrans Iris: ' . $irisResponse['message']);
+        }
+
+        // Success response from Iris
+        $referenceNo = $irisResponse['payouts'][0]['reference_no'] ?? null;
 
         DB::beginTransaction();
         try {
@@ -48,12 +74,13 @@ class WithdrawalController extends Controller
             $user->decrement('balance', $withdrawal->amount);
             $user->decrement('balance_hold', $withdrawal->amount);
 
-            $balanceAfter = $user->balance - $user->balance_hold;
-
             $withdrawal->update([
-                'status'       => 'SUCCESS',
-                'processed_by' => auth()->id(),
-                'processed_at' => now(),
+                'status'             => 'SUCCESS',
+                'admin_fee'          => $adminFee,
+                'amount_transferred' => $amountTransferred,
+                'iris_reference_no'  => $referenceNo,
+                'processed_by'       => auth()->id(),
+                'processed_at'       => now(),
             ]);
 
             // Record final ledger entry
@@ -63,18 +90,18 @@ class WithdrawalController extends Controller
                 'amount'        => $withdrawal->amount,
                 'balance_after' => $user->fresh()->balance,
                 'reference_id'  => 'WD-' . $withdrawal->id,
-                'description'   => 'Transfer berhasil — ' . $withdrawal->bank_name . ' (' . $withdrawal->bank_account . ')',
+                'description'   => "Transfer berhasil (Iris $referenceNo) — {$withdrawal->bank_name} ({$withdrawal->bank_account})",
             ]);
 
             Notification::create([
                 'user_id' => $withdrawal->user_id,
                 'type'    => 'withdrawal_approved',
-                'title'   => 'Penarikan Dana Berhasil ✅',
-                'message' => 'Dana sebesar Rp ' . number_format($withdrawal->amount, 0, ',', '.') . ' telah berhasil ditransfer ke rekening ' . $withdrawal->bank_name . ' (' . $withdrawal->bank_account . ').',
+                'title'   => 'Penarikan Dana Diproses ✅',
+                'message' => 'Dana sebesar Rp ' . number_format($amountTransferred, 0, ',', '.') . ' (setelah potongan admin Rp ' . number_format($adminFee, 0, ',', '.') . ') sedang ditransfer ke rekening ' . $withdrawal->bank_name . ' Anda via sistem otomatis.',
             ]);
 
             DB::commit();
-            return back()->with('success', 'Transfer dikonfirmasi. Saldo pengelola telah diperbarui.');
+            return back()->with('success', 'Transfer Midtrans Iris berhasil dikirim. Saldo pengelola telah diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());

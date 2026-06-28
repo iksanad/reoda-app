@@ -12,6 +12,8 @@ class Withdrawal extends Model
     protected $fillable = [
         'user_id',
         'amount',
+        'admin_fee',
+        'amount_transferred',
         'bank_name',
         'bank_account',
         'account_name',
@@ -19,6 +21,7 @@ class Withdrawal extends Model
         'processed_by',
         'processed_at',
         'rejection_reason',
+        'iris_reference_no',
     ];
 
     protected $casts = [

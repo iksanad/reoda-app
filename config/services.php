@@ -36,6 +36,7 @@ return [
         'client_key' => env('MIDTRANS_CLIENT_KEY'),
         'server_key' => env('MIDTRANS_SERVER_KEY'),
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
+        'iris_api_key' => env('MIDTRANS_IRIS_API_KEY'),
     ],
 
 ];
