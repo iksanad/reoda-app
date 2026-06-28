@@ -79,26 +79,40 @@ class NotificationService
 
     /**
      * Dispatch email logic and update DB status.
+     * Attempts up to 2 times with a 2-second delay between attempts.
      */
     protected function dispatchEmail(AppNotification $notification, User $user)
     {
-        try {
-            $this->sendMailable($notification, $user);
+        $lastError = null;
+        $attempts  = 2;
 
-            $notification->update([
-                'email_status' => 'sent',
-                'email_error' => null,
-            ]);
+        for ($i = 1; $i <= $attempts; $i++) {
+            try {
+                $this->sendMailable($notification, $user);
 
-            return true;
-        } catch (\Throwable $e) {
-            $notification->update([
-                'email_status' => 'failed',
-                'email_error' => $e->getMessage(),
-            ]);
+                $notification->update([
+                    'email_status' => 'sent',
+                    'email_error'  => null,
+                ]);
 
-            return false;
+                return true;
+            } catch (\Throwable $e) {
+                $lastError = $e;
+
+                // Wait before retrying (skip sleep on last attempt)
+                if ($i < $attempts) {
+                    sleep(2);
+                }
+            }
         }
+
+        // All attempts failed — mark as failed so Superadmin can resend
+        $notification->update([
+            'email_status' => 'failed',
+            'email_error'  => $lastError?->getMessage(),
+        ]);
+
+        return false;
     }
 
     /**
