@@ -60,10 +60,10 @@
                 <div class="space-y-3">
                     @foreach($property->units as $unit)
                     <label class="flex items-center gap-4 rounded-xl border-2 border-stroke p-4 cursor-pointer hover:border-reoda transition has-[:checked]:border-reoda has-[:checked]:bg-reoda/5">
-                        <input type="radio" name="unit_id" value="{{ $unit->id }}"
+                        <input type="radio" name="unit_id" value="{{ $unit->id }}" data-price="{{ $unit->rent_price }}"
                             x-on:change="selectUnit({{ $unit->rent_price }})"
                             class="h-4 w-4 text-reoda border-gray-300 focus:ring-reoda"
-                            {{ old('unit_id') == $unit->id ? 'checked' : '' }} required>
+                            {{ old('unit_id', request('unit_id')) == $unit->id ? 'checked' : '' }} required>
                         <div class="flex-1">
                             <p class="font-semibold text-black text-sm">{{ $unit->name }}</p>
                             <p class="text-xs text-gray-400 mt-0.5">
@@ -260,6 +260,13 @@ document.addEventListener('alpine:init', () => {
         paymentCycle: 'monthly',
         duration: 1,
         yearlyDiscount: Number("{{ $property->yearly_discount_percent ?? 0 }}") / 100,
+
+        init() {
+            let checkedUnit = document.querySelector('input[name="unit_id"]:checked');
+            if (checkedUnit) {
+                this.selectedPrice = Number(checkedUnit.dataset.price);
+            }
+        },
 
         selectUnit(price) {
             this.selectedPrice = price;

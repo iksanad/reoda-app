@@ -88,9 +88,9 @@
                         <p class="text-lg font-bold text-reoda">Rp {{ number_format($unit->rent_price, 0, ',', '.') }}</p>
                         <p class="text-xs text-gray-400 mb-2">/bulan</p>
                         @if($role === 'tenant')
-                        <button onclick="alert('Fitur pengajuan sewa akan segera hadir!')" class="rounded bg-reoda px-3 py-1.5 text-xs font-medium text-white hover:bg-reoda-dark transition w-full">
+                        <a href="{{ route('tenant.contract.request', ['property_code' => $property->property_code, 'unit_id' => $unit->id]) }}" class="inline-block text-center rounded bg-reoda px-3 py-1.5 text-xs font-medium text-white hover:bg-reoda-dark transition w-full">
                             Ajukan Sewa
-                        </button>
+                        </a>
                         @endif
                     </div>
                 </div>
@@ -157,9 +157,11 @@
                 Chat via WhatsApp
             </a>
             @endif
-            <div class="rounded-lg bg-reoda-lightest border border-reoda-lighter p-4 text-sm text-gray-600 text-center">
-                <svg class="w-8 h-8 text-reoda mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Fitur pengajuan sewa online akan hadir segera!
+            <div class="rounded-lg bg-reoda-lightest border border-reoda-lighter p-4 text-center">
+                <p class="text-sm text-gray-600 mb-3">Siap untuk menyewa di sini?</p>
+                <a href="{{ route('tenant.contract.request', $property->property_code) }}" class="flex w-full items-center justify-center gap-2 rounded-md bg-reoda py-2.5 text-sm font-medium text-white hover:bg-reoda-dark transition">
+                    Ajukan Sewa Sekarang
+                </a>
             </div>
         </div>
         @endif
