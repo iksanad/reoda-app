@@ -92,6 +92,7 @@ class PaymentController extends Controller
 
         // Kredit saldo pengelola — pembayaran manual tidak ada platform_fee,
         // pengelola menerima penuh sesuai nominal tagihan
+        /** @var \App\Models\User $manager */
         $manager = Auth::user();
         $creditAmount = $invoice->amount;
         $balanceBefore = $manager->balance ?? 0;
@@ -111,7 +112,7 @@ class PaymentController extends Controller
             'type'            => 'wallet_credit',
             'title'           => 'Saldo Masuk: Rp ' . number_format($creditAmount, 0, ',', '.'),
             'message'         => 'Pembayaran manual dari penyewa untuk invoice ' . ($invoice->invoice_number ?? '') . ' telah Anda verifikasi. Saldo ditambahkan ke dompet Anda.',
-            'notifiable_type' => \App\Models\Payment::class,
+            'notifiable_type' => Payment::class,
             'notifiable_id'   => $payment->id,
         ]);
 

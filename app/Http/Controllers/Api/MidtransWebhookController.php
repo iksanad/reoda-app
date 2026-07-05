@@ -80,7 +80,7 @@ class MidtransWebhookController extends Controller
                             'type'            => 'wallet_credit',
                             'title'           => 'Saldo Masuk: Rp ' . number_format($invoice->amount, 0, ',', '.'),
                             'message'         => 'Penyewa telah melunasi tagihan ' . $invoice->invoice_number . '. Saldo ini sekarang tersedia di dompet Anda.',
-                            'notifiable_type' => \App\Models\Invoice::class,
+                            'notifiable_type' => Invoice::class,
                             'notifiable_id'   => $invoice->id,
                         ]);
                     }
@@ -108,7 +108,7 @@ class MidtransWebhookController extends Controller
                                         'type'            => 'referral_bonus',
                                         'title'           => 'Bonus Voucher Referral!',
                                         'message'         => 'Teman yang Anda undang (' . $tenant->name . ') telah melakukan pembayaran pertamanya. Anda mendapatkan 1 Voucher Diskon Rp 50.000!',
-                                        'notifiable_type' => \App\Models\Invoice::class,
+                                        'notifiable_type' => Invoice::class,
                                         'notifiable_id'   => $invoice->id,
                                     ]);
                                 }
@@ -122,7 +122,7 @@ class MidtransWebhookController extends Controller
                         'type'            => 'payment_success',
                         'title'           => 'Pembayaran Berhasil',
                         'message'         => 'Terima kasih, tagihan ' . $invoice->invoice_number . ' telah berhasil dilunasi melalui Midtrans.',
-                        'notifiable_type' => \App\Models\Invoice::class,
+                        'notifiable_type' => Invoice::class,
                         'notifiable_id'   => $invoice->id,
                     ]);
                 }
