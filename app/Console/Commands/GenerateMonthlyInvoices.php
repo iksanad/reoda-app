@@ -54,10 +54,10 @@ class GenerateMonthlyInvoices extends Command
         }
 
         $this->info("Finished. Generated {$generatedCount} invoices.");
-        return Command::SUCCESS;
+        return self::SUCCESS;
     }
 
-    private function generateInvoice($contract, $type, $amount, $month, $year, $dueDate, &$generatedCount)
+    private function generateInvoice(LeaseContract $contract, string $type, float $amount, int $month, int $year, Carbon $dueDate, int &$generatedCount)
     {
         // Check if invoice already exists
         $exists = Invoice::where('lease_contract_id', $contract->id)

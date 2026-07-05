@@ -137,6 +137,6 @@ class SendPaymentReminderEmails extends Command
         }
 
         $this->info("Payment reminders processed: {$dueToday->count()} due today, {$overdue->count()} overdue checked.");
-        return Command::SUCCESS;
+        return self::SUCCESS;
     }
 }

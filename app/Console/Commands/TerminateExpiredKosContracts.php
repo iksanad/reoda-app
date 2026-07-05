@@ -71,6 +71,6 @@ class TerminateExpiredKosContracts extends Command
         }
 
         $this->info("Contracts terminated today: {$terminated}");
-        return Command::SUCCESS;
+        return self::SUCCESS;
     }
 }
