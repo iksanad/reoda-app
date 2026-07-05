@@ -53,12 +53,14 @@ class TerminateExpiredKosContracts extends Command
                 // Notify tenant
                 if ($contract->tenant) {
                     Notification::create([
-                        'user_id' => $contract->tenant_id,
-                        'type'    => 'contract_terminated',
-                        'title'   => '❌ Kontrak Sewa Dihentikan',
-                        'message' => 'Kontrak sewa Anda di ' . ($contract->unit->property->name ?? '') . ' unit ' .
-                                     ($contract->unit->unit_code ?? '') . ' telah dihentikan otomatis karena pembayaran melewati batas toleransi ' .
-                                     $toleranceDays . ' hari.',
+                        'user_id'         => $contract->tenant_id,
+                        'type'            => 'contract_terminated',
+                        'title'           => '❌ Kontrak Sewa Dihentikan',
+                        'message'         => 'Kontrak sewa Anda di ' . ($contract->unit->property->name ?? '') . ' unit ' .
+                                             ($contract->unit->unit_code ?? '') . ' telah dihentikan otomatis karena pembayaran melewati batas toleransi ' .
+                                             $toleranceDays . ' hari.',
+                        'notifiable_type' => LeaseContract::class,
+                        'notifiable_id'   => $contract->id,
                     ]);
 
                     $this->info("Terminated contract #{$contract->id} for tenant {$contract->tenant->email}");

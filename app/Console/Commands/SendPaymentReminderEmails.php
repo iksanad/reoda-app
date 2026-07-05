@@ -37,12 +37,14 @@ class SendPaymentReminderEmails extends Command
 
                 // In-app notification
                 Notification::create([
-                    'user_id' => $tenant->id,
-                    'type'    => 'payment_upcoming',
-                    'title'   => '🔔 Pengingat: Tagihan Jatuh Tempo dalam ' . $days . ' Hari',
-                    'message' => 'Tagihan sewa ' . ($property->name ?? '') . ' unit ' . ($unit->unit_code ?? '') .
-                                 ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') .
-                                 ' akan jatuh tempo pada ' . $targetDate->format('d M Y') . '. Mohon persiapkan pembayaran.',
+                    'user_id'         => $tenant->id,
+                    'type'            => 'payment_upcoming',
+                    'title'           => '🔔 Pengingat: Tagihan Jatuh Tempo dalam ' . $days . ' Hari',
+                    'message'         => 'Tagihan sewa ' . ($property->name ?? '') . ' unit ' . ($unit->unit_code ?? '') .
+                                         ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') .
+                                         ' akan jatuh tempo pada ' . $targetDate->format('d M Y') . '. Mohon persiapkan pembayaran.',
+                    'notifiable_type' => Invoice::class,
+                    'notifiable_id'   => $invoice->id,
                 ]);
 
                 // Send email
@@ -72,12 +74,14 @@ class SendPaymentReminderEmails extends Command
 
             // In-app notification
             Notification::create([
-                'user_id' => $tenant->id,
-                'type'    => 'payment_due',
-                'title'   => '🔔 Tagihan Jatuh Tempo Hari Ini',
-                'message' => 'Tagihan sewa ' . ($property->name ?? '') . ' unit ' . ($unit->unit_code ?? '') .
-                             ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') .
-                             ' jatuh tempo hari ini. Segera lakukan pembayaran.',
+                'user_id'         => $tenant->id,
+                'type'            => 'payment_due',
+                'title'           => '🔔 Tagihan Jatuh Tempo Hari Ini',
+                'message'         => 'Tagihan sewa ' . ($property->name ?? '') . ' unit ' . ($unit->unit_code ?? '') .
+                                     ' sebesar Rp ' . number_format($invoice->amount, 0, ',', '.') .
+                                     ' jatuh tempo hari ini. Segera lakukan pembayaran.',
+                'notifiable_type' => Invoice::class,
+                'notifiable_id'   => $invoice->id,
             ]);
 
             // Send email
@@ -111,11 +115,13 @@ class SendPaymentReminderEmails extends Command
                 if (!$tenant) continue;
 
                 Notification::create([
-                    'user_id' => $tenant->id,
-                    'type'    => 'payment_overdue_warning',
-                    'title'   => '⚠️ Peringatan: 1 Hari Tersisa Sebelum Kontrak Berakhir',
-                    'message' => 'Tagihan sewa ' . ($property->name ?? '') . ' belum dibayar. Batas toleransi berakhir besok (' .
-                                 $deadline->format('d M Y') . '). Jika tidak dibayar, kontrak Anda akan dihentikan otomatis.',
+                    'user_id'         => $tenant->id,
+                    'type'            => 'payment_overdue_warning',
+                    'title'           => '⚠️ Peringatan: 1 Hari Tersisa Sebelum Kontrak Berakhir',
+                    'message'         => 'Tagihan sewa ' . ($property->name ?? '') . ' belum dibayar. Batas toleransi berakhir besok (' .
+                                         $deadline->format('d M Y') . '). Jika tidak dibayar, kontrak Anda akan dihentikan otomatis.',
+                    'notifiable_type' => Invoice::class,
+                    'notifiable_id'   => $invoice->id,
                 ]);
 
                 // Send email
