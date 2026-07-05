@@ -76,10 +76,12 @@ class MidtransWebhookController extends Controller
 
                         // 3. Notifikasi ke pengelola
                         Notification::create([
-                            'user_id' => $managerId,
-                            'type' => 'wallet_credit',
-                            'title' => 'Saldo Masuk: Rp ' . number_format($invoice->amount, 0, ',', '.'),
-                            'message' => 'Penyewa telah melunasi tagihan ' . $invoice->invoice_number . '. Saldo ini sekarang tersedia di dompet Anda.',
+                            'user_id'         => $managerId,
+                            'type'            => 'wallet_credit',
+                            'title'           => 'Saldo Masuk: Rp ' . number_format($invoice->amount, 0, ',', '.'),
+                            'message'         => 'Penyewa telah melunasi tagihan ' . $invoice->invoice_number . '. Saldo ini sekarang tersedia di dompet Anda.',
+                            'notifiable_type' => \App\Models\Invoice::class,
+                            'notifiable_id'   => $invoice->id,
                         ]);
                     }
 
@@ -102,10 +104,12 @@ class MidtransWebhookController extends Controller
                                     $referrer->increment('discount_quota');
 
                                     Notification::create([
-                                        'user_id' => $referrer->id,
-                                        'type' => 'referral_bonus',
-                                        'title' => 'Bonus Voucher Referral!',
-                                        'message' => 'Teman yang Anda undang (' . $tenant->name . ') telah melakukan pembayaran pertamanya. Anda mendapatkan 1 Voucher Diskon Rp 50.000!',
+                                        'user_id'         => $referrer->id,
+                                        'type'            => 'referral_bonus',
+                                        'title'           => 'Bonus Voucher Referral!',
+                                        'message'         => 'Teman yang Anda undang (' . $tenant->name . ') telah melakukan pembayaran pertamanya. Anda mendapatkan 1 Voucher Diskon Rp 50.000!',
+                                        'notifiable_type' => \App\Models\Invoice::class,
+                                        'notifiable_id'   => $invoice->id,
                                     ]);
                                 }
                             }
@@ -114,10 +118,12 @@ class MidtransWebhookController extends Controller
 
                     // Notifikasi ke penyewa
                     Notification::create([
-                        'user_id' => $invoice->tenant_id,
-                        'type' => 'payment_success',
-                        'title' => 'Pembayaran Berhasil',
-                        'message' => 'Terima kasih, tagihan ' . $invoice->invoice_number . ' telah berhasil dilunasi melalui Midtrans.',
+                        'user_id'         => $invoice->tenant_id,
+                        'type'            => 'payment_success',
+                        'title'           => 'Pembayaran Berhasil',
+                        'message'         => 'Terima kasih, tagihan ' . $invoice->invoice_number . ' telah berhasil dilunasi melalui Midtrans.',
+                        'notifiable_type' => \App\Models\Invoice::class,
+                        'notifiable_id'   => $invoice->id,
                     ]);
                 }
             } else if ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {

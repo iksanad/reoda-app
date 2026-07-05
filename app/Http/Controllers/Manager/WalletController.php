@@ -60,14 +60,14 @@ class WalletController extends Controller
                 'status'       => 'PENDING',
             ]);
 
-            // Record in ledger
+            // Catat di ledger sebagai permintaan (bukan withdraw final)
             WalletTransaction::create([
-                'user_id'      => $freshUser->id,
-                'type'         => 'WITHDRAW',
-                'amount'       => $request->amount,
-                'balance_after'=> $balanceAfter,
-                'reference_id' => 'WD-' . $withdrawal->id,
-                'description'  => 'Permintaan penarikan ke ' . $request->bank_name . ' (' . $request->bank_account . ')',
+                'user_id'       => $freshUser->id,
+                'type'          => 'WITHDRAW_REQUEST',
+                'amount'        => $request->amount,
+                'balance_after' => $balanceAfter,
+                'reference_id'  => 'WD-' . $withdrawal->id,
+                'description'   => 'Permintaan penarikan ke ' . $request->bank_name . ' (' . $request->bank_account . ') — menunggu persetujuan admin',
             ]);
 
             DB::commit();

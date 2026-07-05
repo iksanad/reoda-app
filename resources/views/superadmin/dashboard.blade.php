@@ -69,18 +69,24 @@
 </div>
 
 {{-- Revenue Stats --}}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
     <div class="rounded-2xl bg-white border border-gray-200 p-6 shadow-sm">
         <p class="text-sm font-semibold text-gray-500 mb-1">Total Pendapatan Platform</p>
         <p class="text-3xl font-extrabold text-reoda-dark">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</p>
-        <p class="text-xs text-gray-400 mt-1">Dari seluruh transaksi yang terverifikasi</p>
+        <p class="text-xs text-gray-400 mt-1">Akumulasi biaya admin dari seluruh transaksi</p>
     </div>
     <div class="rounded-2xl bg-white border border-gray-200 p-6 shadow-sm">
         <p class="text-sm font-semibold text-gray-500 mb-1">Pendapatan Bulan Ini</p>
         <p class="text-3xl font-extrabold text-green-600">Rp {{ number_format($stats['revenue_this_month'], 0, ',', '.') }}</p>
         <p class="text-xs text-gray-400 mt-1">{{ now()->format('F Y') }}</p>
     </div>
+    <div class="rounded-2xl bg-white border border-gray-200 p-6 shadow-sm">
+        <p class="text-sm font-semibold text-gray-500 mb-1">Total Volume Transaksi</p>
+        <p class="text-3xl font-extrabold text-blue-600">Rp {{ number_format($stats['total_approved_amount'], 0, ',', '.') }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ number_format($stats['total_approved_payments']) }} pembayaran terverifikasi</p>
+    </div>
 </div>
+
 
 {{-- Pending Managers --}}
 @if($pendingManagers->count() > 0)

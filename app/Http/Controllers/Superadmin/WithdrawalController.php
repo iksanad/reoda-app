@@ -59,10 +59,14 @@ class WithdrawalController extends Controller
 
         $irisResponse = $irisService->createPayout($payoutData);
 
-        // KITA BYPASS ERROR MIDTRANS AGAR SALDO LOKAL REODA TETAP BISA DIKOSONGKAN
+        // Di lingkungan non-production (lokal/sandbox), bypass error Iris agar bisa diuji
+        // Di production, error Iris harus ditangani dengan benar (jangan bypass)
         if (isset($irisResponse['error']) && $irisResponse['error'] === true) {
-            \Illuminate\Support\Facades\Log::warning('Midtrans Iris Error (Bypassed): ' . $irisResponse['message']);
-            $referenceNo = 'MOCK-IRIS-' . uniqid(); // Anggap sukses dengan referensi palsu
+            if (app()->isProduction()) {
+                return back()->with('error', 'Gagal mengirim transfer via Midtrans Iris: ' . $irisResponse['message']);
+            }
+            \Illuminate\Support\Facades\Log::warning('Midtrans Iris Error (Bypassed - Non-Production): ' . $irisResponse['message']);
+            $referenceNo = 'MOCK-IRIS-' . uniqid();
         } else {
             $referenceNo = $irisResponse['payouts'][0]['reference_no'] ?? null;
         }

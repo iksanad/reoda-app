@@ -87,15 +87,41 @@ class PaymentController extends Controller
         ]);
 
         // Mark related invoice as paid
-        $payment->invoice->update(['status' => 'paid']);
+        $invoice = $payment->invoice;
+        $invoice->update(['status' => 'paid']);
+
+        // Kredit saldo pengelola — pembayaran manual tidak ada platform_fee,
+        // pengelola menerima penuh sesuai nominal tagihan
+        $manager = Auth::user();
+        $creditAmount = $invoice->amount;
+        $balanceBefore = $manager->balance ?? 0;
+        $manager->increment('balance', $creditAmount);
+
+        \App\Models\WalletTransaction::create([
+            'user_id'       => $manager->id,
+            'type'          => 'CREDIT',
+            'amount'        => $creditAmount,
+            'balance_after' => $balanceBefore + $creditAmount,
+            'reference_id'  => $payment->payment_code ?? 'PAY-' . $payment->id,
+            'description'   => 'Pembayaran manual diverifikasi: ' . ($invoice->invoice_number ?? 'INV-' . $invoice->id),
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id'         => $manager->id,
+            'type'            => 'wallet_credit',
+            'title'           => 'Saldo Masuk: Rp ' . number_format($creditAmount, 0, ',', '.'),
+            'message'         => 'Pembayaran manual dari penyewa untuk invoice ' . ($invoice->invoice_number ?? '') . ' telah Anda verifikasi. Saldo ditambahkan ke dompet Anda.',
+            'notifiable_type' => \App\Models\Payment::class,
+            'notifiable_id'   => $payment->id,
+        ]);
 
         // Notify tenant via NotificationService (logs email to Superadmin Email Logs)
-        $tenant = $payment->invoice->leaseContract->tenant ?? $payment->tenant;
+        $tenant = $invoice->leaseContract->tenant ?? $payment->tenant;
         if ($tenant) {
             app(NotificationService::class)->send(
                 $tenant,
                 'Pembayaran Dikonfirmasi ✅',
-                'Pembayaran Anda untuk invoice ' . ($payment->invoice->invoice_number ?? '') . ' telah dikonfirmasi oleh pengelola.',
+                'Pembayaran Anda untuk invoice ' . ($invoice->invoice_number ?? '') . ' telah dikonfirmasi oleh pengelola.',
                 'payment_approved',
                 route('tenant.transactions.index'),
                 $payment
