@@ -108,9 +108,12 @@ class PropertyController extends Controller
             abort(403);
         }
 
-        $property->load(['units' => function($q) {
-            $q->orderBy('created_at', 'desc');
-        }]);
+        $property->load([
+            'units' => function($q) {
+                $q->orderBy('created_at', 'desc');
+            },
+            'media' => fn($q) => $q->where('type', 'image')->whereNull('unit_id')->orderBy('sort_order'),
+        ]);
 
         return view('manager.properties.show', compact('property'));
     }

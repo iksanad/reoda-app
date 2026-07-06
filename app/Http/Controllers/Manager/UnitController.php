@@ -56,6 +56,7 @@ class UnitController extends Controller
             'property',
             'activeContract.tenant',
             'leaseContracts' => fn($q) => $q->with('tenant')->orderBy('created_at', 'desc'),
+            'media'          => fn($q) => $q->where('type', 'image')->orderBy('sort_order'),
         ]);
 
         return view('manager.units.show', compact('unit'));

@@ -221,6 +221,17 @@
         </div>
         @endif
 
+        {{-- Galeri Foto Unit --}}
+        <div class="rounded-xl border border-stroke bg-white shadow-sm overflow-hidden">
+            @include('components.media-gallery', [
+                'mediaItems'   => $unit->media,
+                'uploadRoute'  => 'manager.units.media.store',
+                'uploadParams' => ['unit' => $unit->id],
+                'maxImages'    => 5,
+                'title'        => 'Galeri Foto Unit',
+            ])
+        </div>
+
         {{-- Quick Stats --}}
         <div class="rounded-xl border border-stroke bg-white shadow-sm p-6">
             <h4 class="font-bold text-black mb-4">Statistik Unit</h4>
@@ -243,3 +254,4 @@
     </div>
 </div>
 @endsection
+

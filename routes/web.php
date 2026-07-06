@@ -85,6 +85,12 @@ Route::middleware(['auth', 'role:manager', 'manager.terms'])->prefix('manager')-
     Route::resource('properties', \App\Http\Controllers\Manager\PropertyController::class);
     Route::resource('properties.units', \App\Http\Controllers\Manager\UnitController::class)->shallow();
 
+    // Galeri Gambar — Properti & Unit
+    Route::post('/properties/{property}/media', [\App\Http\Controllers\Manager\MediaController::class, 'storePropertyMedia'])->name('properties.media.store');
+    Route::post('/units/{unit}/media', [\App\Http\Controllers\Manager\MediaController::class, 'storeUnitMedia'])->name('units.media.store');
+    Route::delete('/media/{media}', [\App\Http\Controllers\Manager\MediaController::class, 'destroy'])->name('media.destroy');
+    Route::post('/media/{media}/set-primary', [\App\Http\Controllers\Manager\MediaController::class, 'setPrimary'])->name('media.set-primary');
+
     // Data Penyewa
     Route::get('/tenants/export', [\App\Http\Controllers\Manager\TenantController::class, 'export'])->name('tenants.export');
     Route::get('/tenants', [\App\Http\Controllers\Manager\TenantController::class, 'index'])->name('tenants.index');

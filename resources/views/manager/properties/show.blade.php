@@ -83,6 +83,17 @@
 </div>
 @endif
 
+{{-- Galeri Foto Properti --}}
+<div class="mb-6">
+    @include('components.media-gallery', [
+        'mediaItems'   => $property->media,
+        'uploadRoute'  => 'manager.properties.media.store',
+        'uploadParams' => ['property' => $property->id],
+        'maxImages'    => 5,
+        'title'        => 'Galeri Foto Properti',
+    ])
+</div>
+
 {{-- Peta --}}
 @if($property->latitude && $property->longitude)
 <div class="rounded-2xl bg-white shadow-sm p-6 border border-gray-200 mb-6">
