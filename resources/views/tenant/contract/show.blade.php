@@ -77,7 +77,7 @@
                         </div>
                         <div class="flex justify-between border-b border-stroke pb-2">
                             <span class="text-sm text-gray-500">Tanggal Berakhir</span>
-                            <span class="text-sm font-medium text-black">{{ $contract->end_date->format('d M Y') }}</span>
+                            <span class="text-sm font-medium text-black">{{ $contract->end_date ? $contract->end_date->format('d M Y') : 'Tanpa Batas' }}</span>
                         </div>
                         <div class="flex justify-between pb-2">
                             <span class="text-sm text-gray-500">Jenis Pembayaran</span>

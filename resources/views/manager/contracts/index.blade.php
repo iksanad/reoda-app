@@ -144,7 +144,7 @@
                     </td>
                     <td class="px-6 py-4 text-center">
                         <p class="text-sm font-bold text-reoda-dark">{{ $contract->start_date->format('d M Y') }}</p>
-                        <p class="text-xs text-gray-500">s/d {{ $contract->end_date->format('d M Y') }}</p>
+                        <p class="text-xs text-gray-500">{{ $contract->end_date ? 's/d ' . $contract->end_date->format('d M Y') : 'Tanpa Batas' }}</p>
                     </td>
                     <td class="px-6 py-4 text-center">
                         <p class="text-sm font-bold text-reoda-dark">Rp {{ number_format($contract->rent_amount,0,',','.') }}</p>

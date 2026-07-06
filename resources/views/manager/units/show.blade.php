@@ -38,7 +38,7 @@
             <p class="font-bold text-base">Status Unit: {{ $statusConfig['label'] }}</p>
             @if($unit->status === 'rented' && $unit->activeContract)
                 @php $daysLeft = now()->diffInDays($unit->activeContract->end_date, false); @endphp
-                <p class="text-sm">Kontrak berakhir {{ $unit->activeContract->end_date->format('d M Y') }} 
+                <p class="text-sm">Kontrak berakhir {{ $unit->activeContract->end_date ? $unit->activeContract->end_date->format('d M Y') : 'Tanpa Batas' }} 
                     <span class="font-semibold">({{ $daysLeft > 0 ? $daysLeft.' hari lagi' : 'Sudah jatuh tempo' }})</span>
                 </p>
             @endif
@@ -135,7 +135,7 @@
                             </td>
                             <td class="py-3 px-4">
                                 <p class="text-xs text-gray-600">{{ $contract->start_date->format('d M Y') }}</p>
-                                <p class="text-xs text-gray-400">s/d {{ $contract->end_date->format('d M Y') }}</p>
+                                <p class="text-xs text-gray-400">{{ $contract->end_date ? 's/d ' . $contract->end_date->format('d M Y') : 'Tanpa Batas' }}</p>
                             </td>
                             <td class="py-3 px-4 font-semibold text-reoda">Rp {{ number_format($contract->rent_amount, 0, ',', '.') }}</td>
                             <td class="py-3 px-4"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold {{ $cs['class'] }}">{{ $cs['label'] }}</span></td>
@@ -195,7 +195,7 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-500">Berakhir</span>
-                    <span class="font-semibold">{{ $unit->activeContract->end_date->format('d M Y') }}</span>
+                    <span class="font-semibold">{{ $unit->activeContract->end_date ? $unit->activeContract->end_date->format('d M Y') : 'Tanpa Batas' }}</span>
                 </div>
             </div>
             <div class="flex gap-2">

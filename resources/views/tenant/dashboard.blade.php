@@ -112,7 +112,7 @@
         </div>
         <div>
             <h3 class="text-lg font-bold text-black">Unit {{ $activeContract->unit->unit_code }} - {{ $activeContract->unit->property->name }}</h3>
-            <p class="text-sm font-medium text-gray-500">Masa sewa aktif hingga {{ $activeContract->end_date->format('d F Y') }}</p>
+            <p class="text-sm font-medium text-gray-500">Masa sewa aktif hingga {{ $activeContract->end_date ? $activeContract->end_date->format('d F Y') : 'Tanpa Batas' }}</p>
         </div>
     </div>
     <div class="hidden sm:block">

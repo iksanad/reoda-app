@@ -30,7 +30,7 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div><p class="text-xs text-gray-400 mb-0.5">Properti</p><p class="font-semibold">{{ $contract->unit->property->name }}</p></div>
         <div><p class="text-xs text-gray-400 mb-0.5">Unit</p><p class="font-semibold">{{ $contract->unit->unit_code }}</p></div>
-        <div><p class="text-xs text-gray-400 mb-0.5">Kontrak Berakhir</p><p class="font-semibold">{{ $contract->end_date->format('d M Y') }}</p></div>
+        <div><p class="text-xs text-gray-400 mb-0.5">Kontrak Berakhir</p><p class="font-semibold">{{ $contract->end_date ? $contract->end_date->format('d M Y') : 'Tanpa Batas' }}</p></div>
         <div><p class="text-xs text-gray-400 mb-0.5">Pengelola</p>
             <p class="font-semibold">{{ $contract->unit->property->manager->name ?? '-' }}</p>
             @if($contract->unit->property->manager->phone)

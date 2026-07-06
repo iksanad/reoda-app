@@ -50,7 +50,7 @@
                     <td class="px-5 py-4 border-y border-stroke group-hover:border-reoda/30">
                         <span class="font-bold text-gray-700">{{ $contract->start_date->format('d M Y') }}</span>
                         <span class="text-gray-400 mx-1">-</span>
-                        <span class="font-bold text-gray-700">{{ $contract->end_date->format('d M Y') }}</span>
+                        <span class="font-bold text-gray-700">{{ $contract->end_date ? $contract->end_date->format('d M Y') : 'Tanpa Batas' }}</span>
                     </td>
                     <td class="px-5 py-4 border-y border-stroke group-hover:border-reoda/30">
                         @if($contract->status == 'active')

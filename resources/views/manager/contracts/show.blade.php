@@ -41,7 +41,7 @@
                 <div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">No. Kontrak</p><p class="font-extrabold text-reoda-dark font-mono text-base">{{ $contract->contract_number }}</p></div>
                 <div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Jenis Sewa</p><p class="font-extrabold text-reoda-dark capitalize text-base">{{ $contract->rental_type === 'monthly' ? 'Bulanan' : 'Tahunan' }}</p></div>
                 <div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Mulai Sewa</p><p class="font-extrabold text-reoda-dark text-base">{{ $contract->start_date->format('d M Y') }}</p></div>
-                <div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Akhir Sewa</p><p class="font-extrabold text-reoda-dark text-base">{{ $contract->end_date->format('d M Y') }}</p></div>
+                <div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Akhir Sewa</p><p class="font-extrabold text-reoda-dark text-base">{{ $contract->end_date ? $contract->end_date->format('d M Y') : 'Tanpa Batas' }}</p></div>
                 <div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Harga Sewa / Bln</p><p class="text-xl font-extrabold text-reoda">Rp {{ number_format($contract->rent_amount,0,',','.') }}</p></div>
                 <div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Deposit</p><p class="font-extrabold text-reoda-dark text-base">Rp {{ number_format($contract->deposit_amount,0,',','.') }}</p></div>
                 @if($contract->notes)
