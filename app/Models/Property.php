@@ -6,6 +6,36 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property int $manager_id
+ * @property string $property_code
+ * @property string $name
+ * @property string $type
+ * @property string|null $description
+ * @property string $address
+ * @property string|null $rt_rw
+ * @property string $village
+ * @property string $district
+ * @property string $city
+ * @property string $province
+ * @property string|null $postal_code
+ * @property string|null $latitude
+ * @property string|null $longitude
+ * @property string|null $cover_image
+ * @property string $status
+ * @property string|null $property_terms
+ * @property float|null $yearly_discount_percent
+ * @property float|null $ipl_amount
+ * @property string|null $maps_url
+ * @property string $electricity_config
+ * @property string $water_config
+ * @property-read \App\Models\User $manager
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Unit[] $units
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Facility[] $facilities
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PropertyMedia[] $media
+ * @property-read string $cover_image_url
+ */
 class Property extends Model
 {
     use HasFactory, SoftDeletes;
