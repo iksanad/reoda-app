@@ -131,12 +131,16 @@
                         <li><a href="{{ route('login') }}" class="hover:text-white transition">Masuk ke Dasbor</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h5 class="text-sm font-bold mb-4 text-white">REODA Team</h5>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="{{ route('login') }}" class="hover:text-white transition">Admin Portal</a></li>
-                    </ul>
-                </div>
+                @auth
+                    @if(auth()->user()->isSuperAdmin())
+                        <div>
+                            <h5 class="text-sm font-bold mb-4 text-white">REODA Team</h5>
+                            <ul class="space-y-2 text-sm text-gray-400">
+                                <li><a href="{{ route('superadmin.dashboard') }}" class="hover:text-white transition">Admin Portal</a></li>
+                            </ul>
+                        </div>
+                    @endif
+                @endauth
             </div>
             <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
                 &copy; {{ date('Y') }} REODA. All rights reserved. — Platform Sewa Hunian Indonesia
