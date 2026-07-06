@@ -184,7 +184,7 @@
                             @else
                                 <div class="text-center py-4">
                                     <p class="text-sm text-gray-500 mb-2">Belum ada unit terdaftar di properti ini.</p>
-                                    <a href="{{ route('manager.units.create', ['property_id' => $property->id]) }}" class="text-xs font-semibold text-reoda hover:underline">Tambah Unit Sekarang</a>
+                                    <a href="{{ route('manager.properties.units.create', $property) }}" class="text-xs font-semibold text-reoda hover:underline">Tambah Unit Sekarang</a>
                                 </div>
                             @endif
                         </td>
