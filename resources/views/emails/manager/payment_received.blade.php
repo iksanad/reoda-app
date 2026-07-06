@@ -17,8 +17,8 @@ Penyewa Anda, **{{ $payment->invoice->tenant->name }}**, telah berhasil melakuka
 
 Dana bersih telah ditambahkan ke saldo Wallet Anda. Anda bisa mencairkan saldo tersebut kapan saja melalui Dashboard Pengelola.
 
-@component('mail::button', ['url' => route('manager.invoices.index')])
-Lihat Tagihan
+@component('mail::button', ['url' => route('manager.payments.index')])
+Lihat Pembayaran
 @endcomponent
 
 Terima kasih telah menggunakan REODA.<br>

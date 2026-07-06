@@ -27,6 +27,16 @@ use App\Http\Controllers\Api\MidtransWebhookController;
 
 Route::post('/midtrans/webhook', [MidtransWebhookController::class, 'handle'])->name('api.midtrans.webhook');
 
+// Scheduler endpoint — dipanggil oleh cron-job.org setiap jam
+// Dilindungi token rahasia, tidak perlu auth session
+Route::get('/scheduler/run/{token}', function (string $token) {
+    if ($token !== config('app.scheduler_token')) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+    \Illuminate\Support\Facades\Artisan::call('schedule:run');
+    return response()->json(['message' => 'OK', 'executed_at' => now()->toISOString()], 200);
+})->name('api.scheduler.run');
+
 Route::post('/register', [AuthController::class,'register']);
 Route::post('/login', [AuthController::class,'login']);
 

@@ -166,13 +166,3 @@ Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->g
 
 // Midtrans Webhook (no CSRF, no auth)
 Route::post('/midtrans/webhook', [\App\Http\Controllers\MidtransWebhookController::class, 'handle'])->name('midtrans.webhook');
-
-// Scheduler endpoint — dipanggil oleh layanan cron eksternal (cron-job.org) setiap jam
-// Dilindungi token rahasia agar tidak bisa diakses sembarangan
-Route::get('/scheduler/run/{token}', function (string $token) {
-    if ($token !== config('app.scheduler_token')) {
-        abort(403, 'Unauthorized');
-    }
-    \Illuminate\Support\Facades\Artisan::call('schedule:run');
-    return response('OK — schedule:run executed at ' . now(), 200);
-})->name('scheduler.run');
