@@ -43,7 +43,12 @@
                 {{-- Auth Buttons --}}
                 <div class="flex items-center gap-2">
                     @auth
-                        @if(auth()->user()->isManager())
+                        @if(auth()->user()->isSuperAdmin())
+                            <a href="{{ route('superadmin.dashboard') }}" class="flex items-center gap-2 rounded-xl bg-reoda px-4 py-2 text-sm font-bold text-white hover:bg-reoda-dark transition shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                                Admin Panel
+                            </a>
+                        @elseif(auth()->user()->isManager())
                             <a href="{{ route('manager.dashboard') }}" class="flex items-center gap-2 rounded-xl bg-reoda px-4 py-2 text-sm font-bold text-white hover:bg-reoda-dark transition shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                                 Dashboard
@@ -74,9 +79,17 @@
                     <a href="{{ url('/') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold {{ request()->is('/') ? 'text-reoda bg-reoda/8' : 'text-gray-600 hover:text-reoda hover:bg-gray-50' }}">🏠 Beranda</a>
                     <a href="{{ route('explore.public') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold {{ request()->routeIs('explore.public') ? 'text-reoda bg-reoda/8' : 'text-gray-600 hover:text-reoda hover:bg-gray-50' }}">🔍 Cari Hunian</a>
                     <a href="{{ route('compare.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold {{ request()->routeIs('compare.index') ? 'text-reoda bg-reoda/8' : 'text-gray-600 hover:text-reoda hover:bg-gray-50' }}">⚖️ Bandingkan</a>
-                    @guest
-                    <a href="{{ route('login') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:text-reoda hover:bg-gray-50">Masuk</a>
-                    @endguest
+                    @auth
+                        @if(auth()->user()->isSuperAdmin())
+                            <a href="{{ route('superadmin.dashboard') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:text-reoda hover:bg-gray-50">⚙️ Admin Panel</a>
+                        @elseif(auth()->user()->isManager())
+                            <a href="{{ route('manager.dashboard') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:text-reoda hover:bg-gray-50">📊 Dashboard</a>
+                        @elseif(auth()->user()->isTenant())
+                            <a href="{{ route('tenant.dashboard') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:text-reoda hover:bg-gray-50">📊 Dashboard</a>
+                        @endif
+                    @else
+                        <a href="{{ route('login') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 hover:text-reoda hover:bg-gray-50">Masuk</a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -116,6 +129,12 @@
                     <ul class="space-y-2 text-sm text-gray-400">
                         <li><a href="{{ route('register', ['role'=>'manager']) }}" class="hover:text-white transition">Daftarkan Properti</a></li>
                         <li><a href="{{ route('login') }}" class="hover:text-white transition">Masuk ke Dasbor</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-sm font-bold mb-4 text-white">REODA Team</h5>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="{{ route('login') }}" class="hover:text-white transition">Admin Portal</a></li>
                     </ul>
                 </div>
             </div>
