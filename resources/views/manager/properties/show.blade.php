@@ -16,6 +16,17 @@
     </nav>
 </div>
 
+@if(session('success'))
+<div class="mb-5 rounded-xl border border-green-200 bg-green-50 px-5 py-3 text-sm font-medium text-green-700">
+    ✅ {{ session('success') }}
+</div>
+@endif
+@if(session('error'))
+<div class="mb-5 rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-medium text-red-700">
+    ⚠️ {{ session('error') }}
+</div>
+@endif
+
 <!-- Header Detail -->
 <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm mb-6">
     <div class="relative z-20 h-35 md:h-65 bg-gray-200">

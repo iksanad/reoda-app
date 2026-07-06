@@ -97,7 +97,7 @@ class PropertyController extends Controller
             $validated['water_config'] = 'postpaid';
         }
 
-        $property = Property::create($validated);
+        Property::create($validated);
 
         return redirect()->route('manager.properties.index')->with('success', 'Lokasi properti berhasil ditambahkan.');
     }
