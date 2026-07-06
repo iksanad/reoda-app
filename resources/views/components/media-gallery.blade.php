@@ -10,15 +10,16 @@
 --}}
 
 @php
-    $maxImages  = $maxImages ?? 5;
-    $count      = $mediaItems->count();
-    $remaining  = $maxImages - $count;
-    $title      = $title ?? 'Galeri Foto';
-    // ID unik per instance agar tidak konflik jika komponen dipakai 2x di halaman yang sama
-    $galleryId  = 'gallery-' . Str::slug($uploadRoute);
+    $maxImages = $maxImages ?? 5;
+    $count     = $mediaItems->count();
+    $remaining = $maxImages - $count;
+    $title     = $title ?? 'Galeri Foto';
+    // ID unik per instance agar tidak bentrok jika komponen dipakai 2x di 1 halaman
+    $galleryId = 'gallery-' . Str::slug($uploadRoute);
 @endphp
 
-<div class="rounded-xl border border-stroke bg-white shadow-sm overflow-hidden" id="{{ $galleryId }}">
+<div class="rounded-xl border border-stroke bg-white shadow-sm overflow-hidden">
+
     {{-- Header --}}
     <div class="border-b border-stroke px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -28,32 +29,44 @@
             </span>
         </div>
         @if($count < $maxImages)
-        <label for="{{ $galleryId }}-input" class="cursor-pointer inline-flex items-center gap-2 rounded-lg bg-reoda px-4 py-2 text-sm font-semibold text-white hover:bg-reoda-dark transition shadow-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <label for="{{ $galleryId }}-input"
+               class="cursor-pointer inline-flex items-center gap-2 rounded-lg bg-reoda px-4 py-2 text-sm font-semibold text-white hover:bg-reoda-dark transition shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
             Upload Foto
         </label>
         @endif
     </div>
 
-    {{-- Upload Form (hidden, triggered by label) --}}
+    {{-- Upload Form --}}
     @if($count < $maxImages)
     <form action="{{ route($uploadRoute, $uploadParams) }}" method="POST" enctype="multipart/form-data" id="{{ $galleryId }}-form">
         @csrf
-        <input type="file" id="{{ $galleryId }}-input" name="images[]" multiple accept="image/jpg,image/jpeg,image/png,image/webp"
-               class="hidden" onchange="gallerySubmit(this, '{{ $galleryId }}')">
+        <input type="file"
+               id="{{ $galleryId }}-input"
+               name="images[]"
+               multiple
+               accept="image/jpg,image/jpeg,image/png,image/webp"
+               class="hidden"
+               onchange="gallerySubmit(this, '{{ $galleryId }}')">
     </form>
     @endif
 
     {{-- Upload loading feedback --}}
     <div id="{{ $galleryId }}-preview" class="hidden px-6 pt-4">
         <div class="flex items-center gap-3 rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-700">
-            <svg class="w-5 h-5 animate-spin shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            <svg class="w-5 h-5 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
             <span id="{{ $galleryId }}-preview-text">Mengupload gambar...</span>
         </div>
     </div>
 
     {{-- Gallery Grid --}}
     <div class="p-6">
+
         @if(session('success'))
         <div class="mb-4 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm font-medium text-green-700">
             ✅ {{ session('success') }}
@@ -67,8 +80,9 @@
         @endif
 
         @if($count === 0)
+
         <div class="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-reoda hover:bg-blue-50/30 transition group"
-             onclick="document.getElementById('{{ $galleryId }}-input')?.click()">
+             onclick="document.getElementById('{{ $galleryId }}-input') && document.getElementById('{{ $galleryId }}-input').click()">
             <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-3 group-hover:bg-blue-100 transition">
                 <svg class="w-7 h-7 text-gray-400 group-hover:text-reoda transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -77,24 +91,24 @@
             <p class="text-sm font-semibold text-gray-500 group-hover:text-reoda transition">Belum ada foto</p>
             <p class="text-xs text-gray-400 mt-1">Klik untuk upload (maks. {{ $maxImages }} foto, JPG/PNG/WebP, 5 MB)</p>
         </div>
+
         @else
+
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             @foreach($mediaItems as $media)
             <div class="group relative rounded-xl overflow-hidden border-2 {{ $media->is_primary ? 'border-reoda shadow-md' : 'border-gray-200' }} bg-gray-50 aspect-square">
-                {{-- Image --}}
+
                 <img src="{{ $media->url }}"
                      alt="{{ $media->file_name }}"
                      class="w-full h-full object-cover cursor-pointer transition group-hover:scale-105 duration-300"
                      onclick="openGalleryLightbox(this.src)">
 
-                {{-- Primary Badge --}}
                 @if($media->is_primary)
                 <span class="absolute top-2 left-2 bg-reoda text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
                     Utama
                 </span>
                 @endif
 
-                {{-- Overlay actions --}}
                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-end justify-center pb-3 gap-2 opacity-0 group-hover:opacity-100">
                     @if(!$media->is_primary)
                     <form action="{{ route('manager.media.set-primary', $media) }}" method="POST">
@@ -115,64 +129,72 @@
                         </button>
                     </form>
                 </div>
+
             </div>
             @endforeach
 
-            {{-- Add more slot --}}
             @if($count < $maxImages)
             <div class="relative rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-reoda hover:bg-blue-50/30 transition"
-                 onclick="document.getElementById('{{ $galleryId }}-input')?.click()">
-                <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
+                 onclick="document.getElementById('{{ $galleryId }}-input') && document.getElementById('{{ $galleryId }}-input').click()">
+                <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/>
+                </svg>
                 <p class="text-[10px] text-gray-400 mt-1">Tambah</p>
                 <p class="text-[10px] text-gray-400">{{ $remaining }} slot</p>
             </div>
             @endif
         </div>
+
         @endif
 
         <p class="text-xs text-gray-400 mt-4">Format: JPG, PNG, WebP. Maks 5 MB per gambar. Maks {{ $maxImages }} foto total.</p>
     </div>
 </div>
 
-{{-- Lightbox — satu instance per halaman cukup, pakai ID unik global --}}
-@once
-<div id="shared-gallery-lightbox" class="fixed inset-0 z-[9999] bg-black/80 hidden items-center justify-center p-4"
-     onclick="closeGalleryLightbox()">
-    <button class="absolute top-4 right-4 text-white text-3xl font-bold leading-none hover:text-gray-300"
-            onclick="closeGalleryLightbox()">×</button>
-    <img id="shared-lightbox-img" src="" alt=""
-         class="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain"
-         onclick="event.stopPropagation()">
-</div>
-@endonce
-
 @push('scripts')
 <script>
-// Shared lightbox functions (dipastikan hanya dideklarasi sekali dengan @once di HTML)
-if (typeof openGalleryLightbox === 'undefined') {
-    function openGalleryLightbox(url) {
-        document.getElementById('shared-lightbox-img').src = url;
-        const lb = document.getElementById('shared-gallery-lightbox');
-        lb.classList.remove('hidden');
-        lb.classList.add('flex');
+(function () {
+    // Buat lightbox sekali jika belum ada di DOM
+    if (!document.getElementById('shared-gallery-lightbox')) {
+        var lb = document.createElement('div');
+        lb.id = 'shared-gallery-lightbox';
+        lb.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;padding:1rem;';
+        lb.innerHTML =
+            '<button style="position:absolute;top:1rem;right:1rem;color:#fff;font-size:2rem;font-weight:bold;line-height:1;background:none;border:none;cursor:pointer;" onclick="closeGalleryLightbox()">&times;</button>' +
+            '<img id="shared-lightbox-img" src="" alt="" style="max-width:100%;max-height:90vh;border-radius:0.75rem;box-shadow:0 25px 50px rgba(0,0,0,.5);object-fit:contain;" onclick="event.stopPropagation()">';
+        lb.onclick = function () { closeGalleryLightbox(); };
+        document.body.appendChild(lb);
     }
-    function closeGalleryLightbox() {
-        const lb = document.getElementById('shared-gallery-lightbox');
-        lb.classList.add('hidden');
-        lb.classList.remove('flex');
-        document.getElementById('shared-lightbox-img').src = '';
-    }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGalleryLightbox(); });
-}
 
-function gallerySubmit(input, galleryId) {
-    if (!input.files || input.files.length === 0) return;
-    const preview = document.getElementById(galleryId + '-preview');
-    const text    = document.getElementById(galleryId + '-preview-text');
-    if (preview) preview.classList.remove('hidden');
-    if (text) text.textContent = `Mengupload ${input.files.length} gambar...`;
-    const form = document.getElementById(galleryId + '-form');
-    if (form) form.submit();
-}
+    if (typeof window.openGalleryLightbox === 'undefined') {
+        window.openGalleryLightbox = function (url) {
+            var lb  = document.getElementById('shared-gallery-lightbox');
+            var img = document.getElementById('shared-lightbox-img');
+            if (!lb || !img) return;
+            img.src = url;
+            lb.style.display = 'flex';
+        };
+        window.closeGalleryLightbox = function () {
+            var lb  = document.getElementById('shared-gallery-lightbox');
+            var img = document.getElementById('shared-lightbox-img');
+            if (!lb || !img) return;
+            lb.style.display = 'none';
+            img.src = '';
+        };
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') window.closeGalleryLightbox();
+        });
+    }
+
+    window.gallerySubmit = function (input, galleryId) {
+        if (!input.files || input.files.length === 0) return;
+        var preview = document.getElementById(galleryId + '-preview');
+        var text    = document.getElementById(galleryId + '-preview-text');
+        var form    = document.getElementById(galleryId + '-form');
+        if (preview) preview.style.display = 'block';
+        if (text)    text.textContent = 'Mengupload ' + input.files.length + ' gambar...';
+        if (form)    form.submit();
+    };
+}());
 </script>
 @endpush
