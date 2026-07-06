@@ -146,8 +146,20 @@
         </div>
         @foreach([$prop1, $prop2] as $p)
         <div class="bg-white p-5 text-center {{ !$loop->last ? 'border-r border-stroke' : '' }}">
+            @php
+                $images = [];
+                if (isset($p->media) && $p->media->count() > 0) {
+                    $images = $p->media->map->url->toArray();
+                } elseif ($p->cover_image_url) {
+                    $images[] = $p->cover_image_url;
+                }
+            @endphp
             <div class="h-32 rounded-xl overflow-hidden mb-3 bg-gray-100">
-                <img src="{{ $p->cover_image_url }}" alt="{{ $p->name }}" class="w-full h-full object-cover">
+                @if(empty($images))
+                <img src="https://placehold.co/600x400/4C74AF/ffffff?text={{ urlencode($p->name) }}" alt="{{ $p->name }}" class="w-full h-full object-cover">
+                @else
+                <x-carousel :images="$images" :alt="$p->name" heightClass="h-32" />
+                @endif
             </div>
             <h3 class="font-extrabold text-gray-900 text-base">{{ $p->name }}</h3>
             <p class="text-xs text-gray-500">{{ $p->city }}, {{ $p->province }}</p>

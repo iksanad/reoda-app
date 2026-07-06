@@ -19,9 +19,21 @@
 <!-- Hero Section -->
 <div class="rounded-sm border border-stroke bg-white shadow-default mb-6 overflow-hidden">
     <div class="h-56 md:h-80 bg-gray-100 relative">
-        <img src="{{ $property->cover_image_url ?? 'https://placehold.co/1200x400/4C74AF/ffffff?text='.urlencode($property->name) }}" alt="{{ $property->name }}" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-linear-to-t from-reoda-dark/60 to-transparent"></div>
-        <div class="absolute bottom-0 left-0 p-6">
+        @php
+            $images = [];
+            if (isset($property->media) && $property->media->count() > 0) {
+                $images = $property->media->map->url->toArray();
+            } elseif ($property->cover_image_url) {
+                $images[] = $property->cover_image_url;
+            }
+        @endphp
+        @if(empty($images))
+        <img src="https://placehold.co/1200x400/4C74AF/ffffff?text={{ urlencode($property->name) }}" alt="{{ $property->name }}" class="w-full h-full object-cover">
+        @else
+        <x-carousel :images="$images" :alt="$property->name" heightClass="h-full" />
+        @endif
+        <div class="absolute inset-0 bg-linear-to-t from-reoda-dark/80 via-transparent to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 p-6 z-20">
             <span class="mb-2 inline-block rounded bg-reoda px-3 py-1 text-xs font-bold text-white uppercase">{{ $property->type }}</span>
             <h2 class="text-2xl md:text-3xl font-bold text-white">{{ $property->name }}</h2>
             <p class="text-sm text-white/80 flex items-center gap-1.5 mt-1">

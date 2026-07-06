@@ -95,13 +95,25 @@
     <div class="rounded-lg border border-stroke bg-white shadow-sm overflow-hidden flex flex-col hover:shadow-md transition group">
         <!-- Cover Image -->
         <div class="relative h-48 overflow-hidden bg-gray-100">
-            <img src="{{ $property->cover_image_url ?? 'https://placehold.co/600x400/4C74AF/ffffff?text='.urlencode($property->name) }}" alt="{{ $property->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            @php
+                $images = [];
+                if (isset($property->media) && $property->media->count() > 0) {
+                    $images = $property->media->map->url->toArray();
+                } elseif ($property->cover_image_url) {
+                    $images[] = $property->cover_image_url;
+                }
+            @endphp
+            @if(empty($images))
+            <img src="https://placehold.co/600x400/4C74AF/ffffff?text={{ urlencode($property->name) }}" alt="{{ $property->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            @else
+            <x-carousel :images="$images" :alt="$property->name" heightClass="h-48" />
+            @endif
             <!-- Badge type -->
-            <div class="absolute top-3 left-3 rounded-md bg-reoda-dark/80 backdrop-blur-sm px-2.5 py-1 text-xs font-bold text-white uppercase">
+            <div class="absolute top-3 left-3 z-10 rounded-md bg-reoda-dark/80 backdrop-blur-sm px-2.5 py-1 text-xs font-bold text-white uppercase shadow-sm">
                 {{ $property->type }}
             </div>
             <!-- Available rooms badge -->
-            <div class="absolute top-3 right-3 rounded-md {{ $property->available_units_count > 0 ? 'bg-success' : 'bg-gray-500' }} px-2.5 py-1 text-xs font-bold text-white">
+            <div class="absolute top-3 right-3 z-10 rounded-md {{ $property->available_units_count > 0 ? 'bg-success' : 'bg-gray-500' }} px-2.5 py-1 text-xs font-bold text-white shadow-sm">
                 {{ $property->available_units_count > 0 ? $property->available_units_count . ' Tersedia' : 'Penuh' }}
             </div>
         </div>

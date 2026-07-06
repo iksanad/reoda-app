@@ -180,10 +180,15 @@
 
                     {{-- Image --}}
                     <div class="relative h-44 overflow-hidden bg-linear-to-br from-gray-100 to-gray-200">
-                        @if(($property->cover_image_url ?? null))
-                        <img src="{{ $property->cover_image_url }}" alt="{{ $property->name }}"
-                            class="property-img w-full h-full object-cover">
-                        @else
+                        @php
+                            $images = [];
+                            if (isset($property->media) && $property->media->count() > 0) {
+                                $images = $property->media->map->url->toArray();
+                            } elseif ($property->cover_image_url) {
+                                $images[] = $property->cover_image_url;
+                            }
+                        @endphp
+                        @if(empty($images))
                         <div class="w-full h-full flex items-center justify-center text-5xl bg-linear-to-br from-emerald-50 to-teal-100">
                             @switch($property->type)
                                 @case('kos') 🏠 @break
@@ -192,6 +197,8 @@
                                 @default 🏘️
                             @endswitch
                         </div>
+                        @else
+                        <x-carousel :images="$images" :alt="$property->name" heightClass="h-44" />
                         @endif
                         <span class="absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full {{ $badge[0] }}">{{ $badge[1] }}</span>
                         @if($property->available_units_count > 0)

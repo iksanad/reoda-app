@@ -17,7 +17,7 @@ class ExploreController extends Controller
             ->withCount(['units', 'units as available_units_count' => function ($q) {
                 $q->where('status', 'available');
             }])
-            ->with('manager:id,name');
+            ->with(['manager:id,name', 'media']);
 
         // Filter by type
         if ($request->filled('type')) {
@@ -76,6 +76,7 @@ class ExploreController extends Controller
 
         $property->load([
             'manager:id,name,phone',
+            'media',
             'units' => function ($q) {
                 $q->orderBy('status')->orderBy('unit_code');
             }

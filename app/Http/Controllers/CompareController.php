@@ -21,7 +21,7 @@ class CompareController extends Controller
                 ->whereHas('manager', function($q) {
                     $q->where('manager_status', 'approved');
                 })
-                ->with(['manager:id,name,phone', 'facilities', 'units' => fn($q) => $q->orderBy('rent_price')])
+                ->with(['manager:id,name,phone', 'media', 'facilities', 'units' => fn($q) => $q->orderBy('rent_price')])
                 ->find($request->prop1);
         }
 
@@ -30,7 +30,7 @@ class CompareController extends Controller
                 ->whereHas('manager', function($q) {
                     $q->where('manager_status', 'approved');
                 })
-                ->with(['manager:id,name,phone', 'facilities', 'units' => fn($q) => $q->orderBy('rent_price')])
+                ->with(['manager:id,name,phone', 'media', 'facilities', 'units' => fn($q) => $q->orderBy('rent_price')])
                 ->find($request->prop2);
         }
 

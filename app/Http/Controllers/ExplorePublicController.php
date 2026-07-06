@@ -15,7 +15,7 @@ class ExplorePublicController extends Controller
                 'units',
                 'units as available_units_count' => fn($q) => $q->where('status', 'available'),
             ])
-            ->with(['manager:id,name', 'units' => fn($q) => $q->where('status', 'available')->orderBy('rent_price')]);
+            ->with(['manager:id,name', 'media', 'units' => fn($q) => $q->where('status', 'available')->orderBy('rent_price')]);
 
         // Filter
         if ($request->filled('type'))   $query->where('type', $request->type);

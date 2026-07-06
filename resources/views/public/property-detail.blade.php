@@ -26,18 +26,24 @@
 
         {{-- Foto & Badge --}}
         <div class="rounded-xl border border-stroke bg-white shadow-sm overflow-hidden">
-            <div class="relative h-56 bg-gray-100">
-                <img src="{{ $property->cover_image_url }}" alt="{{ $property->name }}"
-                    class="w-full h-full object-cover">
-                @php
-                    $bgClass = match($property->type) {
-                        'kos' => 'bg-blue-500',
-                        'kontrakan' => 'bg-green-500',
-                        'apartemen' => 'bg-purple-500',
-                        default => 'bg-gray-500',
-                    };
-                @endphp
-                <span class="absolute top-4 left-4 inline-flex rounded-full px-3 py-1 text-xs font-bold text-white {{ $bgClass }}">
+            @php
+                $images = [];
+                if (isset($property->media) && $property->media->count() > 0) {
+                    $images = $property->media->map->url->toArray();
+                } elseif ($property->cover_image_url) {
+                    $images[] = $property->cover_image_url;
+                }
+                $bgClass = match($property->type) {
+                    'kos' => 'bg-blue-500',
+                    'kontrakan' => 'bg-green-500',
+                    'apartemen' => 'bg-purple-500',
+                    default => 'bg-gray-500',
+                };
+            @endphp
+            <div class="relative h-56 bg-gray-100 sm:h-72 lg:h-96">
+                <x-carousel :images="$images" :alt="$property->name" heightClass="h-full" />
+                
+                <span class="absolute top-4 left-4 z-10 inline-flex rounded-full px-3 py-1 text-xs font-bold text-white {{ $bgClass }} shadow">
                     {{ ucfirst($property->type) }}
                 </span>
             </div>
