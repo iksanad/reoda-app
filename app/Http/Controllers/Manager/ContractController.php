@@ -53,7 +53,15 @@ class ContractController extends Controller
     {
         $properties = Property::where('manager_id', Auth::id())->with('units')->get();
         $tenants    = User::where('role', 'tenant')->orderBy('name')->get();
-        return view('manager.contracts.create', compact('properties', 'tenants'));
+        
+        $pricesArray = [];
+        foreach ($properties as $property) {
+            foreach ($property->units as $unit) {
+                $pricesArray[$unit->id] = $unit->price_monthly;
+            }
+        }
+        
+        return view('manager.contracts.create', compact('properties', 'tenants', 'pricesArray'));
     }
 
     public function store(Request $request)
