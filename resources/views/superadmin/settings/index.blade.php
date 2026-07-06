@@ -85,40 +85,7 @@
         </div>
     </div>
 
-    {{-- Pengaturan Email / SMTP --}}
-    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 mb-6">
-        <h3 class="text-base font-bold text-reoda-dark mb-5 pb-3 border-b border-gray-100">📧 Konfigurasi Notifikasi Email (SMTP)</h3>
-        <p class="text-sm text-gray-500 mb-5">Masukkan kredensial aplikasi untuk mengirimkan notifikasi persetujuan pengelola atau reset password.</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">SMTP Host</label>
-                <input type="text" name="smtp_host" value="{{ $settings['smtp_host'] ?? '' }}"
-                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-800 focus:border-reoda focus:ring-2 focus:ring-reoda/20 focus:outline-none transition"
-                    placeholder="smtp.gmail.com">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">SMTP Port</label>
-                <input type="number" name="smtp_port" value="{{ $settings['smtp_port'] ?? '' }}"
-                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-800 focus:border-reoda focus:ring-2 focus:ring-reoda/20 focus:outline-none transition"
-                    placeholder="587">
-            </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email Pengirim (SMTP User)</label>
-                <input type="email" name="smtp_email" value="{{ $settings['smtp_email'] ?? '' }}"
-                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-800 focus:border-reoda focus:ring-2 focus:ring-reoda/20 focus:outline-none transition"
-                    placeholder="no-reply@reoda.com">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Password Aplikasi (SMTP Password)</label>
-                <input type="password" name="smtp_password" value="{{ $settings['smtp_password'] ?? '' }}"
-                    class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-800 focus:border-reoda focus:ring-2 focus:ring-reoda/20 focus:outline-none transition"
-                    placeholder="••••••••••••">
-                <p class="text-xs text-gray-400 mt-1">Gunakan password khusus aplikasi (App Password), bukan password akun email.</p>
-            </div>
-        </div>
-    </div>
+
 
     {{-- Biaya Admin Transaksi --}}
     <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 mb-6">
