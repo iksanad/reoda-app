@@ -13,6 +13,7 @@
         "laravel/ui": "^4.6",
         "maatwebsite/excel": "3.1.50",
         "midtrans/midtrans-php": "^2.6",
+        "resend/resend-laravel": "*",
         "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {
