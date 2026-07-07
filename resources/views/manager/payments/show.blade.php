@@ -21,7 +21,7 @@
     $prop   = $unit->property;
     $sc = match($payment->status) {
         'pending'  => ['label'=>'Menunggu Konfirmasi','class'=>'bg-warning-50 text-warning-700 border-warning-200'],
-        'verified' => ['label'=>'Dikonfirmasi','class'=>'bg-success-50 text-success-700 border-success-200'],
+        'approved' => ['label'=>'Dikonfirmasi','class'=>'bg-success-50 text-success-700 border-success-200'],
         'rejected' => ['label'=>'Ditolak','class'=>'bg-error-50 text-error-700 border-error-200'],
         default    => ['label'=>ucfirst($payment->status),'class'=>'bg-gray-50 text-gray-700 border-gray-200'],
     };
@@ -74,29 +74,43 @@
 
         {{-- Approve / Reject Actions --}}
         @if($payment->status === 'pending')
-        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 space-y-4" x-data="{ rejectOpen: false }">
-            <h4 class="font-extrabold text-reoda-dark mb-2 text-lg">Konfirmasi Pembayaran</h4>
-            <form action="{{ route('manager.payments.approve', $payment) }}" method="POST">
-                @csrf
-                <button type="submit" onclick="return confirm('Konfirmasi pembayaran ini?')"
-                    class="w-full flex items-center justify-center gap-2 rounded-lg bg-success-600 py-3 font-bold text-white hover:bg-success-700 transition shadow-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Konfirmasi Pembayaran
-                </button>
-            </form>
-            <button @click="rejectOpen = !rejectOpen" type="button"
-                class="w-full flex items-center justify-center gap-2 rounded-lg border border-error-300 py-3 font-bold text-error-600 hover:bg-error-50 transition shadow-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                Tolak Pembayaran
-            </button>
-            <div x-show="rejectOpen" x-transition style="display:none">
-                <form action="{{ route('manager.payments.reject', $payment) }}" method="POST" class="space-y-4 pt-4 border-t border-gray-100 mt-4">
-                    @csrf
-                    <textarea name="rejection_reason" rows="3" required placeholder="Alasan penolakan..." class="w-full rounded-lg border border-gray-300 py-3 px-4 text-sm font-medium outline-none focus:border-error-500 focus:ring-1 focus:ring-error-500 transition"></textarea>
-                    <button type="submit" class="w-full rounded-lg bg-error-600 py-3 font-bold text-white hover:bg-error-700 transition shadow-sm">Kirim Penolakan</button>
-                </form>
+            @if(strtolower($payment->payment_method) === 'midtrans')
+            {{-- Midtrans: Auto-verified via webhook --}}
+            <div class="rounded-2xl border border-blue-200 bg-blue-50 p-6">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div>
+                        <h4 class="font-bold text-blue-800">Pembayaran via Midtrans</h4>
+                        <p class="text-sm text-blue-700 mt-1">Pembayaran ini diproses melalui Midtrans dan akan <strong>dikonfirmasi secara otomatis</strong> setelah penyewa menyelesaikan pembayaran. Anda tidak perlu melakukan tindakan apapun.</p>
+                    </div>
+                </div>
             </div>
-        </div>
+            @else
+            {{-- Manual Transfer: Need manager confirmation --}}
+            <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 space-y-4" x-data="{ rejectOpen: false }">
+                <h4 class="font-extrabold text-reoda-dark mb-2 text-lg">Konfirmasi Pembayaran</h4>
+                <form action="{{ route('manager.payments.approve', $payment) }}" method="POST">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Konfirmasi pembayaran ini?')"
+                        class="w-full flex items-center justify-center gap-2 rounded-lg bg-success-600 py-3 font-bold text-white hover:bg-success-700 transition shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Konfirmasi Pembayaran
+                    </button>
+                </form>
+                <button @click="rejectOpen = !rejectOpen" type="button"
+                    class="w-full flex items-center justify-center gap-2 rounded-lg border border-error-300 py-3 font-bold text-error-600 hover:bg-error-50 transition shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    Tolak Pembayaran
+                </button>
+                <div x-show="rejectOpen" x-transition style="display:none">
+                    <form action="{{ route('manager.payments.reject', $payment) }}" method="POST" class="space-y-4 pt-4 border-t border-gray-100 mt-4">
+                        @csrf
+                        <textarea name="rejection_reason" rows="3" required placeholder="Alasan penolakan..." class="w-full rounded-lg border border-gray-300 py-3 px-4 text-sm font-medium outline-none focus:border-error-500 focus:ring-1 focus:ring-error-500 transition"></textarea>
+                        <button type="submit" class="w-full rounded-lg bg-error-600 py-3 font-bold text-white hover:bg-error-700 transition shadow-sm">Kirim Penolakan</button>
+                    </form>
+                </div>
+            </div>
+            @endif
         @endif
     </div>
 
