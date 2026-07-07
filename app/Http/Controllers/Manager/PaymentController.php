@@ -48,13 +48,13 @@ class PaymentController extends Controller
         $counts = [
             'all'      => Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))->count(),
             'pending'  => Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))->where('status','pending')->count(),
-            'verified' => Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))->where('status','verified')->count(),
+            'approved' => Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))->where('status','approved')->count(),
             'rejected' => Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))->where('status','rejected')->count(),
         ];
 
         $stats = [
-            'total_revenue' => Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))->where('status','verified')->sum('amount'),
-            'verified'      => $counts['verified'],
+            'total_revenue' => Payment::whereHas('invoice.leaseContract.unit.property', fn($q) => $q->where('manager_id', Auth::id()))->where('status','approved')->sum('amount'),
+            'verified'      => $counts['approved'],
             'pending'       => $counts['pending'],
             'total'         => $counts['all'],
         ];
