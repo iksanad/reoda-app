@@ -27,7 +27,7 @@
         </div>
         <div>
             <p class="text-xs font-bold text-reoda-dark uppercase tracking-wide">Pendapatan</p>
-            <h4 class="text-xl font-extrabold text-reoda-dark mt-1">Rp {{ number_format($stats['total_revenue'] / 1000000, 1, ',', '.') }}M</h4>
+            <h4 class="text-xl font-extrabold text-reoda-dark mt-1">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</h4>
             <p class="text-[10px] font-medium text-gray-500">Total Keseluruhan</p>
         </div>
     </div>
