@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LeaseContract;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -15,7 +16,7 @@ class DashboardController extends Controller
 
         $activeContract = LeaseContract::where('tenant_id', $user->id)
             ->where('status', 'active')
-            ->with('unit.property.manager')
+            ->with(['unit.property.manager', 'unit.property'])
             ->first();
 
         $awaitingContract = !$activeContract
@@ -26,12 +27,53 @@ class DashboardController extends Controller
             : null;
 
         $pendingInvoice = null;
+        $remainingDays = null;
+        $lastPaidInvoice = null;
+        $electricityInvoice = null;
+        $waterInvoice = null;
+
         if ($activeContract) {
             $pendingInvoice = Invoice::where('lease_contract_id', $activeContract->id)
                 ->whereIn('status', ['unpaid', 'pending'])
                 ->first();
+
+            // Calculate remaining days
+            if ($activeContract->end_date) {
+                $remainingDays = max(0, Carbon::now()->diffInDays($activeContract->end_date, false));
+            }
+            // null means unlimited (kos type)
+
+            // Last paid rent invoice
+            $lastPaidInvoice = Invoice::where('lease_contract_id', $activeContract->id)
+                ->where('type', 'rent')
+                ->where('status', 'paid')
+                ->orderBy('billing_year', 'desc')
+                ->orderBy('billing_month', 'desc')
+                ->first();
+
+            // Latest electricity invoice (if applicable)
+            $electricityInvoice = Invoice::where('lease_contract_id', $activeContract->id)
+                ->where('type', 'electricity')
+                ->orderBy('billing_year', 'desc')
+                ->orderBy('billing_month', 'desc')
+                ->first();
+
+            // Latest water invoice (if applicable)
+            $waterInvoice = Invoice::where('lease_contract_id', $activeContract->id)
+                ->where('type', 'water')
+                ->orderBy('billing_year', 'desc')
+                ->orderBy('billing_month', 'desc')
+                ->first();
         }
 
-        return view('tenant.dashboard', compact('activeContract', 'awaitingContract', 'pendingInvoice'));
+        return view('tenant.dashboard', compact(
+            'activeContract',
+            'awaitingContract',
+            'pendingInvoice',
+            'remainingDays',
+            'lastPaidInvoice',
+            'electricityInvoice',
+            'waterInvoice'
+        ));
     }
 }

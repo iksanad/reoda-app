@@ -104,120 +104,265 @@
 </div>
 @else
 
-<!-- Info Banner -->
-<div class="mb-6 flex w-full items-center justify-between rounded-lg bg-reoda-lightest p-4 sm:p-6 shadow-sm border border-reoda-lighter">
-    <div class="flex items-center gap-4">
-        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-reoda">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+{{-- ═══════════════════════════════════════════════════════════════ --}}
+{{-- DASHBOARD PENYEWA — KONTRAK AKTIF (Redesigned based on mockup) --}}
+{{-- ═══════════════════════════════════════════════════════════════ --}}
+
+@php
+    $property = $activeContract->unit->property;
+    $manager  = $property->manager;
+    $unit     = $activeContract->unit;
+@endphp
+
+{{-- Section 1: Header Profil --}}
+<div class="rounded-2xl bg-white border border-stroke shadow-sm p-6 sm:p-8 mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex-1">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-reoda-dark leading-tight">{{ auth()->user()->name }}</h1>
+            <p class="text-base sm:text-lg font-semibold text-gray-500 mt-1">{{ $unit->name }} — {{ $property->name }}</p>
+            <a href="{{ route('tenant.profile.index') }}" class="inline-flex items-center gap-2 mt-4 rounded-full border-2 border-reoda text-reoda px-5 py-2 text-sm font-bold hover:bg-reoda hover:text-white transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Edit Profil
+            </a>
         </div>
-        <div>
-            <h3 class="text-lg font-bold text-black">Unit {{ $activeContract->unit->unit_code }} - {{ $activeContract->unit->property->name }}</h3>
-            <p class="text-sm font-medium text-gray-500">Masa sewa aktif hingga {{ $activeContract->end_date ? $activeContract->end_date->format('d F Y') : 'Tanpa Batas' }}</p>
+        <div class="shrink-0">
+            <div class="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-reoda/10 border-4 border-reoda/20 overflow-hidden flex items-center justify-center">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=4C74AF&color=fff&size=96&bold=true" alt="Avatar" class="h-full w-full object-cover rounded-full">
+            </div>
         </div>
-    </div>
-    <div class="hidden sm:block">
-        <a href="{{ route('tenant.contract.show') }}" class="rounded-md bg-reoda px-6 py-2 font-medium text-white hover:bg-reoda-dark transition">
-            Lihat Kontrak
-        </a>
     </div>
 </div>
 
-<div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-7.5">
-    <!-- QR Code Card -->
-    <div class="rounded-sm border border-stroke bg-white shadow-default">
-        <div class="border-b border-stroke py-4 px-6.5">
-            <h3 class="font-bold text-black text-lg">
-                ID Penyewa Saya
-            </h3>
-        </div>
-        <div class="p-6.5 text-center">
-            <p class="text-sm text-gray-500 mb-4">Tunjukkan kode ini kepada pengelola saat pembuatan kontrak.</p>
-            <div class="inline-block p-4 bg-white border border-gray-200 rounded-xl shadow-sm mb-4">
-                {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->generate(auth()->user()->user_code ?? 'NO-CODE') !!}
-            </div>
-            <h4 class="text-xl font-black text-reoda tracking-widest">{{ auth()->user()->user_code }}</h4>
-        </div>
+{{-- Section 2: 3 Kartu Statistik --}}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6">
+
+    {{-- Card: Sisa Waktu Sewa --}}
+    <div class="rounded-2xl bg-white border border-stroke shadow-sm p-6 text-center">
+        <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">Sisa Waktu Sewa</p>
+        @if($remainingDays !== null)
+            <h2 class="text-5xl font-black text-reoda-dark leading-none">{{ $remainingDays }}</h2>
+            <p class="text-base font-semibold text-gray-400 mt-2">Hari Lagi</p>
+            @if($remainingDays <= 30 && $remainingDays > 0)
+                <p class="text-xs text-orange-500 font-medium mt-2">⚠️ Segera perpanjang sewa Anda</p>
+            @elseif($remainingDays == 0)
+                <p class="text-xs text-red-500 font-medium mt-2">🚨 Kontrak berakhir hari ini!</p>
+            @endif
+        @else
+            <h2 class="text-4xl font-black text-reoda-dark leading-none">∞</h2>
+            <p class="text-base font-semibold text-gray-400 mt-2">Tanpa Batas</p>
+            <p class="text-xs text-green-500 font-medium mt-2">Kontrak bulanan otomatis diperpanjang</p>
+        @endif
     </div>
 
-    <!-- Tagihan Card -->
-    <div class="rounded-sm border border-stroke bg-white shadow-default">
-        <div class="border-b border-stroke py-4 px-6.5">
-            <h3 class="font-bold text-black text-lg">
-                Tagihan Bulan Ini
-            </h3>
-        </div>
-        <div class="flex flex-col gap-5 p-6.5">
-            @if($pendingInvoice)
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h4 class="font-semibold text-black capitalize">{{ str_replace('_', ' ', $pendingInvoice->type) }} ({{ date('F', mktime(0, 0, 0, $pendingInvoice->billing_month, 1)) }})</h4>
-                        <p class="text-sm text-gray-500">Jatuh tempo: {{ $pendingInvoice->due_date->format('d M Y') }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-black">Rp {{ number_format($pendingInvoice->amount, 0, ',', '.') }}</p>
-                        @if($pendingInvoice->status === 'unpaid')
-                            <span class="inline-block rounded bg-danger px-2.5 py-0.5 text-xs font-medium text-white">Belum Dibayar</span>
-                        @else
-                            <span class="inline-block rounded bg-warning px-2.5 py-0.5 text-xs font-medium text-white">Menunggu Konfirmasi</span>
-                        @endif
-                    </div>
-                </div>
-
-                @if($pendingInvoice->status === 'unpaid')
-                <div class="mt-4">
-                    <a href="{{ route('tenant.transactions.show', $pendingInvoice) }}" class="flex w-full justify-center rounded bg-reoda p-3 font-medium text-white hover:bg-reoda-dark transition">
-                        Bayar Sekarang (Rp {{ number_format($pendingInvoice->amount, 0, ',', '.') }})
-                    </a>
-                </div>
-                @else
-                <div class="mt-4">
-                    <a href="{{ route('tenant.transactions.show', $pendingInvoice) }}" class="flex w-full justify-center rounded border border-reoda p-3 font-medium text-reoda hover:bg-reoda/10 transition">
-                        Lihat Status Pembayaran
-                    </a>
-                </div>
-                @endif
+    {{-- Card: Pembayaran Lunas --}}
+    <div class="rounded-2xl bg-white border border-stroke shadow-sm p-6 text-center">
+        <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">Pembayaran Lunas</p>
+        @if($lastPaidInvoice)
+            @php
+                $paidMonthName = \Carbon\Carbon::create()->month($lastPaidInvoice->billing_month)->translatedFormat('F');
+            @endphp
+            <h2 class="text-2xl sm:text-3xl font-black text-reoda-dark leading-tight">{{ $paidMonthName }} {{ $lastPaidInvoice->billing_year }}</h2>
+        @else
+            <h2 class="text-2xl font-black text-gray-300 leading-tight">Belum Ada</h2>
+        @endif
+        <div class="mt-4">
+            @if($pendingInvoice && $pendingInvoice->status === 'unpaid')
+                <a href="{{ route('tenant.transactions.show', $pendingInvoice) }}" class="inline-flex items-center gap-2 rounded-full bg-reoda text-white px-5 py-2 text-sm font-bold hover:bg-reoda-dark transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Bayar Tagihan
+                </a>
+            @elseif($activeContract->end_date && $remainingDays !== null && $remainingDays <= 30)
+                <a href="{{ route('tenant.services.index') }}" class="inline-flex items-center gap-2 rounded-full bg-reoda text-white px-5 py-2 text-sm font-bold hover:bg-reoda-dark transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Perpanjang Sewa
+                </a>
             @else
-                <div class="py-6 text-center">
-                    <svg class="mx-auto h-12 w-12 text-success-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p class="text-black font-semibold">Semua Tagihan Lunas</p>
-                    <p class="text-sm text-gray-500 mt-1">Anda tidak memiliki tagihan tertunggak saat ini.</p>
-                </div>
+                <span class="inline-flex items-center gap-2 rounded-full bg-green-100 text-green-700 px-5 py-2 text-sm font-bold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Lunas
+                </span>
             @endif
         </div>
     </div>
 
-    <!-- Info Pengelola Card -->
-    <div class="rounded-sm border border-stroke bg-white shadow-default">
-        <div class="border-b border-stroke py-4 px-6.5">
-            <h3 class="font-bold text-black text-lg">
-                Kontak Pengelola
-            </h3>
-        </div>
-        <div class="p-6.5">
-            <div class="mb-4 flex items-center gap-4">
-                <div class="h-16 w-16 overflow-hidden rounded-full">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($activeContract->unit->property->manager->name ?? 'P') }}&background=4C74AF&color=fff&size=64" alt="Pengelola">
-                </div>
-                <div>
-                    <h4 class="font-semibold text-black text-lg">{{ $activeContract->unit->property->manager->name ?? 'Pengelola' }}</h4>
-                    <p class="text-sm text-gray-500">Pengelola {{ $activeContract->unit->property->name }}</p>
+    {{-- Card: Tagihan Utilitas --}}
+    <div class="rounded-2xl bg-white border border-stroke shadow-sm p-6">
+        <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4 text-center">Tagihan Utilitas</p>
+        <div class="flex flex-col gap-3">
+            {{-- Listrik --}}
+            <div class="flex items-center gap-3 rounded-xl bg-amber-50 border border-amber-100 p-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-400 text-white text-lg">⚡</div>
+                <div class="flex-1 min-w-0">
+                    @if($electricityInvoice)
+                        <p class="font-bold text-gray-800 text-sm">Rp {{ number_format($electricityInvoice->amount, 0, ',', '.') }}</p>
+                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::create()->month($electricityInvoice->billing_month)->translatedFormat('F') }} {{ $electricityInvoice->billing_year }}</p>
+                    @else
+                        <p class="font-bold text-gray-400 text-sm">Tidak Ada</p>
+                        <p class="text-xs text-gray-400">Sudah termasuk sewa</p>
+                    @endif
                 </div>
             </div>
-            <div class="mt-6 flex flex-col gap-3">
-                @if(isset($activeContract->unit->property->manager->phone) && $activeContract->unit->property->manager->phone)
-                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $activeContract->unit->property->manager->phone) }}" target="_blank" class="flex items-center justify-center gap-2 rounded border border-reoda px-4 py-2 font-medium text-reoda hover:bg-reoda hover:text-white transition">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            {{-- Air --}}
+            <div class="flex items-center gap-3 rounded-xl bg-blue-50 border border-blue-100 p-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-400 text-white text-lg">💧</div>
+                <div class="flex-1 min-w-0">
+                    @if($waterInvoice)
+                        <p class="font-bold text-gray-800 text-sm">Rp {{ number_format($waterInvoice->amount, 0, ',', '.') }}</p>
+                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::create()->month($waterInvoice->billing_month)->translatedFormat('F') }} {{ $waterInvoice->billing_year }}</p>
+                    @else
+                        <p class="font-bold text-gray-400 text-sm">Tidak Ada</p>
+                        <p class="text-xs text-gray-400">Sudah termasuk sewa</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Section 3: Informasi Hunian (Tabbed) --}}
+<div class="rounded-2xl bg-white border border-stroke shadow-sm overflow-hidden" x-data="{ activeTab: 'lokasi' }">
+    <div class="border-b border-stroke">
+        <div class="flex">
+            <button @click="activeTab = 'lokasi'"
+                :class="activeTab === 'lokasi' ? 'border-b-2 border-reoda text-reoda bg-reoda/5' : 'text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-4 px-4 text-sm sm:text-base font-bold text-center transition">
+                📍 Lokasi
+            </button>
+            <button @click="activeTab = 'sewa'"
+                :class="activeTab === 'sewa' ? 'border-b-2 border-reoda text-reoda bg-reoda/5' : 'text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-4 px-4 text-sm sm:text-base font-bold text-center transition">
+                📋 Tipe Sewa
+            </button>
+            <button @click="activeTab = 'pengelola'"
+                :class="activeTab === 'pengelola' ? 'border-b-2 border-reoda text-reoda bg-reoda/5' : 'text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-4 px-4 text-sm sm:text-base font-bold text-center transition">
+                👤 Pengelola
+            </button>
+        </div>
+    </div>
+
+    <div class="p-6">
+        <h3 class="text-lg font-bold text-reoda-dark mb-4">Informasi Hunian</h3>
+
+        {{-- Tab: Lokasi --}}
+        <div x-show="activeTab === 'lokasi'" x-transition>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-4 font-semibold text-gray-500 w-1/3">Alamat</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $property->address ?? '-' }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 bg-reoda/[0.03]">
+                            <td class="py-3 pr-4 font-semibold text-gray-500">RT/RW</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $property->rt_rw ?? '-' }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Kelurahan</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $property->village ?? '-' }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 bg-reoda/[0.03]">
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Kecamatan</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $property->district ?? '-' }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Kota / Kabupaten</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $property->city ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Provinsi</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $property->province ?? '-' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            @if($property->maps_url)
+                <a href="{{ $property->maps_url }}" target="_blank" class="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-reoda hover:underline">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Buka di Google Maps
+                </a>
+            @endif
+        </div>
+
+        {{-- Tab: Tipe Sewa --}}
+        <div x-show="activeTab === 'sewa'" x-transition x-cloak>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-4 font-semibold text-gray-500 w-1/3">Jenis Kontrak</td>
+                            <td class="py-3 font-medium text-gray-800 capitalize">{{ $activeContract->rental_type ?? '-' }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 bg-reoda/[0.03]">
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Harga Sewa / Bulan</td>
+                            <td class="py-3 font-bold text-reoda-dark">Rp {{ number_format($activeContract->rent_amount, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Deposit / Jaminan</td>
+                            <td class="py-3 font-medium text-gray-800">Rp {{ number_format($activeContract->deposit_amount ?? 0, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 bg-reoda/[0.03]">
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Mulai Kontrak</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $activeContract->start_date->translatedFormat('d F Y') }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Akhir Kontrak</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $activeContract->end_date ? $activeContract->end_date->translatedFormat('d F Y') : 'Tanpa Batas (Bulanan)' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Nomor Kontrak</td>
+                            <td class="py-3 font-mono font-medium text-gray-600 text-xs">{{ $activeContract->contract_number }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <a href="{{ route('tenant.contract.show', $activeContract) }}" class="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-reoda hover:underline">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Lihat Detail Kontrak
+            </a>
+        </div>
+
+        {{-- Tab: Pengelola --}}
+        <div x-show="activeTab === 'pengelola'" x-transition x-cloak>
+            <div class="flex items-center gap-4 mb-5">
+                <div class="h-14 w-14 rounded-full overflow-hidden shrink-0">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($manager->name ?? 'P') }}&background=4C74AF&color=fff&size=56" alt="Pengelola" class="h-full w-full object-cover">
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 text-lg">{{ $manager->name ?? 'Pengelola' }}</h4>
+                    <p class="text-sm text-gray-500">Pengelola {{ $property->name }}</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-4 font-semibold text-gray-500 w-1/3">Email</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $manager->email ?? '-' }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 bg-reoda/[0.03]">
+                            <td class="py-3 pr-4 font-semibold text-gray-500">Telepon</td>
+                            <td class="py-3 font-medium text-gray-800">{{ $manager->phone ?? '-' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 mt-5">
+                @if(isset($manager->phone) && $manager->phone)
+                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $manager->phone) }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-green-500 text-green-600 px-5 py-2.5 text-sm font-bold hover:bg-green-500 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     Chat via WhatsApp
                 </a>
                 @endif
-                <a href="{{ route('tenant.services.index') }}" class="flex items-center justify-center gap-2 rounded bg-gray-100 px-4 py-2 font-medium text-gray-700 hover:bg-gray-200 transition">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <a href="{{ route('tenant.services.index') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-100 text-gray-700 px-5 py-2.5 text-sm font-bold hover:bg-gray-200 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     Lapor Kendala / Layanan
                 </a>
             </div>
         </div>
     </div>
 </div>
+
 @endif
 @endsection
 
