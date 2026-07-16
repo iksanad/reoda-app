@@ -46,8 +46,9 @@ class MidtransWebhookController extends Controller
         $orderId           = $notification->order_id;
         $transactionStatus = $notification->transaction_status;
         $fraudStatus       = $notification->fraud_status ?? null;
+        $paymentType       = $notification->payment_type ?? null;
 
-        Log::info("Midtrans Webhook: order_id={$orderId}, status={$transactionStatus}, fraud={$fraudStatus}");
+        Log::info("Midtrans Webhook: order_id={$orderId}, status={$transactionStatus}, fraud={$fraudStatus}, type={$paymentType}");
 
         // Find payment by order_id
         $payment = Payment::where('midtrans_order_id', $orderId)->first();
@@ -70,6 +71,18 @@ class MidtransWebhookController extends Controller
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
+        // Format payment method name for better readability
+        $methodName = $paymentType ?? 'midtrans';
+        if ($methodName === 'bank_transfer' && isset($notification->va_numbers[0]->bank)) {
+            $methodName = 'VA ' . strtoupper($notification->va_numbers[0]->bank);
+        } elseif ($methodName === 'echannel') {
+            $methodName = 'VA Mandiri';
+        } elseif ($methodName === 'cstore' && isset($notification->store)) {
+            $methodName = ucfirst($notification->store);
+        } elseif ($methodName !== 'midtrans') {
+            $methodName = ucwords(str_replace('_', ' ', $methodName));
+        }
+
         DB::beginTransaction();
         try {
             // Re-fetch invoice with lock to prevent concurrent webhook executions from causing duplicate wallet transactions
@@ -84,6 +97,7 @@ class MidtransWebhookController extends Controller
                 // Mark payment approved
                 $payment->update([
                     'status'                 => 'approved',
+                    'payment_method'         => $methodName,
                     'midtrans_transaction_id' => $notification->transaction_id ?? null,
                     'verified_at'            => now(),
                     'paid_at'                => now(),
@@ -140,6 +154,7 @@ class MidtransWebhookController extends Controller
             } elseif ($transactionStatus === 'pending' && !in_array($invoice->status, ['paid'])) {
                 // User has chosen a payment method (e.g. bank transfer/VA) but hasn't paid yet
                 $invoice->update(['status' => 'pending']);
+                $payment->update(['payment_method' => $methodName]);
 
             } elseif ($isFailed && !in_array($invoice->status, ['paid'])) {
                 // Payment cancelled/expired/denied — reset invoice so tenant can retry
