@@ -66,6 +66,11 @@ class DashboardController extends Controller
                 ->first();
         }
 
+        $elecConf  = $activeContract?->unit?->property?->electricity_config;
+        $waterConf = $activeContract?->unit?->property?->water_config;
+        $plnId     = $activeContract?->unit?->pln_customer_id;
+        $pdamId    = $activeContract?->unit?->pdam_customer_id;
+
         return view('tenant.dashboard', compact(
             'activeContract',
             'awaitingContract',
@@ -73,7 +78,11 @@ class DashboardController extends Controller
             'remainingDays',
             'lastPaidInvoice',
             'electricityInvoice',
-            'waterInvoice'
+            'waterInvoice',
+            'elecConf',
+            'waterConf',
+            'plnId',
+            'pdamId'
         ));
     }
 }

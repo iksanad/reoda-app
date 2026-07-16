@@ -193,7 +193,11 @@
             <div class="flex items-center gap-3 rounded-xl bg-amber-50 border border-amber-100 p-3">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-400 text-white text-lg">⚡</div>
                 <div class="flex-1 min-w-0">
-                    @if($electricityInvoice)
+                    @if($elecConf === 'token' && $plnId)
+                        {{-- Token: tampilkan ID PLN + tombol ke transaksi --}}
+                        <p class="font-bold text-amber-700 text-sm">Token / Prabayar</p>
+                        <p class="text-xs text-gray-500 font-mono font-semibold tracking-wider">{{ $plnId }}</p>
+                    @elseif($electricityInvoice)
                         <p class="font-bold text-gray-800 text-sm">Rp {{ number_format($electricityInvoice->amount, 0, ',', '.') }}</p>
                         <p class="text-xs text-gray-500">{{ \Carbon\Carbon::create()->month($electricityInvoice->billing_month)->translatedFormat('F') }} {{ $electricityInvoice->billing_year }}</p>
                     @else
@@ -201,12 +205,23 @@
                         <p class="text-xs text-gray-400">Sudah termasuk sewa</p>
                     @endif
                 </div>
+                @if($elecConf === 'token' && $plnId)
+                <a href="{{ route('tenant.transactions.index') }}"
+                   class="shrink-0 rounded-lg bg-amber-400 hover:bg-amber-500 px-3 py-2 text-xs font-bold text-white transition flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Beli Token
+                </a>
+                @endif
             </div>
             {{-- Air --}}
             <div class="flex items-center gap-3 rounded-xl bg-blue-50 border border-blue-100 p-3">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-400 text-white text-lg">💧</div>
                 <div class="flex-1 min-w-0">
-                    @if($waterInvoice)
+                    @if($waterConf === 'pdam' && $pdamId)
+                        {{-- PDAM: tampilkan ID + tombol ke transaksi --}}
+                        <p class="font-bold text-blue-700 text-sm">Air PDAM (Mandiri)</p>
+                        <p class="text-xs text-gray-500 font-mono font-semibold tracking-wider">{{ $pdamId }}</p>
+                    @elseif($waterInvoice)
                         <p class="font-bold text-gray-800 text-sm">Rp {{ number_format($waterInvoice->amount, 0, ',', '.') }}</p>
                         <p class="text-xs text-gray-500">{{ \Carbon\Carbon::create()->month($waterInvoice->billing_month)->translatedFormat('F') }} {{ $waterInvoice->billing_year }}</p>
                     @else
@@ -214,6 +229,13 @@
                         <p class="text-xs text-gray-400">Sudah termasuk sewa</p>
                     @endif
                 </div>
+                @if($waterConf === 'pdam' && $pdamId)
+                <a href="{{ route('tenant.transactions.index') }}"
+                   class="shrink-0 rounded-lg bg-blue-400 hover:bg-blue-500 px-3 py-2 text-xs font-bold text-white transition flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    Lihat Info
+                </a>
+                @endif
             </div>
         </div>
     </div>
