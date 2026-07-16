@@ -40,8 +40,9 @@ class ExploreController extends Controller
             });
         }
 
-        // Filter: only show properties with at least 1 available unit
-        if ($request->filled('available') && $request->available == '1') {
+        // Filter: only show properties with at least 1 available unit (defaults to true)
+        $availableFilter = $request->input('available', '1');
+        if ($availableFilter == '1') {
             $query->whereHas('units', function ($q) {
                 $q->where('status', 'available');
             });

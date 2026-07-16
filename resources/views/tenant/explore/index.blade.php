@@ -59,8 +59,8 @@
         <div class="w-full sm:w-44">
             <label class="mb-2 block text-sm font-medium text-gray-700">Ketersediaan</label>
             <select name="available" class="w-full rounded border-[1.5px] border-stroke bg-transparent py-2.5 px-4 text-sm font-medium outline-none transition focus:border-reoda">
-                <option value="">Semua</option>
-                <option value="1" {{ request('available') == '1' ? 'selected' : '' }}>Ada Kamar Tersedia</option>
+                <option value="1" {{ request('available', '1') == '1' ? 'selected' : '' }}>Ada Kamar Tersedia</option>
+                <option value="0" {{ request('available') == '0' ? 'selected' : '' }}>Semua (Termasuk Penuh)</option>
             </select>
         </div>
         <!-- Sort -->
