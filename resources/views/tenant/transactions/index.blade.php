@@ -48,7 +48,7 @@
             <button onclick="copyToClipboard('pln-id', this)" class="text-xs font-medium text-yellow-700 hover:text-yellow-900 border border-yellow-300 rounded px-2 py-1 transition">Copy</button>
         </div>
         <div class="flex flex-wrap gap-2">
-            <a href="https://shopee.co.id/search?keyword=token+listrik+pln" target="_blank"
+            <a href="https://shopee.co.id/produk-digital/token-listrik/20" target="_blank"
                class="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-2 text-xs font-bold text-white hover:bg-orange-600 transition">
                 <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8zm3.536-11.414l-4.95 4.95-2.12-2.121L7.05 12.83l3.536 3.536 6.364-6.364-1.414-1.416z"/></svg>
                 Beli di Shopee
@@ -78,7 +78,7 @@
             <button onclick="copyToClipboard('pdam-id', this)" class="text-xs font-medium text-blue-700 hover:text-blue-900 border border-blue-300 rounded px-2 py-1 transition">Copy</button>
         </div>
         <div class="flex flex-wrap gap-2">
-            <a href="https://shopee.co.id/search?keyword=tagihan+pdam" target="_blank"
+            <a href="https://shopee.co.id/produk-digital/m/pdam?dp_from_source=8" target="_blank"
                class="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-2 text-xs font-bold text-white hover:bg-orange-600 transition">
                 <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8zm3.536-11.414l-4.95 4.95-2.12-2.121L7.05 12.83l3.536 3.536 6.364-6.364-1.414-1.416z"/></svg>
                 Bayar di Shopee
