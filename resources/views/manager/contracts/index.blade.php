@@ -184,7 +184,7 @@
                             {{-- Create Invoice Modal for Index --}}
                             <div x-show="openInvoice" x-transition style="display:none"
                                 class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-sm text-left" @click.self="openInvoice = false">
-                                <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-y-auto max-h-[90vh]" x-data="{ invType: 'rent', iplDefault: {{ $contract->unit->property->ipl_amount ?? 0 }} }">
+                                <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-y-auto max-h-[90vh]" x-data="{ invType: 'rent', iplDefault: {{ $contract->unit->property->ipl_amount ?? 0 }}, rentDefault: {{ $contract->rent_price ?? 0 }} }">
                                     <div class="sticky top-0 z-10 border-b border-gray-100 bg-white/90 px-6 py-5 backdrop-blur-md flex items-center justify-between">
                                         <div>
                                             <h5 class="font-extrabold text-reoda-dark text-xl">Buat Tagihan Baru</h5>
@@ -265,10 +265,13 @@
                                         <div>
                                             <label class="mb-1.5 block text-sm font-medium text-gray-700">Total Tagihan (Rp) <span class="text-error-500">*</span></label>
                                             <input type="number" name="amount" min="1000" step="1" placeholder="Contoh: 500000" required
-                                                :value="invType === 'ipl' && iplDefault > 0 ? iplDefault : ''"
+                                                :value="invType === 'ipl' && iplDefault > 0 ? iplDefault : (invType === 'rent' && rentDefault > 0 ? rentDefault : '')"
                                                 class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition">
                                             <p x-show="invType === 'ipl' && iplDefault > 0" style="display:none" class="mt-1 text-xs text-blue-600">
                                                 Default IPL properti ini: Rp {{ number_format($contract->unit->property->ipl_amount ?? 0, 0, ',', '.') }}
+                                            </p>
+                                            <p x-show="invType === 'rent' && rentDefault > 0" class="mt-1 text-xs text-blue-600">
+                                                Sesuai harga sewa kontrak: Rp {{ number_format($contract->rent_price ?? 0, 0, ',', '.') }}
                                             </p>
                                         </div>
                                         <div>
