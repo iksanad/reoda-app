@@ -86,7 +86,7 @@
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="electricity_config" value="token" {{ old('electricity_config', $property->electricity_config) == 'token' ? 'checked' : '' }} class="accent-reoda">
                             <span class="text-sm font-medium">Token / Prabayar</span>
-                            <span class="text-xs text-gray-400">(penyewa isi token sendiri)</span>
+                            <span class="text-xs text-gray-400">(penyewa beli token sendiri — ID pelanggan PLN tampil di dashboard penyewa)</span>
                         </label>
                         {{-- Pascabayar hanya untuk Kontrakan --}}
                         <label x-show="propertyType === 'kontrakan'" class="flex items-center gap-2 cursor-pointer" style="display:none;">
@@ -104,12 +104,12 @@
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="water_config" value="pdam" {{ old('water_config', $property->water_config ?? 'pdam') == 'pdam' || old('water_config', $property->water_config) == 'postpaid' ? 'checked' : '' }} class="accent-reoda">
                             <span class="text-sm font-medium">PDAM / Meteran Air</span>
-                            <span class="text-xs text-gray-400">(pengelola input tagihan air tiap bulan)</span>
+                            <span class="text-xs text-gray-400">(penyewa bayar tagihan air sendiri ke PDAM — ID pelanggan PDAM tampil di dashboard penyewa)</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="water_config" value="pump" {{ old('water_config', $property->water_config) == 'pump' ? 'checked' : '' }} class="accent-reoda">
                             <span class="text-sm font-medium">Pompa / Sumur</span>
-                            <span class="text-xs text-gray-400">(tagihan air all-in dengan listrik, tidak ditagih terpisah)</span>
+                            <span class="text-xs text-gray-400">(air sudah termasuk dalam biaya sewa, tidak ditagih terpisah)</span>
                         </label>
                     </div>
                 </div>

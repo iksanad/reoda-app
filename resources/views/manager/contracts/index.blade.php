@@ -200,13 +200,37 @@
                                             <label class="mb-1.5 block text-sm font-medium text-gray-700">Jenis Tagihan <span class="text-error-500">*</span></label>
                                             <select name="type" x-model="invType" required class="w-full rounded-lg border border-stroke py-2.5 px-4 text-sm outline-none focus:border-reoda transition">
                                                 <option value="rent">Sewa Hunian</option>
-                                                <option value="electricity">Listrik</option>
+                                                @if($contract->unit->property->electricity_config === 'postpaid')
+                                                <option value="electricity">Listrik (Pascabayar)</option>
+                                                @endif
+                                                @if(in_array($contract->unit->property->water_config, ['postpaid']) || ($contract->unit->property->type === 'apartemen'))
                                                 <option value="water">Air</option>
+                                                @endif
                                                 @if($contract->unit->property->type === 'apartemen')
                                                 <option value="ipl">IPL / Maintenance Fee</option>
                                                 @endif
                                             </select>
                                         </div>
+
+                                        {{-- Info: listrik token tidak ditagih pengelola --}}
+                                        @if($contract->unit->property->electricity_config === 'token')
+                                        <div class="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-xs text-yellow-700 flex items-start gap-2">
+                                            <span class="text-base shrink-0">⚡</span>
+                                            <span>Unit ini menggunakan <strong>Listrik Token / Prabayar</strong>. Penyewa mengisi token sendiri menggunakan ID Pelanggan PLN yang tersimpan. Tagihan listrik tidak perlu dibuat di sini.</span>
+                                        </div>
+                                        @endif
+
+                                        {{-- Info: air PDAM tidak ditagih pengelola --}}
+                                        @if(in_array($contract->unit->property->water_config, ['pdam', 'pump']))
+                                        <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-700 flex items-start gap-2">
+                                            <span class="text-base shrink-0">💧</span>
+                                            @if($contract->unit->property->water_config === 'pdam')
+                                            <span>Unit ini menggunakan <strong>Air PDAM</strong>. Penyewa membayar tagihan air langsung ke PDAM menggunakan ID Pelanggan yang tersimpan. Tagihan air tidak perlu dibuat di sini.</span>
+                                            @else
+                                            <span>Unit ini menggunakan <strong>air dari pompa/sumur</strong> yang sudah termasuk dalam biaya sewa. Tagihan air tidak perlu dibuat terpisah.</span>
+                                            @endif
+                                        </div>
+                                        @endif
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>
                                                 <label class="mb-1.5 block text-sm font-medium text-gray-700">Bulan <span class="text-error-500">*</span></label>
