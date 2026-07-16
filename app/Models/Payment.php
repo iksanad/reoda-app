@@ -15,6 +15,8 @@ class Payment extends Model
         'tenant_id',
         'manager_id',
         'amount',
+        'platform_fee',
+        'gateway_fee',
         'payment_method',
         'proof_of_payment',
         'bank_name',
