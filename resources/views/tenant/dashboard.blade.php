@@ -134,7 +134,7 @@
 </div>
 
 {{-- Section 2: 3 Kartu Statistik --}}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 items-start">
 
     {{-- Card: Sisa Waktu Sewa --}}
     <div class="rounded-2xl bg-white border border-stroke shadow-sm p-6 text-center">
