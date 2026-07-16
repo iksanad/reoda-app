@@ -190,50 +190,52 @@
         <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4 text-center">Tagihan Utilitas</p>
         <div class="flex flex-col gap-3">
             {{-- Listrik --}}
-            <div class="flex items-center gap-3 rounded-xl bg-amber-50 border border-amber-100 p-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-400 text-white text-lg">⚡</div>
-                <div class="flex-1 min-w-0">
-                    @if($elecConf === 'token' && $plnId)
-                        {{-- Token: tampilkan ID PLN + tombol ke transaksi --}}
-                        <p class="font-bold text-amber-700 text-sm">Token / Prabayar</p>
-                        <p class="text-xs text-gray-500 font-mono font-semibold tracking-wider">{{ $plnId }}</p>
-                    @elseif($electricityInvoice)
-                        <p class="font-bold text-gray-800 text-sm">Rp {{ number_format($electricityInvoice->amount, 0, ',', '.') }}</p>
-                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::create()->month($electricityInvoice->billing_month)->translatedFormat('F') }} {{ $electricityInvoice->billing_year }}</p>
-                    @else
-                        <p class="font-bold text-gray-400 text-sm">Tidak Ada</p>
-                        <p class="text-xs text-gray-400">Sudah termasuk sewa</p>
-                    @endif
+            <div class="rounded-xl bg-amber-50 border border-amber-100 p-3">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-400 text-white text-lg">⚡</div>
+                    <div class="flex-1 min-w-0">
+                        @if($elecConf === 'token' && $plnId)
+                            <p class="font-bold text-amber-700 text-sm leading-tight">Token / Prabayar</p>
+                            <p class="text-xs text-gray-500 font-mono font-semibold tracking-wider truncate">{{ $plnId }}</p>
+                        @elseif($electricityInvoice)
+                            <p class="font-bold text-gray-800 text-sm">Rp {{ number_format($electricityInvoice->amount, 0, ',', '.') }}</p>
+                            <p class="text-xs text-gray-500">{{ \Carbon\Carbon::create()->month($electricityInvoice->billing_month)->translatedFormat('F') }} {{ $electricityInvoice->billing_year }}</p>
+                        @else
+                            <p class="font-bold text-gray-400 text-sm">Tidak Ada</p>
+                            <p class="text-xs text-gray-400">Sudah termasuk sewa</p>
+                        @endif
+                    </div>
                 </div>
                 @if($elecConf === 'token' && $plnId)
                 <a href="{{ route('tenant.transactions.index') }}"
-                   class="shrink-0 rounded-lg bg-amber-400 hover:bg-amber-500 px-3 py-2 text-xs font-bold text-white transition flex items-center gap-1">
+                   class="mt-2.5 w-full rounded-lg bg-amber-400 hover:bg-amber-500 px-3 py-2 text-xs font-bold text-white transition flex items-center justify-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Beli Token
+                    Beli Token di Shopee / Tokopedia
                 </a>
                 @endif
             </div>
             {{-- Air --}}
-            <div class="flex items-center gap-3 rounded-xl bg-blue-50 border border-blue-100 p-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-400 text-white text-lg">💧</div>
-                <div class="flex-1 min-w-0">
-                    @if($waterConf === 'pdam' && $pdamId)
-                        {{-- PDAM: tampilkan ID + tombol ke transaksi --}}
-                        <p class="font-bold text-blue-700 text-sm">Air PDAM (Mandiri)</p>
-                        <p class="text-xs text-gray-500 font-mono font-semibold tracking-wider">{{ $pdamId }}</p>
-                    @elseif($waterInvoice)
-                        <p class="font-bold text-gray-800 text-sm">Rp {{ number_format($waterInvoice->amount, 0, ',', '.') }}</p>
-                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::create()->month($waterInvoice->billing_month)->translatedFormat('F') }} {{ $waterInvoice->billing_year }}</p>
-                    @else
-                        <p class="font-bold text-gray-400 text-sm">Tidak Ada</p>
-                        <p class="text-xs text-gray-400">Sudah termasuk sewa</p>
-                    @endif
+            <div class="rounded-xl bg-blue-50 border border-blue-100 p-3">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-400 text-white text-lg">💧</div>
+                    <div class="flex-1 min-w-0">
+                        @if($waterConf === 'pdam' && $pdamId)
+                            <p class="font-bold text-blue-700 text-sm leading-tight">Air PDAM (Mandiri)</p>
+                            <p class="text-xs text-gray-500 font-mono font-semibold tracking-wider truncate">{{ $pdamId }}</p>
+                        @elseif($waterInvoice)
+                            <p class="font-bold text-gray-800 text-sm">Rp {{ number_format($waterInvoice->amount, 0, ',', '.') }}</p>
+                            <p class="text-xs text-gray-500">{{ \Carbon\Carbon::create()->month($waterInvoice->billing_month)->translatedFormat('F') }} {{ $waterInvoice->billing_year }}</p>
+                        @else
+                            <p class="font-bold text-gray-400 text-sm">Tidak Ada</p>
+                            <p class="text-xs text-gray-400">Sudah termasuk sewa</p>
+                        @endif
+                    </div>
                 </div>
                 @if($waterConf === 'pdam' && $pdamId)
                 <a href="{{ route('tenant.transactions.index') }}"
-                   class="shrink-0 rounded-lg bg-blue-400 hover:bg-blue-500 px-3 py-2 text-xs font-bold text-white transition flex items-center gap-1">
+                   class="mt-2.5 w-full rounded-lg bg-blue-400 hover:bg-blue-500 px-3 py-2 text-xs font-bold text-white transition flex items-center justify-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    Lihat Info
+                    Lihat Info Pembayaran PDAM
                 </a>
                 @endif
             </div>
